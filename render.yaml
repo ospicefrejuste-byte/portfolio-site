@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: comptoir
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    branch: codex/comptoir-cloud-deploy
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    numInstances: 1
+    healthCheckPath: /api/health
+    autoDeploy: false
+    disk:
+      name: comptoir-storage
+      mountPath: /var/lib/comptoir
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: STOCK_DB_PATH
+        value: /var/lib/comptoir/data/stock.sqlite
+      - key: STOCK_UPLOAD_DIR
+        value: /var/lib/comptoir/uploads
+      - key: STOCK_ADMIN_EMAIL
+        sync: false
+      - key: STOCK_ADMIN_PASSWORD
+        sync: false

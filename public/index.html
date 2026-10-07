@@ -1,25 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio - DJOMATIN Hospice Fréjuste</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="theme-color" content="#7153e8">
+  <meta name="description" content="Comptoir, votre espace de gestion de stock, de vente et d’inventaire.">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/style.css">
+  <title>Comptoir — Gestion de stock</title>
 </head>
 <body>
-  <header>
-    <h1>DJOMATIN Hospice Fréjuste</h1>
-    <p>Graphiste créatif spécialisé en communication visuelle</p>
-  </header>
-
-  <section id="portfolio">
-    <h2>Portfolio</h2>
-    <div id="portfolio-gallery" class="portfolio-gallery"></div>
-
-    <input type="file" id="uploadImage" accept="image/*" multiple>
-    <button id="uploadBtn">Uploader les images</button>
-  </section>
-
-  <script src="script.js"></script>
+  <div id="app"><div class="loading-screen"><span class="loading-mark">C</span><p>Ouverture de votre comptoir…</p></div></div>
+  <div id="modal-root"></div>
+  <div id="toast-root" aria-live="polite" aria-atomic="true"></div>
+  <script type="module" src="/script.js"></script>
 </body>
 </html>

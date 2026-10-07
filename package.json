@@ -1,0 +1,22 @@
+{
+  "name": "maison-commerce-stock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Gestion de stock et inventaires pour commerces",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "express": "5.2.1",
+    "multer": "2.4.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  }
+}
