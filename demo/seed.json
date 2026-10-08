@@ -1,0 +1,677 @@
+{
+  "products": [
+    {
+      "id": "product-riz",
+      "name": "Riz parfumé 5 kg",
+      "sku": "ALI-RIZ-005",
+      "category": "Épicerie / Céréales",
+      "brand": "Royal",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "sac",
+      "purchasePrice": 3200,
+      "sellingPrice": 4500,
+      "minStock": 20,
+      "location": "A1",
+      "color": "#f4e4c8",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-huile",
+      "name": "Huile de tournesol 1 L",
+      "sku": "ALI-HUI-001",
+      "category": "Épicerie / Huiles",
+      "brand": "Lesieur",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "bouteille",
+      "purchasePrice": 1150,
+      "sellingPrice": 1600,
+      "minStock": 15,
+      "location": "A2",
+      "color": "#f5e9b2",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-sucre",
+      "name": "Sucre blanc 1 kg",
+      "sku": "ALI-SUC-001",
+      "category": "Épicerie / Céréales",
+      "brand": "Sucrivoire",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "sachet",
+      "purchasePrice": 600,
+      "sellingPrice": 850,
+      "minStock": 20,
+      "location": "A3",
+      "color": "#f2e3ed",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-lait",
+      "name": "Lait en poudre 400 g",
+      "sku": "ALI-LAI-400",
+      "category": "Épicerie / Petit déjeuner",
+      "brand": "Nido",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "boîte",
+      "purchasePrice": 2200,
+      "sellingPrice": 2900,
+      "minStock": 12,
+      "location": "B1",
+      "color": "#e5ebd2",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-cafe",
+      "name": "Café instantané 100 g",
+      "sku": "ALI-CAF-100",
+      "category": "Épicerie / Petit déjeuner",
+      "brand": "Nescafé",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "pot",
+      "purchasePrice": 1800,
+      "sellingPrice": 2500,
+      "minStock": 10,
+      "location": "B2",
+      "color": "#e4d8cf",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-eau",
+      "name": "Eau minérale 1,5 L",
+      "sku": "BOI-EAU-150",
+      "category": "Boissons / Eaux",
+      "brand": "Awa",
+      "tags": [],
+      "unit": "bouteille",
+      "purchasePrice": 250,
+      "sellingPrice": 400,
+      "minStock": 30,
+      "location": "C1",
+      "color": "#d5e7eb",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-jus",
+      "name": "Jus de mangue 1 L",
+      "sku": "BOI-JUS-001",
+      "category": "Boissons / Jus",
+      "brand": "Ivorio",
+      "tags": [],
+      "unit": "brique",
+      "purchasePrice": 650,
+      "sellingPrice": 1000,
+      "minStock": 15,
+      "location": "C2",
+      "color": "#f3dfc2",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-savon",
+      "name": "Savon de Marseille 200 g",
+      "sku": "HYG-SAV-200",
+      "category": "Hygiène / Corps",
+      "brand": "Le Chat",
+      "tags": [],
+      "unit": "pièce",
+      "purchasePrice": 450,
+      "sellingPrice": 700,
+      "minStock": 15,
+      "location": "D1",
+      "color": "#d5e4d4",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-lessive",
+      "name": "Lessive en poudre 1 kg",
+      "sku": "ENT-LES-001",
+      "category": "Entretien / Linge",
+      "brand": "Omo",
+      "tags": [],
+      "unit": "sachet",
+      "purchasePrice": 950,
+      "sellingPrice": 1400,
+      "minStock": 10,
+      "location": "D2",
+      "color": "#dbdeed",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    },
+    {
+      "id": "product-farine",
+      "name": "Farine de blé",
+      "sku": "ALI-FAR-VRA",
+      "category": "Épicerie / Céréales",
+      "brand": "Les Grands Moulins",
+      "tags": [
+        "alimentaire"
+      ],
+      "unit": "kg",
+      "purchasePrice": 400,
+      "sellingPrice": 600,
+      "minStock": 25,
+      "location": "A4",
+      "color": "#ece3d5",
+      "photo": "",
+      "notes": "",
+      "version": 1
+    }
+  ],
+  "stores": [
+    {
+      "id": "store-centre",
+      "name": "Boutique du Centre",
+      "city": "Cotonou"
+    },
+    {
+      "id": "store-nord",
+      "name": "Boutique du Nord",
+      "city": "Porto-Novo"
+    },
+    {
+      "id": "store-depot",
+      "name": "Dépôt principal",
+      "city": "Cotonou"
+    }
+  ],
+  "stocks": [
+    {
+      "productId": "product-riz",
+      "storeId": "store-centre",
+      "quantity": 31,
+      "version": 2
+    },
+    {
+      "productId": "product-riz",
+      "storeId": "store-nord",
+      "quantity": 14,
+      "version": 1
+    },
+    {
+      "productId": "product-riz",
+      "storeId": "store-depot",
+      "quantity": 150,
+      "version": 2
+    },
+    {
+      "productId": "product-huile",
+      "storeId": "store-centre",
+      "quantity": 6,
+      "version": 2
+    },
+    {
+      "productId": "product-huile",
+      "storeId": "store-nord",
+      "quantity": 26,
+      "version": 1
+    },
+    {
+      "productId": "product-huile",
+      "storeId": "store-depot",
+      "quantity": 100,
+      "version": 2
+    },
+    {
+      "productId": "product-sucre",
+      "storeId": "store-centre",
+      "quantity": 48,
+      "version": 1
+    },
+    {
+      "productId": "product-sucre",
+      "storeId": "store-nord",
+      "quantity": 14,
+      "version": 2
+    },
+    {
+      "productId": "product-sucre",
+      "storeId": "store-depot",
+      "quantity": 100,
+      "version": 1
+    },
+    {
+      "productId": "product-lait",
+      "storeId": "store-centre",
+      "quantity": 7,
+      "version": 1
+    },
+    {
+      "productId": "product-lait",
+      "storeId": "store-nord",
+      "quantity": 16,
+      "version": 1
+    },
+    {
+      "productId": "product-lait",
+      "storeId": "store-depot",
+      "quantity": 45,
+      "version": 1
+    },
+    {
+      "productId": "product-cafe",
+      "storeId": "store-centre",
+      "quantity": 23,
+      "version": 2
+    },
+    {
+      "productId": "product-cafe",
+      "storeId": "store-nord",
+      "quantity": 12,
+      "version": 1
+    },
+    {
+      "productId": "product-cafe",
+      "storeId": "store-depot",
+      "quantity": 40,
+      "version": 1
+    },
+    {
+      "productId": "product-eau",
+      "storeId": "store-centre",
+      "quantity": 90,
+      "version": 2
+    },
+    {
+      "productId": "product-eau",
+      "storeId": "store-nord",
+      "quantity": 42,
+      "version": 1
+    },
+    {
+      "productId": "product-eau",
+      "storeId": "store-depot",
+      "quantity": 240,
+      "version": 1
+    },
+    {
+      "productId": "product-jus",
+      "storeId": "store-centre",
+      "quantity": 22,
+      "version": 1
+    },
+    {
+      "productId": "product-jus",
+      "storeId": "store-nord",
+      "quantity": 16,
+      "version": 2
+    },
+    {
+      "productId": "product-jus",
+      "storeId": "store-depot",
+      "quantity": 52,
+      "version": 2
+    },
+    {
+      "productId": "product-savon",
+      "storeId": "store-centre",
+      "quantity": 12,
+      "version": 1
+    },
+    {
+      "productId": "product-savon",
+      "storeId": "store-nord",
+      "quantity": 32,
+      "version": 2
+    },
+    {
+      "productId": "product-savon",
+      "storeId": "store-depot",
+      "quantity": 88,
+      "version": 2
+    },
+    {
+      "productId": "product-lessive",
+      "storeId": "store-centre",
+      "quantity": 32,
+      "version": 1
+    },
+    {
+      "productId": "product-lessive",
+      "storeId": "store-nord",
+      "quantity": 15,
+      "version": 1
+    },
+    {
+      "productId": "product-lessive",
+      "storeId": "store-depot",
+      "quantity": 65,
+      "version": 1
+    },
+    {
+      "productId": "product-farine",
+      "storeId": "store-centre",
+      "quantity": 42.5,
+      "version": 1
+    },
+    {
+      "productId": "product-farine",
+      "storeId": "store-nord",
+      "quantity": 19.25,
+      "version": 2
+    },
+    {
+      "productId": "product-farine",
+      "storeId": "store-depot",
+      "quantity": 180,
+      "version": 1
+    }
+  ],
+  "documents": [
+    {
+      "id": "172f02c9-01b5-4a2f-80a0-6c298f5560c7",
+      "number": "ACH-2026-0001",
+      "type": "purchase",
+      "storeId": "store-depot",
+      "toStoreId": null,
+      "contactId": "supplier-sodico",
+      "lines": [
+        {
+          "productId": "product-riz",
+          "quantity": 30,
+          "unitPrice": 3200,
+          "purchaseCost": 3200,
+          "name": "Riz parfumé 5 kg",
+          "sku": "ALI-RIZ-005",
+          "unit": "sac"
+        },
+        {
+          "productId": "product-huile",
+          "quantity": 20,
+          "unitPrice": 1150,
+          "purchaseCost": 1150,
+          "name": "Huile de tournesol 1 L",
+          "sku": "ALI-HUI-001",
+          "unit": "bouteille"
+        }
+      ],
+      "total": 119000,
+      "paid": 80000,
+      "payments": [
+        {
+          "id": "a3301910-1d1f-401c-afc0-939b0972eb5d",
+          "amount": 80000,
+          "date": "2026-10-03",
+          "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+          "createdAt": "2026-10-08T16:17:05.381Z"
+        }
+      ],
+      "note": "Réapprovisionnement hebdomadaire",
+      "date": "2026-10-03",
+      "createdAt": "2026-10-08T16:17:05.381Z",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997"
+    },
+    {
+      "id": "b1b0d824-02ec-4c93-991c-133ccd506861",
+      "number": "VEN-2026-0001",
+      "type": "sale",
+      "storeId": "store-centre",
+      "toStoreId": null,
+      "contactId": "customer-restaurant",
+      "lines": [
+        {
+          "productId": "product-riz",
+          "quantity": 5,
+          "unitPrice": 4500,
+          "purchaseCost": 3200,
+          "name": "Riz parfumé 5 kg",
+          "sku": "ALI-RIZ-005",
+          "unit": "sac"
+        },
+        {
+          "productId": "product-huile",
+          "quantity": 3,
+          "unitPrice": 1600,
+          "purchaseCost": 1150,
+          "name": "Huile de tournesol 1 L",
+          "sku": "ALI-HUI-001",
+          "unit": "bouteille"
+        }
+      ],
+      "total": 27300,
+      "paid": 15000,
+      "payments": [
+        {
+          "id": "364f707f-85b9-4cd1-b1f4-7f1aa0599425",
+          "amount": 15000,
+          "date": "2026-10-06",
+          "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+          "createdAt": "2026-10-08T16:17:05.382Z"
+        }
+      ],
+      "note": "Livraison au restaurant",
+      "date": "2026-10-06",
+      "createdAt": "2026-10-08T16:17:05.382Z",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997"
+    },
+    {
+      "id": "a1307c4a-91a7-4ddc-94e9-5845ee89121b",
+      "number": "VEN-2026-0002",
+      "type": "sale",
+      "storeId": "store-centre",
+      "toStoreId": null,
+      "contactId": null,
+      "lines": [
+        {
+          "productId": "product-cafe",
+          "quantity": 2,
+          "unitPrice": 2500,
+          "purchaseCost": 1800,
+          "name": "Café instantané 100 g",
+          "sku": "ALI-CAF-100",
+          "unit": "pot"
+        },
+        {
+          "productId": "product-eau",
+          "quantity": 6,
+          "unitPrice": 400,
+          "purchaseCost": 250,
+          "name": "Eau minérale 1,5 L",
+          "sku": "BOI-EAU-150",
+          "unit": "bouteille"
+        }
+      ],
+      "total": 7400,
+      "paid": 7400,
+      "payments": [
+        {
+          "id": "377dc435-2356-4a8b-b618-d08cb5227c48",
+          "amount": 7400,
+          "date": "2026-10-07",
+          "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+          "createdAt": "2026-10-08T16:17:05.382Z"
+        }
+      ],
+      "note": "Vente comptoir",
+      "date": "2026-10-07",
+      "createdAt": "2026-10-08T16:17:05.382Z",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997"
+    },
+    {
+      "id": "95a99180-2017-431d-9de0-aaec37af865b",
+      "number": "TRA-2026-0001",
+      "type": "transfer",
+      "storeId": "store-depot",
+      "toStoreId": "store-nord",
+      "contactId": null,
+      "lines": [
+        {
+          "productId": "product-savon",
+          "quantity": 12,
+          "unitPrice": 0,
+          "purchaseCost": 450,
+          "name": "Savon de Marseille 200 g",
+          "sku": "HYG-SAV-200",
+          "unit": "pièce"
+        },
+        {
+          "productId": "product-jus",
+          "quantity": 8,
+          "unitPrice": 0,
+          "purchaseCost": 650,
+          "name": "Jus de mangue 1 L",
+          "sku": "BOI-JUS-001",
+          "unit": "brique"
+        }
+      ],
+      "total": 0,
+      "paid": 0,
+      "payments": [],
+      "note": "Mise en rayon Nord",
+      "date": "2026-10-07",
+      "createdAt": "2026-10-08T16:17:05.382Z",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997"
+    },
+    {
+      "id": "4845fd68-6344-4293-966f-80509208c870",
+      "number": "VEN-2026-0003",
+      "type": "sale",
+      "storeId": "store-nord",
+      "toStoreId": null,
+      "contactId": "customer-awa",
+      "lines": [
+        {
+          "productId": "product-sucre",
+          "quantity": 4,
+          "unitPrice": 850,
+          "purchaseCost": 600,
+          "name": "Sucre blanc 1 kg",
+          "sku": "ALI-SUC-001",
+          "unit": "sachet"
+        },
+        {
+          "productId": "product-farine",
+          "quantity": 2.5,
+          "unitPrice": 600,
+          "purchaseCost": 400,
+          "name": "Farine de blé",
+          "sku": "ALI-FAR-VRA",
+          "unit": "kg"
+        }
+      ],
+      "total": 4900,
+      "paid": 4900,
+      "payments": [
+        {
+          "id": "ca67b212-1a02-49fc-90ff-598f11ab47c9",
+          "amount": 4900,
+          "date": "2026-10-08",
+          "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+          "createdAt": "2026-10-08T16:17:05.383Z"
+        }
+      ],
+      "note": "Vente du jour",
+      "date": "2026-10-08",
+      "createdAt": "2026-10-08T16:17:05.383Z",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997"
+    }
+  ],
+  "contacts": [
+    {
+      "id": "customer-awa",
+      "type": "customer",
+      "name": "Awa Coulibaly",
+      "phone": "+229 01 97 12 34 56",
+      "address": "Cadjèhoun, Cotonou",
+      "taxId": ""
+    },
+    {
+      "id": "customer-restaurant",
+      "type": "customer",
+      "name": "Restaurant Le Palmier",
+      "phone": "+229 01 96 54 32 10",
+      "address": "Ganhi, Cotonou",
+      "taxId": "EXEMPLE-IFU-001"
+    },
+    {
+      "id": "supplier-sodico",
+      "type": "supplier",
+      "name": "Sodico Distribution",
+      "phone": "+229 01 21 00 11 22",
+      "address": "Akpakpa, Cotonou",
+      "taxId": "EXEMPLE-IFU-002"
+    },
+    {
+      "id": "supplier-moulins",
+      "type": "supplier",
+      "name": "Les Grands Moulins",
+      "phone": "+229 01 21 30 40 50",
+      "address": "Port de Cotonou",
+      "taxId": "EXEMPLE-IFU-003"
+    }
+  ],
+  "inventories": [],
+  "expenses": [
+    {
+      "id": "c1d7f663-de46-46b7-b02c-e0c9bbc64d31",
+      "storeId": "store-centre",
+      "category": "Transport",
+      "amount": 3500,
+      "date": "2026-10-06",
+      "note": "Livraison clients",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+      "createdAt": "2026-10-08T16:17:05.383Z"
+    },
+    {
+      "id": "5f66e41c-7cd7-42b3-b0ac-896722801ad8",
+      "storeId": "store-centre",
+      "category": "Électricité",
+      "amount": 18000,
+      "date": "2026-10-05",
+      "note": "Facture mensuelle",
+      "createdBy": "e7175ae1-caa1-4570-b14b-729c1d704997",
+      "createdAt": "2026-10-08T16:17:05.383Z"
+    }
+  ],
+  "settings": {
+    "id": "main",
+    "currency": "XOF",
+    "noPrices": false,
+    "businessName": "Comptoir"
+  },
+  "_demoUsers": [
+    {
+      "id": "e7175ae1-caa1-4570-b14b-729c1d704997",
+      "email": "admin@stock.local",
+      "name": "Aminata Diallo",
+      "role": "admin"
+    },
+    {
+      "id": "376e2de3-e96e-4338-8c95-674881be40ae",
+      "email": "cashier@stock.local",
+      "name": "Moussa Traoré",
+      "role": "cashier"
+    },
+    {
+      "id": "a01d8431-99b7-477f-a3d9-1c43de1390c1",
+      "email": "inventory@stock.local",
+      "name": "Fatou Koné",
+      "role": "inventory"
+    }
+  ]
+}

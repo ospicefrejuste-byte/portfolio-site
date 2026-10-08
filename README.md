@@ -2,6 +2,10 @@
 
 Première version exécutable d'une application de gestion de stock, de vente et d'inventaire, en français, destinée aux commerces du **Bénin**. Elle fonctionne dans le navigateur sur ordinateur ou mobile et fournit une base pour les prochaines étapes Cloud et Android/iOS.
 
+## Essayer sans installation
+
+Une [démonstration autonome](demo/README.md) permet d'essayer les produits, ventes, paiements et inventaires dans un fichier HTML unique. Construire le fichier avec `npm run build:demo`, puis ouvrir `dist/Comptoir-demo.html` dans le navigateur et choisir **Administrateur**. Le fichier fonctionne sans serveur ni abonnement ; les données d'essai restent sur cet appareil et les comptes sont des rôles de démonstration.
+
 ## Démarrer
 
 Ces commandes lancent l’application sur la machine où elles sont exécutées. Dans cet environnement cloud, le serveur est interne à la machine distante : `localhost:3000` dans le navigateur de votre ordinateur ou téléphone ne pointe pas vers elle. Ce chat de configuration ne fournit pas d’aperçu web. Publier l’environnement Codex conserve sa configuration ; cela ne publie pas l’application comme un site Internet.

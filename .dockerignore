@@ -23,3 +23,6 @@ playwright-report
 docs
 README.md
 render.yaml
+demo
+scripts
+dist
