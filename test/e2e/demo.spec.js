@@ -143,3 +143,57 @@ test('deux fenêtres enregistrent leurs articles sans écraser les données de l
   expect(current.products.filter(p => /^TAB-/.test(p.sku))).toHaveLength(2);
   await other.close();
 });
+
+test('magasins, profils et sauvegarde restaurable restent disponibles dans la démo Windows',async({page,context})=>{
+  await login(page);
+  await expect(page.getByRole('button',{name:'Créer un compte',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Paramètres',exact:true}).click();
+  await page.getByRole('button',{name:'Ajouter',exact:true}).click();
+  await page.getByLabel('Nom du magasin / dépôt').fill('Boutique Windows');
+  await page.getByLabel('Ville',{exact:true}).fill('Parakou');
+  await page.getByRole('button',{name:'Enregistrer',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  const store=(await state(page)).stores.find(s=>s.name==='Boutique Windows');
+  expect((await state(page)).stocks.filter(s=>s.storeId===store.id).every(s=>s.quantity===0)).toBe(true);
+  await page.getByRole('button',{name:'Ajouter un utilisateur',exact:true}).click();
+  await page.getByLabel('Nom du collaborateur').fill('Jean Démo');
+  await page.getByLabel('Adresse e-mail').fill('jean@demo.test');
+  await page.getByRole('button',{name:'Enregistrer',exact:true}).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Modifier Jean Démo',exact:true})).toBeVisible();
+  const downloadPromise=page.waitForEvent('download');
+  await page.getByRole('button',{name:'Télécharger une sauvegarde',exact:true}).click();
+  const downloaded=await downloadPromise,backup=JSON.parse(readFileSync(await downloaded.path(),'utf8'));
+  expect(backup.profiles.some(p=>p.email==='jean@demo.test')).toBe(true);
+  await page.evaluate(async store=>window.ComptoirDemoAPI.request('/api/commands',{id:crypto.randomUUID(),type:'store.save',payload:{id:store.id,name:'Après sauvegarde',city:'Parakou',expectedVersion:store.version}}),store);
+  const other=await context.newPage();await other.goto(demoUrl);
+  await expect(other.getByRole('heading',{name:'Vue d’ensemble',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Restaurer une sauvegarde',exact:true}).click();
+  await page.locator('#restore-file').setInputFiles({name:'sauvegarde.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});
+  await page.getByRole('button',{name:'Continuer',exact:true}).click();
+  await page.getByRole('checkbox',{name:'Je confirme le remplacement des données actuelles.'}).check();
+  await page.getByRole('button',{name:'Restaurer les données',exact:true}).click();
+  await expect(page.locator('[data-demo="admin"]')).toBeVisible();
+  expect(await other.evaluate(async()=>{try{await window.ComptoirDemoAPI.request('/api/state');return 200;}catch(e){return e.status;}})).toBe(401);
+  await other.close();await login(page);
+  expect((await state(page)).stores.find(s=>s.id===store.id).name).toBe('Boutique Windows');
+  await page.reload();await expect(page.getByRole('heading',{name:'Vue d’ensemble',exact:true})).toBeVisible();
+});
+
+test('annulation motivée d’une vente impayée restaure le stock et conserve son historique',async({page})=>{
+  await login(page);
+  const before=(await state(page)).stocks.find(s=>s.productId==='product-riz'&&s.storeId==='store-centre').quantity;
+  await page.getByRole('button',{name:'Mouvements',exact:true}).click();
+  await operation(page,'sale','product-riz',2,0);
+  const sale=(await state(page)).documents.at(-1);
+  await page.getByRole('button',{name:'Voir '+sale.number,exact:true}).click();
+  await page.getByRole('button',{name:'Annuler le document',exact:true}).click();
+  await page.getByLabel('Motif d’annulation').fill('Erreur de sélection');
+  await page.getByRole('checkbox',{name:'Je confirme l’annulation de ce document.'}).check();
+  await page.getByRole('button',{name:'Confirmer l’annulation',exact:true}).click();
+  await expect(page.getByText('Document annulé',{exact:true})).toBeVisible();
+  const after=await state(page);
+  expect(after.stocks.find(s=>s.productId==='product-riz'&&s.storeId==='store-centre').quantity).toBe(before);
+  expect(after.documents.find(d=>d.id===sale.id).status).toBe('cancelled');
+  expect(after.documents.some(d=>d.reversalOf===sale.id)).toBe(true);
+});

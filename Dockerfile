@@ -23,6 +23,7 @@ RUN --mount=type=secret,id=build_ca \
 COPY server.js ./
 COPY lib ./lib
 COPY public ./public
+COPY scripts/backup.js scripts/restore.js ./scripts/
 
 RUN chmod -R a+rX /app \
     && install -d -o node -g node -m 0750 /var/lib/comptoir /var/lib/comptoir/data /var/lib/comptoir/uploads

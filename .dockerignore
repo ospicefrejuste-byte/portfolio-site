@@ -25,4 +25,8 @@ README.md
 render.yaml
 demo
 scripts
+!scripts/
+scripts/*
+!scripts/backup.js
+!scripts/restore.js
 dist

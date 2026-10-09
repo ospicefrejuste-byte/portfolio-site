@@ -4,6 +4,15 @@ import { local } from './offline.js';
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const root = $('#app'), modalRoot = $('#modal-root');
   let state, user, storeId = '', view = 'dashboard', search = '', category = '', stockFilter = '', documentFilter = '', syncing = false, pending = [], demoMode = false, cached = false, toastTimer, reportPeriod = 'month';
+  let localDemo=false, registrationEnabled=false, adminUsers=[], usersStatus='idle', usersError='';
+  // Registration is deliberately kept in memory.  In particular, the
+  // password and verification code never enter IndexedDB, the offline queue,
+  // or a URL.  The hosted server contract is:
+  // POST /api/register { email, name, password, shop: { name, city } }
+  // POST /api/register/verify { email, registrationId, code }
+  // POST /api/register/resend { email, registrationId }
+  let authMode='login', loginPrefill='', registrationTimer=null;
+  let registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normalize = text => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const num = value => new Intl.NumberFormat('fr-FR', {maximumFractionDigits:3}).format(value || 0);
@@ -19,6 +28,11 @@ import { local } from './offline.js';
   const prices = () => user?.role !== 'inventory' && !state?.settings?.noPrices;
   const qty = (productId, sid = storeId) => state.stocks.filter(s => s.productId === productId && (sid === 'all' || s.storeId === sid)).reduce((sum,s) => sum+s.quantity,0);
   const docs = () => state.documents.filter(d => storeId === 'all' || d.storeId === storeId || d.toStoreId === storeId);
+  const activeDocument = d => d.status !== 'cancelled' && !d.reversalOf;
+  const activeDocs = () => docs().filter(activeDocument);
+  const documentLabel = d => d.reversalOf?'Annulation':typeNames[d.type];
+  const documentStatus = d => d.status==='cancelled'?'Annulé':d.reversalOf?'Annulation':d.paid>=d.total?'Réglé':d.paid?'Partiel':'Impayé';
+  const remaining = d => activeDocument(d)?Math.max(0,d.total-d.paid):0;
   const typeNames = {sale:'Vente',purchase:'Achat',transfer:'Transfert',adjustment:'Ajustement'};
   const typeTone = {sale:'success',purchase:'purple',transfer:'neutral',adjustment:'warning'};
   const roleNames = {admin:'Administrateur',cashier:'Caissier',inventory:"Agent d’inventaire"};
@@ -62,8 +76,8 @@ import { local } from './offline.js';
     $('#toast-root').innerHTML = `<div class="toast ${error?'error':'success'}" role="status">${icon(error?'alert':'check')}<span>${esc(message)}</span></div>`;
     toastTimer = setTimeout(()=>$('#toast-root').innerHTML='',5500);
   }
-  async function api(path, data) {
-    const response = await fetch(path, {method:data ? 'POST':'GET',credentials:'same-origin',headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,signal:AbortSignal.timeout(15000)});
+  async function api(path, data, method = data ? 'POST' : 'GET') {
+    const response = await fetch(path, {method,credentials:'same-origin',headers:data?{'Content-Type':'application/json'}:{},body:data?JSON.stringify(data):undefined,signal:AbortSignal.timeout(path.startsWith('/api/register')?30000:15000)});
     const body = await response.json();
     if (!response.ok) { const error = new Error(body.error || 'Cette opération a échoué.'); error.status=response.status; error.code=body.code; throw error; }
     return body;
@@ -201,7 +215,7 @@ import { local } from './offline.js';
     updateSync(); bindShell();
   }
   function bindShell() {
-    $$('[data-view]',root).forEach(el=>el.addEventListener('click',event=>{event.preventDefault();view=el.dataset.view;search='';category='';document.body.classList.remove('nav-open');render();}));
+    $$('[data-view]',root).forEach(el=>el.addEventListener('click',event=>{event.preventDefault();view=el.dataset.view;search='';category='';if(view==='settings')usersStatus='idle';document.body.classList.remove('nav-open');render();}));
     $$('[data-action]',root).forEach(el=>el.addEventListener('click',()=>action(el.dataset.action,el.dataset)));
     $('#store-select')?.addEventListener('change',event=>{storeId=event.target.value;render();});
     $('#product-search')?.addEventListener('input',event=>{
@@ -215,19 +229,22 @@ import { local } from './offline.js';
     $$('[data-document]',root).forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.document)));
     $$('[data-inventory]',root).forEach(el=>el.addEventListener('click',()=>inventoryDetail(el.dataset.inventory)));
     $$('[data-contact]',root).forEach(el=>el.addEventListener('click',()=>contactDetail(el.dataset.contact)));
+    $$('[data-edit-store]',root).forEach(el=>el.addEventListener('click',()=>storeForm(el.dataset.editStore)));
+    $$('[data-edit-user]',root).forEach(el=>el.addEventListener('click',()=>userForm(el.dataset.editUser)));
     $('#settings-form')?.addEventListener('submit',async event=>{
       event.preventDefault();
       const form=event.currentTarget,button=$('[type=submit]',form);button.disabled=true;
       try {await perform('settings.update',{businessName:form.elements.businessName.value,noPrices:form.elements.noPrices.checked},'Préférences enregistrées.');}
       catch(error){toast(error.message,true);button.disabled=false;}
     });
+    if(view==='settings' && admin() && usersStatus==='idle')loadAdminUsers();
   }
   const storeSelect = () => `<select id="store-select" class="select" aria-label="Magasin"><option value="all">Tous les magasins</option>${state.stores.map(s=>`<option value="${s.id}" ${s.id===storeId?'selected':''}>${esc(s.name)}</option>`).join('')}</select>`;
   function dashboard() {
     const low=state.products.filter(p=>qty(p.id)<=p.minStock);
     const valuation=state.products.reduce((sum,p)=>sum+qty(p.id)*(p.purchasePrice||0),0);
     const retailValue=state.products.reduce((sum,p)=>sum+qty(p.id)*(p.sellingPrice||0),0);
-    const sales=docs().filter(d=>d.type==='sale');
+    const sales=activeDocs().filter(d=>d.type==='sale');
     const daily=sales.filter(d=>d.date?.slice(0,10)===today()).reduce((sum,d)=>sum+d.total,0);
     const receivables=sales.reduce((sum,d)=>sum+Math.max(0,d.total-d.paid),0);
     const inProgress=state.inventories.filter(i=>i.status==='draft'&&(storeId==='all'||i.storeId===storeId)).length;
@@ -243,17 +260,17 @@ import { local } from './offline.js';
       <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Activité du commerce</h2><p class="panel-description">Entrées et sorties sur les 7 derniers jours</p></div><span class="badge neutral">7 jours</span></div>${activityChart()}<div class="chart-summary"><div><span>${prices()?'Ventes sur la période':'Quantités sorties'}</span><strong>${prices()?money(periodDocuments(7,'sale').reduce((s,d)=>s+d.total,0)):num(periodDocuments(7,'sale').reduce((s,d)=>s+d.lines.reduce((t,l)=>t+l.quantity,0),0))}</strong></div><div><span>${prices()?'Achats sur la période':'Quantités entrées'}</span><strong>${prices()?money(periodDocuments(7,'purchase').reduce((s,d)=>s+d.total,0)):num(periodDocuments(7,'purchase').reduce((s,d)=>s+d.lines.reduce((t,l)=>t+l.quantity,0),0))}</strong></div></div></section>
       <section class="panel quick-panel"><div class="panel-header"><div><h2 class="panel-title">Aller à l’essentiel</h2><p class="panel-description">Vos actions du quotidien</p></div></div><div class="quick-actions">${user.role!=='inventory'?`<button class="quick-action" data-action="new-sale"><span class="quick-icon green">${icon('cart')}</span><span><strong>Enregistrer une vente</strong><small>Articles, client et paiement</small></span>${icon('chevron')}</button>`:''}${admin()?`<button class="quick-action" data-action="new-purchase"><span class="quick-icon purple">${icon('download')}</span><span><strong>Réceptionner du stock</strong><small>Ajouter une entrée fournisseur</small></span>${icon('chevron')}</button>`:''}${user.role!=='cashier'?`<button class="quick-action" data-action="new-inventory"><span class="quick-icon blue">${icon('clipboard')}</span><span><strong>Démarrer un inventaire</strong><small>Compter et vérifier les écarts</small></span>${icon('chevron')}</button>`:''}${admin()?`<button class="quick-action" data-action="new-product"><span class="quick-icon orange">${icon('box')}</span><span><strong>Ajouter un produit</strong><small>Enrichir votre catalogue</small></span>${icon('chevron')}</button>`:''}</div><div class="quick-note">${icon('wifi')}Consultation et saisies disponibles hors ligne</div></section>
       <section class="panel"><div class="panel-header"><div><h2 class="panel-title">À réapprovisionner <span class="count-chip">${low.length}</span></h2><p class="panel-description">Ces articles ont atteint leur seuil minimum</p></div><button class="text-btn" data-action="show-low">Tout voir ${icon('chevron')}</button></div><div class="table-wrapper"><table><thead><tr><th>Produit</th><th>Stock actuel</th><th>Seuil min.</th><th>État</th></tr></thead><tbody>${low.slice(0,4).map(p=>`<tr><td>${productCell(p)}</td><td>${stockCell(p)}</td><td>${num(p.minStock)}</td><td>${stockBadge(p)}</td></tr>`).join('')}</tbody></table>${!low.length?empty('Votre stock est au vert','Aucun article sous son seuil minimum.','check'):''}</div></section>
-      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Derniers mouvements</h2><p class="panel-description">L’historique de votre activité</p></div>${user.role!=='inventory'?'<button class="text-btn" data-view="documents">Tout voir</button>':''}</div><div class="activity-list">${recent.map(d=>`<button class="activity-item" data-document="${d.id}"><span class="activity-icon ${typeTone[d.type]}">${icon(d.type==='sale'?'cart':d.type==='purchase'?'download':'arrows')}</span><span class="activity-copy"><strong>${typeNames[d.type]} · ${esc(d.number)}</strong><small>${esc(storeName(d.storeId))} · ${date(d.date || d.createdAt)}</small></span><span class="activity-meta"><strong>${prices()&&['sale','purchase'].includes(d.type)?money(d.total):num(d.lines.reduce((sum,l)=>sum+Math.abs(l.quantity),0))+' unités'}</strong>${d.total>0&&prices()?`<small>${d.paid>=d.total?'Réglé':'Paiement partiel'}</small>`:''}</span></button>`).join('')}${!recent.length?empty('Aucun mouvement','Vos opérations apparaîtront ici.','arrows'):''}</div>${prices()&&receivables?`<div class="receivables-note">${icon('wallet')}<span>Créances clients</span><strong>${money(receivables)}</strong></div>`:''}</section></div>`;
+      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Derniers mouvements</h2><p class="panel-description">L’historique de votre activité</p></div>${user.role!=='inventory'?'<button class="text-btn" data-view="documents">Tout voir</button>':''}</div><div class="activity-list">${recent.map(d=>`<button class="activity-item" data-document="${d.id}"><span class="activity-icon ${typeTone[d.type]}">${icon(d.type==='sale'?'cart':d.type==='purchase'?'download':'arrows')}</span><span class="activity-copy"><strong>${documentLabel(d)} · ${esc(d.number)}</strong><small>${esc(storeName(d.storeId))} · ${date(d.date || d.createdAt)}</small></span><span class="activity-meta"><strong>${prices()&&['sale','purchase'].includes(d.type)?money(d.total):num(d.lines.reduce((sum,l)=>sum+Math.abs(l.quantity),0))+' unités'}</strong>${d.total>0&&prices()?`<small>${d.status==='cancelled'?'Annulé':d.reversalOf?'Contre-mouvement':d.paid>=d.total?'Réglé':'Paiement partiel'}</small>`:''}</span></button>`).join('')}${!recent.length?empty('Aucun mouvement','Vos opérations apparaîtront ici.','arrows'):''}</div>${prices()&&receivables?`<div class="receivables-note">${icon('wallet')}<span>Créances clients</span><strong>${money(receivables)}</strong></div>`:''}</section></div>`;
   }
   function periodDocuments(days,type) {
     const start=firstDay(days);
-    return docs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)>=start&&(d.date || d.createdAt).slice(0,10)<=today());
+    return activeDocs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)>=start&&(d.date || d.createdAt).slice(0,10)<=today());
   }
   function activityChart() {
     const values=[];
     for(let offset=6;offset>=0;offset--){
       const day=new Date();day.setUTCDate(day.getUTCDate()-offset);const key=businessDay(day);
-      const totals=['sale','purchase'].map(type=>docs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)===key).reduce((sum,d)=>sum+(prices()?d.total:d.lines.reduce((s,l)=>s+l.quantity,0)),0));
+      const totals=['sale','purchase'].map(type=>activeDocs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)===key).reduce((sum,d)=>sum+(prices()?d.total:d.lines.reduce((s,l)=>s+l.quantity,0)),0));
       values.push({label:new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Porto-Novo',weekday:'short'}).format(day),totals});
     }
     const max=Math.max(1,...values.flatMap(v=>v.totals));
@@ -267,7 +284,7 @@ import { local } from './offline.js';
   function documentsPage() {
     const list=docs().filter(d=>!documentFilter||d.type===documentFilter).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
     return heading('CHAQUE OPÉRATION LAISSE UNE TRACE','Mouvements de stock','Ventes, achats, transferts et ajustements dans un seul historique.',`${storeSelect()}${btn('Nouvelle opération','new-document')}`)+
-    `<div class="panel"><div class="toolbar"><div class="tabs">${['','sale','purchase','transfer','adjustment'].filter(t=>admin()||!t||t==='sale').map(t=>`<button class="tab ${documentFilter===t?'active':''}" data-action="filter-documents" data-filter="${t}">${t?typeNames[t]+'s':'Tous les mouvements'}</button>`).join('')}</div>${btn('Exporter CSV','export-documents','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Document</th><th>Opération</th><th>Date</th><th>Magasin / Tiers</th><th>Articles</th>${prices()?'<th>Total</th><th>Paiement</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td><strong>${esc(d.number)}</strong></td><td>${badge(typeNames[d.type],typeTone[d.type])}</td><td>${date(d.date||d.createdAt)}</td><td>${esc(storeName(d.storeId))}<small class="cell-secondary">${esc(d.type==='transfer'?storeName(d.toStoreId):contactName(d.contactId))}</small></td><td>${d.lines.length} ligne${d.lines.length>1?'s':''}</td>${prices()?`<td class="money-cell">${['sale','purchase'].includes(d.type)?money(d.total):'—'}</td><td>${['sale','purchase'].includes(d.type)?badge(d.paid>=d.total?'Réglé':d.paid?'Partiel':'Impayé',d.paid>=d.total?'success':'warning'):'—'}</td>`:''}<td><button class="icon-btn" data-document="${d.id}" aria-label="Voir ${esc(d.number)}">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucune opération pour ce filtre','Enregistrez votre premier mouvement de stock.','arrows'):''}</div><div class="table-footer">${list.length} document${list.length>1?'s':''} enregistré${list.length>1?'s':''}</div></div>`;
+    `<div class="panel"><div class="toolbar"><div class="tabs">${['','sale','purchase','transfer','adjustment'].filter(t=>admin()||!t||t==='sale').map(t=>`<button class="tab ${documentFilter===t?'active':''}" data-action="filter-documents" data-filter="${t}">${t?typeNames[t]+'s':'Tous les mouvements'}</button>`).join('')}</div>${btn('Exporter CSV','export-documents','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Document</th><th>Opération</th><th>Date</th><th>Magasin / Tiers</th><th>Articles</th>${prices()?'<th>Total</th><th>Paiement</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td><strong>${esc(d.number)}</strong></td><td>${badge(documentLabel(d),d.reversalOf?'neutral':typeTone[d.type])}</td><td>${date(d.date||d.createdAt)}</td><td>${esc(storeName(d.storeId))}<small class="cell-secondary">${esc(d.type==='transfer'?storeName(d.toStoreId):contactName(d.contactId))}</small></td><td>${d.lines.length} ligne${d.lines.length>1?'s':''}</td>${prices()?`<td class="money-cell">${['sale','purchase'].includes(d.type)?money(d.total):'—'}</td><td>${d.status==='cancelled'?badge('Annulé','danger'):d.reversalOf?badge('Contre-mouvement','neutral'):['sale','purchase'].includes(d.type)?badge(documentStatus(d),d.paid>=d.total?'success':'warning'):'—'}</td>`:''}<td><button class="icon-btn" data-document="${d.id}" aria-label="Voir ${esc(d.number)}">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucune opération pour ce filtre','Enregistrez votre premier mouvement de stock.','arrows'):''}</div><div class="table-footer">${list.length} document${list.length>1?'s':''} enregistré${list.length>1?'s':''}</div></div>`;
   }
   function inventoriesPage() {
     const list=state.inventories.filter(i=>storeId==='all'||i.storeId===storeId).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
@@ -282,14 +299,14 @@ import { local } from './offline.js';
     const list=state.contacts.filter(c=>admin()||c.type==='customer');
     return heading('VOS RELATIONS COMMERCIALES','Clients & fournisseurs','Coordonnées, documents et soldes de vos partenaires.',(admin()?btn('Ajouter un contact','new-contact'):''))+
     `<div class="panel"><div class="panel-header"><h2 class="panel-title">Carnet d’adresses <span class="count-chip">${list.length}</span></h2></div><div class="table-wrapper"><table><thead><tr><th>Nom</th><th>Type</th><th>Téléphone</th><th>IFU / NIF</th>${prices()?'<th>Solde à régler</th>':''}<th></th></tr></thead><tbody>${list.map(c=>{
-      const balance=state.documents.filter(d=>d.contactId===c.id&&['sale','purchase'].includes(d.type)).reduce((s,d)=>s+d.total-d.paid,0);
+      const balance=state.documents.filter(d=>d.contactId===c.id&&activeDocument(d)&&['sale','purchase'].includes(d.type)).reduce((s,d)=>s+remaining(d),0);
       return `<tr><td><div class="product-cell"><span class="contact-avatar">${esc(c.name.slice(0,2).toUpperCase())}</span><div><strong>${esc(c.name)}</strong><small class="cell-secondary">${esc(c.address||'Adresse non renseignée')}</small></div></div></td><td>${badge(c.type==='customer'?'Client':'Fournisseur',c.type==='customer'?'purple':'neutral')}</td><td>${esc(c.phone||'—')}</td><td>${esc(c.taxId||'—')}</td>${prices()?`<td class="${balance?'balance-due':''}">${money(balance)}</td>`:''}<td><button class="icon-btn" data-contact="${c.id}" aria-label="Voir ${esc(c.name)}">${icon('chevron')}</button></td></tr>`;
     }).join('')}</tbody></table>${!list.length?empty('Votre carnet est vide','Ajoutez un client ou un fournisseur.','users'):''}</div></div>`;
   }
   function reportDocuments() {
     const days={day:1,week:7,month:30,all:36500}[reportPeriod];
     const start=firstDay(days);
-    return docs().filter(d=>(d.date||d.createdAt).slice(0,10)>=start&&(d.date||d.createdAt).slice(0,10)<=today());
+    return activeDocs().filter(d=>(d.date||d.createdAt).slice(0,10)>=start&&(d.date||d.createdAt).slice(0,10)<=today());
   }
   function reportsPage() {
     const list=reportDocuments(), sales=list.filter(d=>d.type==='sale'), revenue=sales.reduce((s,d)=>s+d.total,0);
@@ -299,11 +316,69 @@ import { local } from './offline.js';
     const expenseTotal=expenses.reduce((s,e)=>s+e.amount,0);
     const low=state.products.filter(p=>qty(p.id)<=p.minStock);
     return heading('DES CHIFFRES POUR MIEUX DÉCIDER','Rapports & analyses','Suivez vos ventes, vos marges et vos besoins de réapprovisionnement.',`${storeSelect()}<select class="select" id="report-period" aria-label="Période">${[['day','Aujourd’hui'],['week','7 derniers jours'],['month','30 derniers jours'],['all','Toute la période']].map(([v,l])=>`<option value="${v}" ${v===reportPeriod?'selected':''}>${l}</option>`).join('')}</select>${btn('Exporter','export-report','download','secondary')}`)+
-    `${prices()?`<div class="metrics">${metric('Chiffre d’affaires',money(revenue),sales.length+' documents de vente','cart','purple')}${metric('Bénéfice brut réalisé',money(gross),'Coûts d’achat enregistrés lors des ventes','trend','green')}${metric('Frais généraux',money(expenseTotal),expenses.length+' dépenses enregistrées','wallet','orange')}${metric('Résultat net estimé',money(gross-expenseTotal),'Bénéfice brut moins frais saisis, hors taxes','chart','blue')}</div>`:''}<div class="dashboard-grid"><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Rapport de réapprovisionnement</h2><p class="panel-description">Quantité suggérée : retour au double du seuil minimum</p></div>${btn('CSV','export-reorder','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Produit</th><th>Disponible</th><th>Seuil</th><th>À commander</th></tr></thead><tbody>${low.map(p=>`<tr><td>${productCell(p)}</td><td>${num(qty(p.id))}</td><td>${num(p.minStock)}</td><td><strong>${num(Math.max(0,p.minStock*2-qty(p.id)))}</strong> ${esc(p.unit)}</td></tr>`).join('')}</tbody></table>${!low.length?empty('Aucun besoin urgent','Tous les articles dépassent leur seuil minimum.','check'):''}</div></section><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Frais généraux</h2><p class="panel-description">Dépenses sur la période sélectionnée</p></div>${prices()?btn('Ajouter','new-expense','plus','secondary small'):''}</div>${prices()?`<div class="activity-list">${expenses.map(e=>`<div class="activity-item"><span class="activity-icon neutral">${icon('wallet')}</span><div class="activity-copy"><strong>${esc(e.category)}</strong><small>${date(e.date)} · ${esc(e.note||storeName(e.storeId))}</small></div><strong>${money(e.amount)}</strong></div>`).join('')}${!expenses.length?empty('Aucune dépense saisie','Loyer, salaires, transport… complétez votre résultat.','wallet'):''}</div>`:'<div class="panel-body">Activez les prix dans les paramètres pour saisir les frais.</div>'}</section></div><div class="callout report-callout">${icon('alert')}Les résultats sont des estimations hors taxes, fondées sur les documents et dépenses saisis. La valeur du stock au prix de vente n’est pas un bénéfice réalisé.</div>`;
+    `${prices()?`<div class="metrics">${metric('Chiffre d’affaires',money(revenue),sales.length+' documents de vente','cart','purple')}${metric('Bénéfice brut estimé',money(gross),'Coûts d’achat enregistrés lors des ventes','trend','green')}${metric('Frais généraux',money(expenseTotal),expenses.length+' dépenses enregistrées','wallet','orange')}${metric('Résultat net estimé',money(gross-expenseTotal),'Bénéfice brut moins frais saisis, hors taxes','chart','blue')}</div>`:''}<div class="dashboard-grid"><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Rapport de réapprovisionnement</h2><p class="panel-description">Quantité suggérée : retour au double du seuil minimum</p></div>${btn('CSV','export-reorder','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Produit</th><th>Disponible</th><th>Seuil</th><th>À commander</th></tr></thead><tbody>${low.map(p=>`<tr><td>${productCell(p)}</td><td>${num(qty(p.id))}</td><td>${num(p.minStock)}</td><td><strong>${num(Math.max(0,p.minStock*2-qty(p.id)))}</strong> ${esc(p.unit)}</td></tr>`).join('')}</tbody></table>${!low.length?empty('Aucun besoin urgent','Tous les articles dépassent leur seuil minimum.','check'):''}</div></section><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Frais généraux</h2><p class="panel-description">Dépenses sur la période sélectionnée</p></div>${prices()?btn('Ajouter','new-expense','plus','secondary small'):''}</div>${prices()?`<div class="activity-list">${expenses.map(e=>`<div class="activity-item"><span class="activity-icon neutral">${icon('wallet')}</span><div class="activity-copy"><strong>${esc(e.category)}</strong><small>${date(e.date)} · ${esc(e.note||storeName(e.storeId))}</small></div><strong>${money(e.amount)}</strong></div>`).join('')}${!expenses.length?empty('Aucune dépense saisie','Loyer, salaires, transport… complétez votre résultat.','wallet'):''}</div>`:'<div class="panel-body">Activez les prix dans les paramètres pour saisir les frais.</div>'}</section></div><div class="callout report-callout">${icon('alert')}Les résultats sont des estimations hors taxes, fondées sur les documents et dépenses saisis. La valeur du stock au prix de vente n’est pas un bénéfice réalisé.</div>`;
   }
   function settingsPage() {
-    return heading('UN ESPACE À VOTRE MESURE','Paramètres','Personnalisez votre commerce et consultez les capacités de cette version.')+
-    `<div class="grid-2"><section class="panel"><div class="panel-header"><h2 class="panel-title">Préférences du commerce</h2></div><div class="panel-body"><form id="settings-form"><div class="field"><label for="business-name">Nom du commerce</label><input class="input" id="business-name" name="businessName" maxlength="100" value="${esc(state.settings.businessName)}" required></div><div class="settings-row"><div><strong>Mode sans prix</strong><p>Conservez les quantités, masquez les données financières.</p></div><label class="switch"><input type="checkbox" name="noPrices" ${state.settings.noPrices?'checked':''} aria-label="Mode sans prix"><span></span></label></div><div class="settings-row"><div><strong>Devise</strong><p>Franc CFA BCEAO (XOF) · Montants entiers</p></div><span class="badge neutral">XOF</span></div><button class="btn primary" type="submit">${icon('check')}Enregistrer les préférences</button></form></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Magasins & accès</h2></div><div class="panel-body">${state.stores.map(s=>`<div class="settings-row"><span class="store-line">${icon('store')}<strong>${esc(s.name)}</strong></span><span>${esc(s.city||'')}</span></div>`).join('')}<p class="field-hint">Les données sont séparées par magasin. Les rôles sont contrôlés côté serveur : administrateur, caissier et agent d’inventaire.</p></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Données & sauvegarde</h2></div><div class="panel-body"><p>Exportez un instantané JSON de vos données métier. Ce fichier ne contient ni comptes, ni fichiers image ; il ne remplace pas une sauvegarde complète de la base.</p><div class="heading-actions">${btn('Exporter les données','backup','download','secondary')}${btn('Importer le catalogue','import-products','upload','secondary')}</div><p class="field-hint">Pour une sauvegarde complète : base SQLite et dossier uploads. L’automatisation cloud reste à déployer.</p></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Hors ligne & synchronisation</h2></div><div class="panel-body"><p>Votre dernier état est conservé sur cet appareil. Les saisies hors ligne sont mises en attente, puis validées par le serveur à la reconnexion.</p><div class="settings-row"><strong>Saisies en attente</strong><span class="badge ${pending.length?'warning':'success'}">${pending.length}</span></div>${btn('Voir la file d’attente','sync','refresh','secondary')}<p class="field-hint">Cette version synchronise avec le serveur local. La connexion à un hébergement cloud sera ajoutée à l’étape suivante. Évitez les appareils partagés pour les données sensibles hors ligne.</p></div></section></div>`;
+    return heading('UN ESPACE À VOTRE MESURE','Paramètres','Organisez vos magasins, vos collaborateurs et vos données.')+
+    `<div class="grid-2 settings-grid">
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Préférences du commerce</h2></div><div class="panel-body"><form id="settings-form"><div class="field"><label for="business-name">Nom du commerce</label><input class="input" id="business-name" name="businessName" maxlength="100" value="${esc(state.settings.businessName)}" required></div><div class="settings-row"><div><strong>Mode sans prix</strong><p>Conservez les quantités, masquez les données financières.</p></div><label class="switch"><input type="checkbox" name="noPrices" ${state.settings.noPrices?'checked':''} aria-label="Mode sans prix"><span></span></label></div><div class="settings-row"><div><strong>Devise</strong><p>Franc CFA BCEAO (XOF) · Montants entiers</p></div><span class="badge neutral">XOF</span></div><button class="btn primary" type="submit">${icon('check')}Enregistrer les préférences</button></form></div></section>
+      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Magasins & dépôts</h2><p class="panel-description">Chaque emplacement conserve son propre stock.</p></div>${btn('Ajouter','new-store','plus','secondary small')}</div><div class="panel-body">${state.stores.map(s=>`<div class="settings-row"><div class="store-line">${icon('store')}<div><strong>${esc(s.name)}</strong><p>${esc(s.city||'Ville non renseignée')}</p></div></div><button class="icon-btn" data-edit-store="${s.id}" aria-label="Modifier ${esc(s.name)}">${icon('edit')}</button></div>`).join('')}<p class="field-hint">Un nouveau magasin commence avec un stock vide. Enregistrez un achat ou un transfert pour l’approvisionner.</p></div></section>
+      ${usersPanel()}
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Données & sauvegarde</h2></div><div class="panel-body"><p>${localDemo?'Conservez une copie de vos données, des photos et des profils de démonstration. Elle peut être restaurée dans cette version autonome.':'Exportez vos données métier en JSON. La sauvegarde complète de la base et des images se configure sur le serveur.'}</p><div class="heading-actions">${btn(localDemo?'Télécharger une sauvegarde':'Exporter les données','backup','download','secondary')}${localDemo?btn('Restaurer une sauvegarde','restore-backup','upload','secondary'):''}${btn('Importer le catalogue','import-products','upload','secondary')}</div><p class="field-hint">${localDemo?'La restauration remplace les données présentes sur cet appareil. Téléchargez une sauvegarde avant de changer de navigateur ou d’ordinateur.':'L’export JSON ne remplace pas la sauvegarde complète du serveur. Consultez le guide de sauvegarde pour configurer sa fréquence et sa destination.'}</p></div></section>
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Hors ligne & synchronisation</h2></div><div class="panel-body"><p>Votre dernier état est conservé sur cet appareil. Les saisies hors ligne sont mises en attente, puis validées par le serveur à la reconnexion.</p><div class="settings-row"><strong>Saisies en attente</strong><span class="badge ${pending.length?'warning':'success'}">${pending.length}</span></div>${btn('Voir la file d’attente','sync','refresh','secondary')}<p class="field-hint">Cette version synchronise avec le serveur local. La connexion à un hébergement cloud sera ajoutée à l’étape suivante. Évitez les appareils partagés pour les données sensibles hors ligne.</p></div></section>
+    </div>`;
+  }
+  function usersPanel() {
+    const title=localDemo?'Profils de démonstration':'Utilisateurs et accès';
+    let body;
+    if(usersStatus==='ready')body=`<div class="table-wrapper"><table><thead><tr><th>Collaborateur</th><th>Rôle</th><th>État</th><th></th></tr></thead><tbody>${adminUsers.map(account=>`<tr><td><div class="product-cell"><span class="contact-avatar">${esc(account.name.slice(0,2).toUpperCase())}</span><div><strong>${esc(account.name)}</strong><small class="cell-secondary">${esc(account.email)}</small></div></div></td><td>${roleNames[account.role]||esc(account.role)}</td><td>${badge(account.active?'Actif':'Désactivé',account.active?'success':'neutral')}</td><td><button class="icon-btn" data-edit-user="${account.id}" aria-label="Modifier ${esc(account.name)}">${icon('edit')}</button></td></tr>`).join('')}</tbody></table></div>`;
+    else if(usersStatus==='error')body=`<div class="settings-message"><p>${esc(usersError)}</p>${btn('Réessayer','refresh-users','refresh','secondary small')}</div>`;
+    else body='<div class="settings-message" role="status">Chargement des utilisateurs…</div>';
+    return `<section class="panel settings-users"><div class="panel-header"><div><h2 class="panel-title">${title}</h2><p class="panel-description">${localDemo?'Comptes et rôles simulés, destinés à explorer l’application.':'Attribuez à chaque collaborateur les accès dont il a besoin.'}</p></div>${btn('Ajouter un utilisateur','new-user','plus','secondary small')}</div>${body}<div class="table-footer">${localDemo?'Les nouveaux profils utilisent le mot de passe public Demo2026!.':'Les changements de rôle, de mot de passe et de statut prennent effet immédiatement.'}</div></section>`;
+  }
+  async function loadAdminUsers() {
+    if(!admin()||usersStatus==='loading')return;
+    const actor=user.id;
+    usersStatus='loading';usersError='';
+    try {
+      if(!localDemo&&!navigator.onLine)throw new Error('La gestion des utilisateurs nécessite une connexion.');
+      const result=await api('/api/admin/users');
+      if(user?.id!==actor||!admin())return;
+      adminUsers=result.users;usersStatus='ready';
+    } catch(error) {
+      if(user?.id!==actor||!admin())return;
+      usersStatus='error';usersError=error.message;
+    }
+    if(view==='settings')render();
+  }
+  function storeForm(id) {
+    const store=state.stores.find(s=>s.id===id);
+    formModal(store?'Modifier le magasin':'Ajouter un magasin',field('Nom du magasin / dépôt','name',store?.name||'',{required:true,full:true})+field('Ville','city',store?.city||'',{full:true})+field('Adresse','address',store?.address||'',{full:true,maxLength:500})+field('Téléphone','phone',store?.phone||'',{type:'tel',maxLength:50})+field('IFU / NIF','taxId',store?.taxId||'',{maxLength:100}),async data=>{
+      await perform('store.save',{id:store?.id,name:data.get('name'),city:data.get('city'),address:data.get('address'),phone:data.get('phone'),taxId:data.get('taxId'),expectedVersion:store?.version},store?'Magasin modifié.':'Magasin ajouté.');
+    });
+  }
+  function userForm(id) {
+    if(!localDemo&&!navigator.onLine){toast('La gestion des utilisateurs nécessite une connexion.',true);return;}
+    const account=adminUsers.find(u=>u.id===id);
+    const title=account?'Modifier l’utilisateur':'Ajouter un utilisateur';
+    const password=localDemo?'<div class="callout full">Profil de démonstration · Mot de passe public : <strong>Demo2026!</strong>.</div>':field(account?'Nouveau mot de passe (facultatif)':'Mot de passe','password','',{type:'password',required:!account,minLength:12,maxLength:200,autocomplete:'new-password',hint:account?'Laissez vide pour conserver le mot de passe actuel. Sinon, 12 caractères minimum.':'12 caractères minimum.'});
+    const fields=field('Nom du collaborateur','name',account?.name||'',{required:true,maxLength:160})+field('Adresse e-mail','email',account?.email||'',{type:'email',required:true,maxLength:254})+field('Rôle','role',account?.role||'cashier',{options:Object.entries(roleNames)})+password+`<div class="field full"><label class="checkbox-label"><input type="checkbox" name="active" ${account?.active===false?'':'checked'}>Compte actif</label><small class="field-hint">Un compte désactivé conserve son historique et ne peut plus ouvrir de session.</small></div>`;
+    formModal(title,fields,async data=>{
+      if(!localDemo&&!navigator.onLine)throw new Error('Reconnectez-vous pour enregistrer cet utilisateur.');
+      const payload={name:data.get('name'),email:data.get('email'),role:data.get('role'),active:data.get('active')==='on'};
+      if(!localDemo&&data.get('password'))payload.password=data.get('password');
+      // Account credentials are sent directly and never enter the offline outbox or cache.
+      await api(account?'/api/admin/users/'+encodeURIComponent(account.id):'/api/admin/users',payload,account?'PATCH':'POST');
+      adminUsers=[];usersStatus='idle';
+      try {await refresh();render();toast(account?'Utilisateur modifié.':'Utilisateur ajouté.');}
+      catch(error){
+        if(error.status!==401)throw error;
+        const formerId=user?.id;
+        user=null;state=null;closeModal();
+        await local.remove('lastUser');if(formerId)await local.remove('state:'+formerId);
+        renderLogin('Vos accès ont changé. Reconnectez-vous pour continuer.');
+      }
+    });
   }
   function modal(title,body,footer='',wide=false) {
     modalRoot.innerHTML=`<div class="dialog-backdrop"><section class="dialog ${wide?'wide':''}" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div class="dialog-header"><div><h2 id="dialog-title">${title}</h2></div><button class="icon-btn" data-close aria-label="Fermer">${icon('close')}</button></div><div class="dialog-body">${body}</div>${footer?`<div class="dialog-footer">${footer}</div>`:''}</section></div>`;
@@ -314,14 +389,14 @@ import { local } from './offline.js';
   }
   function closeModal() {modalRoot.innerHTML='';document.body.classList.remove('modal-open');}
   function field(label,name,value='',options={}) {
-    return `<div class="field ${options.full?'full':''}"><label for="field-${name}">${label}${options.required?' <span class="required">*</span>':''}</label>${options.options?`<select class="input" id="field-${name}" name="${name}" ${options.required?'required':''}>${options.options.map(([v,l])=>`<option value="${esc(v)}" ${String(value)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`:options.area?`<textarea class="input" id="field-${name}" name="${name}" rows="3" maxlength="1000">${esc(value)}</textarea>`:`<input class="input" id="field-${name}" name="${name}" type="${options.type||'text'}" value="${esc(value)}" ${options.required?'required':''} ${options.min!==undefined?`min="${options.min}"`:''} ${options.step?`step="${options.step}"`:''} ${options.max!==undefined?`max="${options.max}"`:''} ${options.placeholder?`placeholder="${esc(options.placeholder)}"`:''} ${options.readonly?'readonly':''}>`}${options.hint?`<small class="field-hint">${options.hint}</small>`:''}</div>`;
+    return `<div class="field ${options.full?'full':''}"><label for="field-${name}">${label}${options.required?' <span class="required">*</span>':''}</label>${options.options?`<select class="input" id="field-${name}" name="${name}" ${options.required?'required':''}>${options.options.map(([v,l])=>`<option value="${esc(v)}" ${String(value)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`:options.area?`<textarea class="input" id="field-${name}" name="${name}" rows="3" maxlength="1000" ${options.required?'required':''}>${esc(value)}</textarea>`:`<input class="input" id="field-${name}" name="${name}" type="${options.type||'text'}" value="${esc(value)}" ${options.required?'required':''} ${options.min!==undefined?`min="${options.min}"`:''} ${options.step?`step="${options.step}"`:''} ${options.max!==undefined?`max="${options.max}"`:''} ${options.placeholder?`placeholder="${esc(options.placeholder)}"`:''} ${options.readonly?'readonly':''} ${options.minLength?`minlength="${options.minLength}"`:''} ${options.maxLength?`maxlength="${options.maxLength}"`:''} ${options.autocomplete?`autocomplete="${options.autocomplete}"`:''}>`}${options.hint?`<small class="field-hint">${options.hint}</small>`:''}</div>`;
   }
   function formModal(title,body,onSubmit,wide=false,submitLabel='Enregistrer') {
     modal(title,`<form id="dialog-form"><div class="form-grid">${body}</div><div class="form-error" role="alert"></div><div class="dialog-footer"><button type="button" class="btn secondary" data-close>Annuler</button><button type="submit" class="btn primary">${icon('check')}${submitLabel}</button></div></form>`,'',wide);
     $('#dialog-form').addEventListener('submit',async event=>{
       event.preventDefault();const form=event.currentTarget;const button=$('[type=submit]',form);
       button.disabled=true;$('.form-error',form).textContent='';
-      try {await onSubmit(new FormData(form),form);closeModal();}
+      try {await onSubmit(new FormData(form),form);if(form.isConnected)closeModal();}
       catch(error){$('.form-error',form).textContent=error.message;button.disabled=false;}
     });
   }
@@ -352,7 +427,7 @@ import { local } from './offline.js';
   }
   function contactDetail(id) {
     const c=state.contacts.find(c=>c.id===id);const list=state.documents.filter(d=>d.contactId===id);
-    modal(esc(c.name),`<p>${esc(c.phone)} · ${esc(c.address)}</p><p class="field-hint">IFU / NIF : ${esc(c.taxId||'Non renseigné')}</p>${prices()?`<div class="contact-balance"><span>${c.type==='customer'?'Créance client':'Dette fournisseur'}</span><strong>${money(list.reduce((s,d)=>s+d.total-d.paid,0))}</strong></div>`:''}<div class="table-wrapper"><table><thead><tr><th>Document</th><th>Date</th>${prices()?'<th>Total</th><th>Restant</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td>${esc(d.number)}</td><td>${date(d.date)}</td>${prices()?`<td>${money(d.total)}</td><td>${money(d.total-d.paid)}</td>`:''}<td><button class="icon-btn" data-contact-document="${d.id}" aria-label="Voir le document">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucun document','Les achats ou ventes associés apparaîtront ici.','arrows'):''}</div>`,admin()?btn('Modifier le contact','edit-contact','edit','secondary'):'',true);
+    modal(esc(c.name),`<p>${esc(c.phone)} · ${esc(c.address)}</p><p class="field-hint">IFU / NIF : ${esc(c.taxId||'Non renseigné')}</p>${prices()?`<div class="contact-balance"><span>${c.type==='customer'?'Créance client':'Dette fournisseur'}</span><strong>${money(list.reduce((s,d)=>s+remaining(d),0))}</strong></div>`:''}<div class="table-wrapper"><table><thead><tr><th>Document</th><th>Date</th>${prices()?'<th>Total</th><th>Restant</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td>${esc(d.number)}</td><td>${date(d.date)}</td>${prices()?`<td>${money(d.total)}</td><td>${money(remaining(d))}</td>`:''}<td><button class="icon-btn" data-contact-document="${d.id}" aria-label="Voir le document">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucun document','Les achats ou ventes associés apparaîtront ici.','arrows'):''}</div>`,admin()?btn('Modifier le contact','edit-contact','edit','secondary'):'',true);
     $$('[data-contact-document]').forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.contactDocument)));
     $('[data-action="edit-contact"]',modalRoot)?.addEventListener('click',()=>contactForm(c));
   }
@@ -408,9 +483,24 @@ import { local } from './offline.js';
   }
   function receipt(id) {
     const d=state.documents.find(d=>d.id===id);if(!d)return;
-    modal(`${typeNames[d.type]} · ${esc(d.number)}`,`<article class="print-document"><div class="receipt-header"><div><h2>${esc(state.settings.businessName)}</h2><p>${esc(storeName(d.storeId))}${d.toStoreId?' → '+esc(storeName(d.toStoreId)):''}</p></div><div><strong>${esc(d.number)}</strong><p>${date(d.date||d.createdAt)}</p></div></div><div class="receipt-party"><span>${d.type==='purchase'?'Fournisseur':'Client'}</span><strong>${esc(contactName(d.contactId))}</strong></div><div class="table-wrapper"><table><thead><tr><th>Article</th><th>Quantité</th>${prices()&&['sale','purchase'].includes(d.type)?'<th>Prix unitaire</th><th>Total</th>':''}</tr></thead><tbody>${d.lines.map(l=>`<tr><td>${esc(l.name||product(l.productId).name)}<small class="cell-secondary">${esc(l.sku||product(l.productId).sku)}</small></td><td>${num(l.quantity)} ${esc(l.unit||product(l.productId).unit)}</td>${prices()&&['sale','purchase'].includes(d.type)?`<td>${money(l.unitPrice)}</td><td>${money(Math.round(l.quantity*l.unitPrice))}</td>`:''}</tr>`).join('')}</tbody></table></div>${prices()&&['sale','purchase'].includes(d.type)?`<div class="receipt-totals"><p><span>Total</span><strong>${money(d.total)}</strong></p><p><span>Payé</span><strong>${money(d.paid)}</strong></p><p class="balance"><span>Solde restant</span><strong>${money(d.total-d.paid)}</strong></p></div>`:''}${d.note?`<p class="receipt-note">Note : ${esc(d.note)}</p>`:''}<p class="field-hint">Document interne · Montants hors taxes · Ne constitue pas une facture fiscale certifiée.</p></article>`,`${btn('Imprimer / PDF','print','print','secondary')}${prices()&&d.total>d.paid&&['sale','purchase'].includes(d.type)?btn('Ajouter un paiement','payment','wallet'):''}`,true);
+    const financial=prices()&&['sale','purchase'].includes(d.type)&&!d.reversalOf;
+    const counterpart=state.documents.find(item=>item.id===(d.reversalDocumentId||d.reversalOf));
+    const cancellation=d.status==='cancelled'?`<div class="document-cancellation"><strong>${icon('close')}Document annulé</strong><p>${esc(d.cancellationReason||'')}</p><small>Annulation enregistrée${d.cancelledAt?' le '+date(d.cancelledAt):''}. Le document reste dans l’historique.</small>${counterpart?`<button class="text-btn no-print" data-linked-document="${counterpart.id}">Voir le mouvement d’annulation ${esc(counterpart.number)} ${icon('chevron')}</button>`:''}</div>`:d.reversalOf?`<div class="callout info"><strong>Mouvement d’annulation</strong><p>Ce document inverse les quantités du document d’origine.</p>${counterpart?`<button class="text-btn no-print" data-linked-document="${counterpart.id}">Voir le document d’origine ${esc(counterpart.number)} ${icon('chevron')}</button>`:''}</div>`:'';
+    const canCancel=admin()&&activeDocument(d)&&!d.inventoryId&&!(d.paid>0);
+    const footer=btn('Imprimer / PDF','print','print','secondary')+(financial&&activeDocument(d)&&d.total>d.paid?btn('Ajouter un paiement','payment','wallet'):'')+(canCancel?btn('Annuler le document','cancel-document','close','danger'):'');
+    modal(`${documentLabel(d)} · ${esc(d.number)}`,`<article class="print-document">${cancellation}<div class="receipt-header"><div><h2>${esc(state.settings.businessName)}</h2><p>${esc(storeName(d.storeId))}${d.toStoreId?' → '+esc(storeName(d.toStoreId)):''}</p></div><div><strong>${esc(d.number)}</strong><p>${date(d.date||d.createdAt)}</p></div></div><div class="receipt-party"><span>${d.type==='purchase'?'Fournisseur':'Client'}</span><strong>${esc(contactName(d.contactId))}</strong></div><div class="table-wrapper"><table><thead><tr><th>Article</th><th>Quantité</th>${financial?'<th>Prix unitaire</th><th>Total</th>':''}</tr></thead><tbody>${d.lines.map(l=>`<tr><td>${esc(l.name||product(l.productId).name)}<small class="cell-secondary">${esc(l.sku||product(l.productId).sku)}</small></td><td>${num(l.quantity)} ${esc(l.unit||product(l.productId).unit)}</td>${financial?`<td>${money(l.unitPrice)}</td><td>${money(Math.round(l.quantity*l.unitPrice))}</td>`:''}</tr>`).join('')}</tbody></table></div>${financial?`<div class="receipt-totals"><p><span>${d.status==='cancelled'?'Montant d’origine':'Total'}</span><strong>${money(d.total)}</strong></p><p><span>Payé</span><strong>${money(d.paid)}</strong></p><p class="balance"><span>Solde restant</span><strong>${money(remaining(d))}</strong></p></div>`:''}${d.note?`<p class="receipt-note">Note : ${esc(d.note)}</p>`:''}${admin()&&d.paid>0&&activeDocument(d)?'<p class="field-hint">Ce document comporte un paiement. Un remboursement doit être traité avant toute annulation ; ce parcours n’est pas encore disponible.</p>':''}<p class="field-hint">Document interne · Montants hors taxes · Ne constitue pas une facture fiscale certifiée.</p></article>`,footer,true);
     $('[data-action=print]',modalRoot)?.addEventListener('click',()=>window.print());
     $('[data-action=payment]',modalRoot)?.addEventListener('click',()=>paymentForm(d));
+    $('[data-action=cancel-document]',modalRoot)?.addEventListener('click',()=>cancelDocumentForm(d));
+    $$('[data-linked-document]',modalRoot).forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.linkedDocument)));
+  }
+  function cancelDocumentForm(d) {
+    formModal('Annuler le document',`<div class="callout full">${esc(d.number)} · Les quantités seront inversées et le document sera conservé avec son motif d’annulation. Cette action annule toutes les lignes.</div>`+field('Motif d’annulation','reason','',{area:true,full:true,required:true})+`<div class="field full"><label class="checkbox-label"><input type="checkbox" name="confirmed" required>Je confirme l’annulation de ce document.</label></div>`,async data=>{
+      if(data.get('confirmed')!=='on')throw new Error('Confirmez l’annulation pour continuer.');
+      if(!String(data.get('reason')||'').trim())throw new Error('Indiquez le motif de cette annulation.');
+      const result=await perform('document.cancel',{documentId:d.id,reason:data.get('reason')},'Document annulé. Le mouvement inverse a été enregistré.');
+      if(!result.queued)receipt(d.id);
+    },false,'Confirmer l’annulation');
   }
   function paymentForm(d) {
     formModal('Enregistrer un paiement',`<div class="callout full">${esc(d.number)} · Restant à régler : ${money(d.total-d.paid)}</div>`+field('Montant (FCFA)','amount',d.total-d.paid,{type:'number',min:1,max:d.total-d.paid,step:1,required:true})+field('Date','date',today(),{type:'date',required:true}),async data=>{await perform('payment.create',{documentId:d.id,amount:Number(data.get('amount')),date:data.get('date')},'Paiement enregistré.');});
@@ -458,7 +548,7 @@ import { local } from './offline.js';
     exportCSV('catalogue',headers,filteredProducts().map(p=>[p.name,p.sku,p.category,p.unit,p.brand,p.location,p.minStock,qty(p.id),...(prices()?[p.sellingPrice]:[]),...(prices()&&admin()?[p.purchasePrice]:[]),p.tags.join(',')]));
   }
   function exportDocuments(list=docs()) {
-    exportCSV('mouvements',['Numéro','Type','Date','Magasin','Utilisateur','SKU','Produit','Quantité',...(prices()?['Prix unitaire','Total document','Payé','Restant']:[])],list.flatMap(d=>d.lines.map(l=>[d.number,typeNames[d.type],d.date,storeName(d.storeId),d.createdBy,product(l.productId).sku,product(l.productId).name,l.quantity,...(prices()?[l.unitPrice,d.total,d.paid,d.total-d.paid]:[])])));
+    exportCSV('mouvements',['Numéro','Type','Statut','Document lié','Date','Magasin','Utilisateur','SKU','Produit','Quantité',...(prices()?['Prix unitaire','Total document','Payé','Restant']:[])],list.flatMap(d=>d.lines.map(l=>[d.number,documentLabel(d),d.status==='cancelled'?'Annulé':d.reversalOf?'Annulation':'Actif',d.reversalDocumentId||d.reversalOf||'',d.date,storeName(d.storeId),d.createdBy,l.sku||product(l.productId).sku,l.name||product(l.productId).name,l.quantity,...(prices()?[l.unitPrice,d.total,d.paid,remaining(d)]:[])])));
   }
   function parseCSV(text) {
     text=text.replace(/^\uFEFF/,'');
@@ -497,8 +587,34 @@ import { local } from './offline.js';
       toast(`${done} article(s) importé(s).`);
     },true,'Importer');
   }
+  async function backupData() {
+    try {
+      const backup=localDemo?await api('/api/demo/backup'):{...state,exportedAt:new Date().toISOString()};
+      download((localDemo?'comptoir-sauvegarde-':'comptoir-donnees-')+today()+'.json',JSON.stringify(backup,null,2),'application/json');
+      toast(localDemo?'Sauvegarde téléchargée, photos et profils de démonstration inclus.':'Instantané des données métier téléchargé.');
+    } catch(error){toast(error.message,true);}
+  }
+  function restoreBackupForm() {
+    if(!localDemo)return;
+    formModal('Choisir une sauvegarde',`<div class="field full"><label for="restore-file">Sauvegarde Comptoir (.json)</label><input class="input" type="file" name="backupFile" id="restore-file" accept=".json,application/json" required><small class="field-hint">Sauvegarde de la version autonome · 25 Mo maximum.</small></div>`,async data=>{
+      const file=data.get('backupFile');
+      if(!file?.size||file.size>25*1024*1024)throw new Error('Sélectionnez une sauvegarde JSON de 25 Mo maximum.');
+      let backup;
+      try{backup=JSON.parse(await file.text());}catch{throw new Error('Le fichier ne contient pas un JSON valide.');}
+      if(backup?.format!=='comptoir-demo-backup'||backup.version!==1||!backup.state||!Array.isArray(backup.profiles))throw new Error('Ce fichier n’est pas une sauvegarde de la démonstration Comptoir.');
+      confirmRestore(backup,file.name);
+    },false,'Continuer');
+  }
+  function confirmRestore(backup,filename) {
+    formModal('Restaurer cette sauvegarde ?',`<div class="callout full"><strong>${esc(filename)}</strong><p>Vos produits, mouvements, photos, profils et saisies en attente seront remplacés par cette sauvegarde. Vous devrez ensuite choisir un profil pour rouvrir le comptoir.</p></div><div class="field full"><label class="checkbox-label"><input type="checkbox" name="confirmed" required>Je confirme le remplacement des données actuelles.</label></div>`,async data=>{
+      if(data.get('confirmed')!=='on')throw new Error('Confirmez le remplacement pour restaurer la sauvegarde.');
+      await api('/api/demo/restore',{backup});
+      state=null;user=null;adminUsers=[];usersStatus='idle';pending=[];storeId='';view='dashboard';
+      closeModal();renderLogin('Sauvegarde restaurée. Choisissez un profil pour continuer.');
+    },false,'Restaurer les données');
+  }
   function pendingDialog() {
-    modal('Saisies en attente',`<p class="subtitle">Les stocks affichés correspondent au dernier état confirmé. Ces saisies seront validées par le serveur, sans double enregistrement.</p>${pending.length?`<div class="pending-list">${pending.map(item=>`<div class="pending-item"><div><strong>${esc({'document.create':'Mouvement de stock','product.save':'Produit','inventory.count':'Comptage','inventory.create':'Session d’inventaire','contact.save':'Contact','payment.create':'Paiement','expense.create':'Dépense','settings.update':'Préférences'}[item.type]||item.type)}</strong><small>${date(new Date(item.queuedAt))}</small>${item.error?`<p class="form-error">${esc(item.error)}</p>`:'<p class="field-hint">En attente de connexion ou d’envoi.</p>'}</div><button class="btn ${item.error?'danger':'secondary'} small" data-discard="${item.id}">Abandonner</button></div>`).join('')}</div>`:empty('Toutes vos saisies sont synchronisées','Aucune opération en attente sur cet appareil.','check')}`,btn('Synchroniser maintenant','sync-now','refresh','primary'),true);
+    modal('Saisies en attente',`<p class="subtitle">Les stocks affichés correspondent au dernier état confirmé. Ces saisies seront validées par le serveur, sans double enregistrement.</p>${pending.length?`<div class="pending-list">${pending.map(item=>`<div class="pending-item"><div><strong>${esc({'document.create':'Mouvement de stock','product.save':'Produit','inventory.count':'Comptage','inventory.create':'Session d’inventaire','contact.save':'Contact','payment.create':'Paiement','expense.create':'Dépense','settings.update':'Préférences','store.save':'Magasin','document.cancel':'Annulation de document'}[item.type]||item.type)}</strong><small>${date(new Date(item.queuedAt))}</small>${item.error?`<p class="form-error">${esc(item.error)}</p>`:'<p class="field-hint">En attente de connexion ou d’envoi.</p>'}</div><button class="btn ${item.error?'danger':'secondary'} small" data-discard="${item.id}">Abandonner</button></div>`).join('')}</div>`:empty('Toutes vos saisies sont synchronisées','Aucune opération en attente sur cet appareil.','check')}`,btn('Synchroniser maintenant','sync-now','refresh','primary'),true);
     $$('[data-discard]',modalRoot).forEach(el=>el.addEventListener('click',()=>{
       modal('Abandonner cette saisie ?',`<p>Cette opération n’a pas été confirmée localement. Un envoi interrompu peut avoir été accepté par le serveur : synchronisez d’abord pour vérifier. L’abandon retire uniquement la copie locale.</p>`,btn('Confirmer l’abandon','confirm-discard','close','danger')+'<button class="btn secondary" data-close>Annuler</button>');
       $('[data-action=confirm-discard]').addEventListener('click',async()=>{await local.removeCommand(el.dataset.discard);pending=await local.pending(user.id);render();pendingDialog();});
@@ -516,27 +632,160 @@ import { local } from './offline.js';
       case 'new-purchase':documentForm('purchase');break;
       case 'new-inventory':inventoryForm();break;
       case 'new-expense':expenseForm();break;
+      case 'new-store':storeForm();break;
+      case 'new-user':userForm();break;
+      case 'refresh-users':usersStatus='idle';await loadAdminUsers();break;
       case 'show-low':view='products';stockFilter='low';render();break;
       case 'filter-documents':documentFilter=data.filter;render();break;
       case 'export-products':exportProducts();break;
       case 'export-documents':exportDocuments();break;
       case 'export-report':exportDocuments(reportDocuments());break;
       case 'export-reorder':exportCSV('reapprovisionnement',['SKU','Produit','Stock','Seuil','À commander'],state.products.filter(p=>qty(p.id)<=p.minStock).map(p=>[p.sku,p.name,qty(p.id),p.minStock,Math.max(0,p.minStock*2-qty(p.id))]));break;
-      case 'backup':download('comptoir-donnees-'+today()+'.json',JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');toast('Instantané JSON téléchargé (sans images ni comptes).');break;
+      case 'backup':await backupData();break;
+      case 'restore-backup':restoreBackupForm();break;
       case 'import-products':importProducts();break;
       case 'sync':await sync();pendingDialog();break;
       case 'logout':
         if(!navigator.onLine){toast('La déconnexion sécurisée nécessite une connexion au serveur.',true);break;}
-        try{await api('/api/logout',{});await local.remove('lastUser');await local.remove('state:'+user.id);user=null;state=null;view='dashboard';closeModal();renderLogin();}
+        try{await api('/api/logout',{});await local.remove('lastUser');await local.remove('state:'+user.id);user=null;state=null;adminUsers=[];usersStatus='idle';view='dashboard';closeModal();renderLogin();}
         catch(error){toast(error.message,true);}
         break;
     }
   }
+  const authArt = () => `<section class="login-art"><a class="brand" href="/"><span class="brand-icon">${icon('box')}</span>comptoir<span class="brand-dot">.</span></a><div class="login-art-copy"><div class="eyebrow">LE BON STOCK. AU BON MOMENT.</div><h1>Votre commerce,<br>l’esprit tranquille.</h1><p>Du premier article au dernier inventaire, retrouvez l’essentiel de votre activité dans un seul espace.</p><div class="login-feature">${icon('box')}Un catalogue toujours à portée de main</div><div class="login-feature">${icon('arrows')}Chaque mouvement, suivi et enregistré</div><div class="login-feature">${icon('clipboard')}Des inventaires simples et précis</div></div><div class="login-art-footer">Pensé pour les commerces qui avancent.</div><div class="login-decoration">${icon('box')}</div></section>`;
+  function stopRegistrationTimer() {
+    if (registrationTimer) clearInterval(registrationTimer);
+    registrationTimer=null;
+  }
+  function resetRegistration() {
+    stopRegistrationTimer();
+    registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
+  }
+  function showLogin(message='') {
+    resetRegistration();
+    authMode='login';
+    renderLogin(message);
+  }
+  function startRegistration() {
+    if (!registrationEnabled || localDemo) return renderLogin('L’inscription par e-mail sera disponible sur la plateforme hébergée.');
+    resetRegistration();
+    authMode='register';
+    renderRegistration();
+  }
   function renderLogin(message='') {
+    stopRegistrationTimer();
+    authMode='login';
     document.body.classList.remove('nav-open');
-    root.innerHTML=`<div class="login-shell"><section class="login-art"><a class="brand" href="/"><span class="brand-icon">${icon('box')}</span>comptoir<span class="brand-dot">.</span></a><div class="login-art-copy"><div class="eyebrow">LE BON STOCK. AU BON MOMENT.</div><h1>Votre commerce,<br>l’esprit tranquille.</h1><p>Du premier article au dernier inventaire, retrouvez l’essentiel de votre activité dans un seul espace.</p><div class="login-feature">${icon('box')}Un catalogue toujours à portée de main</div><div class="login-feature">${icon('arrows')}Chaque mouvement, suivi et enregistré</div><div class="login-feature">${icon('clipboard')}Des inventaires simples et précis</div></div><div class="login-art-footer">Pensé pour les commerces qui avancent.</div><div class="login-decoration">${icon('box')}</div></section><section class="login-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">BIENVENUE DANS VOTRE ESPACE</div><h2>Ouvrons votre comptoir.</h2><p class="subtitle">Connectez-vous pour suivre votre commerce.</p><form id="login-form">${field('Adresse e-mail','email','',{type:'email',required:true,placeholder:'vous@votre-commerce.fr'})}${field('Mot de passe','password','',{type:'password',required:true})}<div class="form-error" role="alert">${esc(message)}</div><button type="submit" class="btn primary login-submit">Se connecter${icon('chevron')}</button></form>${demoMode?`<div class="demo-accounts"><div class="demo-heading"><span class="badge purple">DÉMONSTRATION LOCALE</span><p>Explorez l’application avec des données fictives.</p></div>${[['admin','Administrateur','Toutes les fonctionnalités','settings'],['cashier','Caissier','Ventes et catalogue sans coûts d’achat','cart'],['inventory','Agent d’inventaire','Comptage sans données financières','clipboard']].map(([role,title,detail,name])=>`<button class="demo-account" data-demo="${role}">${icon(name)}<span><strong>${title}</strong><small>${detail}</small></span>${icon('chevron')}</button>`).join('')}</div>`:''}<p class="login-security">${icon('check')}Accès protégé · Données conservées sur votre serveur</p></section></div>`;
+    root.innerHTML=`<div class="login-shell">${authArt()}<section class="login-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">BIENVENUE DANS VOTRE ESPACE</div><h2>Ouvrons votre comptoir.</h2><p class="subtitle">Connectez-vous pour suivre votre commerce.</p><form id="login-form">${field('Adresse e-mail','email',loginPrefill,{type:'email',required:true,placeholder:'vous@votre-commerce.fr',autocomplete:'email'})}${field('Mot de passe','password','',{type:'password',required:true,autocomplete:'current-password'})}<div class="form-error" role="alert">${esc(message)}</div><button type="submit" class="btn primary login-submit">Se connecter${icon('chevron')}</button></form><p class="auth-links">Vous n’avez pas encore de compte ? <button type="button" class="auth-link" data-auth-action="register">Créer un compte</button></p>${demoMode?`<div class="demo-accounts"><div class="demo-heading"><span class="badge purple">DÉMONSTRATION LOCALE</span><p>Explorez l’application avec des données fictives.</p></div>${[['admin','Administrateur','Toutes les fonctionnalités','settings'],['cashier','Caissier','Ventes et catalogue sans coûts d’achat','cart'],['inventory','Agent d’inventaire','Comptage sans données financières','clipboard']].map(([role,title,detail,name])=>`<button class="demo-account" data-demo="${role}">${icon(name)}<span><strong>${title}</strong><small>${detail}</small></span>${icon('chevron')}</button>`).join('')}</div>`:''}<p class="login-security">${icon('check')}Accès protégé · Données conservées sur votre serveur</p></section></div>`;
     $('#login-form').addEventListener('submit',async e=>{e.preventDefault();await login($('#field-email').value,$('#field-password').value);});
+    $('[data-auth-action="register"]')?.addEventListener('click',startRegistration);
+    if (!registrationEnabled) $('[data-auth-action="register"]')?.closest('.auth-links')?.remove();
     $$('[data-demo]').forEach(el=>el.addEventListener('click',()=>login(el.dataset.demo+'@stock.local','Demo2026!')));
+  }
+  function registrationFeedback(message,success=false) {
+    return message?`<div class="${success?'auth-message success':'form-error'}" role="${success?'status':'alert'}">${esc(message)}</div>`:'';
+  }
+  function registrationForm() {
+    return `<form id="registration-form"><div class="register-section"><span class="register-section-title">Vos accès</span><p>Ils serviront à vous connecter à votre espace.</p></div>${field('Nom complet','name',registration.name,{required:true,maxLength:160,autocomplete:'name',placeholder:'Ex. Awa Adom'})}${field('Adresse e-mail','email',registration.email,{type:'email',required:true,maxLength:254,autocomplete:'email',placeholder:'vous@votre-commerce.fr'})}${field('Mot de passe','password','',{type:'password',required:true,minLength:12,maxLength:200,autocomplete:'new-password',hint:'12 caractères minimum.'})}${field('Confirmer le mot de passe','passwordConfirmation','',{type:'password',required:true,minLength:12,maxLength:200,autocomplete:'new-password'})}<div class="register-section full"><span class="register-section-title">Votre boutique</span><p>Vous pourrez ajouter d’autres magasins après votre inscription.</p></div>${field('Nom de la boutique','shopName',registration.shopName,{required:true,maxLength:120,full:true,placeholder:'Ex. Épicerie La Grâce',autocomplete:'organization'})}${field('Ville / commune','shopCity',registration.shopCity,{required:true,maxLength:100,full:true,placeholder:'Ex. Cotonou',autocomplete:'address-level2'})}<div id="registration-error">${registrationFeedback('')}</div><button type="submit" class="btn primary login-submit">Créer mon espace${icon('chevron')}</button></form>`;
+  }
+  function verificationForm() {
+    const remainingSeconds=Math.max(0,Math.ceil((registration.cooldownUntil-Date.now())/1000));
+    return `<div class="verification-summary">${icon('check')}<div><strong>Un code a été envoyé</strong><p>à <b>${esc(registration.email)}</b>. Consultez votre boîte de réception et vos courriers indésirables.</p></div></div><form id="registration-code-form"><div class="field verification-code-field"><label for="registration-code">Code de vérification <span class="required">*</span></label><input class="input" id="registration-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required placeholder="000000" aria-describedby="registration-code-hint"><small id="registration-code-hint" class="field-hint">Saisissez les 6 chiffres reçus par e-mail.</small></div><div id="registration-error">${registrationFeedback('')}</div><button type="submit" class="btn primary login-submit">Vérifier et ouvrir mon espace${icon('chevron')}</button></form><div class="verification-actions"><button type="button" class="auth-link" id="registration-resend" ${remainingSeconds?'disabled':''}>Renvoyer le code<span id="resend-countdown">${remainingSeconds?` dans ${remainingSeconds} s`:''}</span></button><button type="button" class="auth-link muted" data-auth-action="change-registration">Modifier mes informations</button></div>`;
+  }
+  function scheduleRegistrationTimer() {
+    stopRegistrationTimer();
+    const tick=()=>{
+      const button=$('#registration-resend'),counter=$('#resend-countdown');
+      if(!button||!counter){stopRegistrationTimer();return;}
+      const seconds=Math.max(0,Math.ceil((registration.cooldownUntil-Date.now())/1000));
+      button.disabled=seconds>0;
+      counter.textContent=seconds?` dans ${seconds} s`:'';
+      if(!seconds)stopRegistrationTimer();
+    };
+    tick();
+    if(registration.cooldownUntil>Date.now())registrationTimer=setInterval(tick,1000);
+  }
+  function renderRegistration(message='',success=false) {
+    authMode='register';
+    document.body.classList.remove('nav-open');
+    const verify=registration.step==='verify';
+    root.innerHTML=`<div class="login-shell">${authArt()}<section class="login-card register-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">${verify?'DERNIÈRE ÉTAPE':'CRÉEZ VOTRE ESPACE'}</div><h2>${verify?'Vérifions votre adresse.':'Votre commerce commence ici.'}</h2><p class="subtitle">${verify?'Confirmez votre adresse pour ouvrir votre tableau de bord.':'Inscrivez-vous en quelques secondes et commencez à suivre votre boutique.'}</p>${verify?verificationForm():registrationForm()}${registrationFeedback(message,success)}<p class="auth-links">${verify?'Vous avez utilisé la mauvaise adresse ?':'Vous avez déjà un compte ?'} <button type="button" class="auth-link" data-auth-action="${verify?'change-registration':'login'}">${verify?'Modifier mes informations':'Se connecter'}</button></p><p class="login-security">${icon('check')}Vos informations restent protégées · Aucun mot de passe n’est conservé hors du serveur</p></section></div>`;
+    if(verify){
+      const code=$('#registration-code');
+      code?.addEventListener('input',event=>{event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);});
+      $('#registration-code-form')?.addEventListener('submit',verifyRegistration);
+      $('#registration-resend')?.addEventListener('click',resendRegistrationCode);
+      $('[data-auth-action="change-registration"]')?.addEventListener('click',()=>{registration.step='form';registration.cooldownUntil=0;renderRegistration();});
+      scheduleRegistrationTimer();
+    } else {
+      $('#registration-form')?.addEventListener('submit',submitRegistration);
+      $('[data-auth-action="login"]')?.addEventListener('click',showLogin);
+    }
+  }
+  async function submitRegistration(event) {
+    event.preventDefault();
+    const form=event.currentTarget, button=$('[type=submit]',form), data=new FormData(form);
+    const email=String(data.get('email')||'').trim().toLowerCase(), name=String(data.get('name')||'').trim(), shopName=String(data.get('shopName')||'').trim(), shopCity=String(data.get('shopCity')||'').trim();
+    const password=String(data.get('password')||''), passwordConfirmation=String(data.get('passwordConfirmation')||'');
+    const invalid=message=>{registration={...registration,step:'form',email,name,shopName,shopCity};renderRegistration(message);};
+    if(password!==passwordConfirmation)return invalid('Les deux mots de passe ne correspondent pas.');
+    if(password.length<12)return invalid('Le mot de passe doit contenir au moins 12 caractères.');
+    if(!name||!shopName||!shopCity)return invalid('Renseignez votre nom, votre boutique et votre ville.');
+    button.disabled=true;
+    registration={...registration,step:'form',email,name,shopName,shopCity};
+    try {
+      if(!navigator.onLine)throw new Error('La création d’un compte nécessite une connexion internet.');
+      // The password exists only in this local variable for this request. It
+      // is never copied into registration, local storage, or the outbox.
+      const result=await api('/api/register',{email,name,password,shop:{name:shopName,city:shopCity}});
+      registration={step:'verify',email,name,shopName,shopCity,registrationId:String(result.registrationId||result.pendingId||result.id||''),cooldownUntil:Date.now()+60_000};
+      if(result.verified===true||result.verificationRequired===false){await finishRegistration(result);return;}
+      renderRegistration('Le code de vérification vient d’être envoyé à votre adresse e-mail.','success');
+    } catch(error) {
+      renderRegistration(error.message||'Impossible de créer le compte. Réessayez.');
+    }
+  }
+  async function resendRegistrationCode() {
+    if(registration.cooldownUntil>Date.now())return;
+    const button=$('#registration-resend');if(button)button.disabled=true;
+    try {
+      if(!navigator.onLine)throw new Error('Le renvoi du code nécessite une connexion internet.');
+      const result=await api('/api/register/resend',{email:registration.email,registrationId:registration.registrationId||undefined});
+      registration.cooldownUntil=Date.now()+60_000;
+      renderRegistration(result.message||'Un nouveau code vient d’être envoyé.','success');
+    } catch(error) { renderRegistration(error.message||'Impossible de renvoyer le code.'); }
+  }
+  async function verifyRegistration(event) {
+    event.preventDefault();
+    const form=event.currentTarget,button=$('[type=submit]',form),code=String(new FormData(form).get('code')||'').trim();
+    if(!/^\d{6}$/.test(code)){renderRegistration('Saisissez les 6 chiffres reçus par e-mail.');return;}
+    button.disabled=true;
+    try {
+      if(!navigator.onLine)throw new Error('La vérification nécessite une connexion internet.');
+      const result=await api('/api/register/verify',{email:registration.email,registrationId:registration.registrationId||undefined,code});
+      await finishRegistration(result);
+    } catch(error) { renderRegistration(error.message||'Code invalide ou expiré.'); }
+  }
+  async function finishRegistration(result={}) {
+    const verifiedEmail=registration.email;
+    stopRegistrationTimer();
+    try {
+      // Verification is expected to create the session cookie server-side.
+      // Refreshing the real state also makes the newly created boutique the
+      // first selected store without touching the offline command queue.
+      await refresh();
+      registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
+      authMode='login';view='dashboard';render();await sync();
+    } catch(error) {
+      if(error.status===401){
+        loginPrefill=verifiedEmail;
+        resetRegistration();
+        renderLogin('Adresse vérifiée. Connectez-vous pour ouvrir votre nouvel espace.');
+      } else {
+        registration.step='verify';
+        renderRegistration('Votre adresse est vérifiée, mais le tableau de bord est momentanément indisponible. Réessayez dans un instant.',true);
+      }
+    }
   }
   async function login(email,password) {
     $$('button',root).forEach(b=>b.disabled=true);
@@ -546,7 +795,7 @@ import { local } from './offline.js';
   async function init() {
     if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
     try{
-      const config=await api('/api/config');demoMode=config.demoMode;
+      const config=await api('/api/config');demoMode=config.demoMode;localDemo=!!config.localDemo;registrationEnabled=!!config.registrationEnabled&&!localDemo;
       await refresh();render();await sync();
     }catch(error){
       if(!error.status){

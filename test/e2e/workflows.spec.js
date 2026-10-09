@@ -80,7 +80,7 @@
     await expect(page.getByRole('heading',{name:'Rapports & analyses',exact:true})).toBeVisible();
     const docs=(await getState(page)).documents.filter(d=>d.type==='sale'&&d.storeId==='store-centre');
     const gross=docs.reduce((s,d)=>s+d.lines.reduce((sum,l)=>sum+Math.round(l.quantity*l.unitPrice)-Math.round(l.quantity*l.purchaseCost),0),0);
-    const displayed=await page.locator('.metric-card').filter({hasText:'Bénéfice brut réalisé'}).locator('.metric-value').textContent();
+    const displayed=await page.locator('.metric-card').filter({hasText:'Bénéfice brut estimé'}).locator('.metric-value').textContent();
     expect(Number(displayed.replace(/[^\d-]/g,''))).toBe(gross);
     await page.getByRole('button',{name:'Paramètres',exact:true}).click();
     await page.getByRole('checkbox',{name:'Mode sans prix'}).check();

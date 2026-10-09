@@ -494,6 +494,30 @@ tr.inventory-line { display: table-row; padding: 0; }
 .login-card .field label { font-size: 11px; }
 .login-card .field input { min-height: 43px; font-size: 12px; }
 .login-submit { width: 100%; min-height: 43px; margin-top: 6px; justify-content: space-between; padding: 11px 14px; font-size: 12px; }
+.register-card { width: 480px; }
+.register-card > .subtitle { max-width: 430px; }
+.register-section { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 9px; padding: 12px 0 1px; margin-top: 2px; border-top: 1px solid var(--border); }
+.register-section-title { color: #717a8e; font-size: 11px; font-weight: 650; }
+.register-section p { color: #a3aaba; font-size: 10px; }
+.register-card .form-grid { gap: 12px 14px; }
+.register-card .field { margin-bottom: 4px; }
+.register-card .field-hint { line-height: 1.45; }
+.auth-links { color: #a1a8b8; font-size: 10px; text-align: center; margin: 17px 0 0; }
+.auth-link { border: 0; padding: 0; color: var(--primary); background: transparent; font-weight: 650; font-size: inherit; }
+.auth-link:hover { color: var(--primary-dark); text-decoration: underline; }
+.auth-link.muted { color: #9299aa; font-weight: 500; }
+.auth-message { color: var(--green); background: var(--green-soft); padding: 10px 12px; border-radius: 6px; margin: 4px 0 16px; font-size: 11px; }
+.auth-message.success { border: 1px solid #d5eddf; }
+.verification-summary { display: flex; align-items: flex-start; gap: 11px; padding: 13px; margin: 2px 0 21px; color: #6d5a91; background: var(--primary-soft); border: 1px solid #e2dafb; border-radius: 8px; font-size: 11px; }
+.verification-summary > .icon { width: 18px; height: 18px; padding: 2px; color: var(--green); background: var(--green-soft); border-radius: 50%; }
+.verification-summary strong { display: block; font-weight: 650; }
+.verification-summary p { margin-top: 3px; color: #9589aa; font-size: 10px; }
+.verification-code-field { max-width: 270px; margin: 0 auto 17px; text-align: center; }
+.verification-code-field label { text-align: left; }
+.verification-code-field input { text-align: center; letter-spacing: 7px; font-size: 19px !important; font-weight: 650; }
+.verification-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; margin-top: 18px; }
+.verification-actions #resend-countdown { color: #a4aabb; font-weight: 400; }
+.register-card .login-security { margin-top: 20px; }
 .demo-accounts { margin-top: 25px; padding-top: 20px; }
 .demo-heading { margin-bottom: 12px; }
 .demo-heading > .badge { font-size: 8px; letter-spacing: .5px; padding: 3px 6px; }
@@ -768,3 +792,20 @@ tr.inventory-line { display: table-row; padding: 0; }
   .dashboard-grid { display: block; }
   .chart { break-inside: avoid; }
 }
+
+/* Administration and document audit details. */
+.settings-users { grid-column: 1 / -1; }
+.settings-message { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:20px 22px; color:#9aa3b5; font-size:11px; }
+.checkbox-label { display:flex!important; align-items:center; gap:9px; color:#788297; line-height:1.7; cursor:pointer; }
+.checkbox-label input[type="checkbox"] { margin:0; min-height:0; width:15px; height:15px; flex-shrink:0; }
+.document-cancellation { margin-bottom:24px; padding:16px 18px; border:1px solid #f3d4d2; border-radius:9px; background:#fff4f3; color:#bd7774; }
+.document-cancellation > strong { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; }
+.document-cancellation > strong .icon { width:16px; height:16px; }
+.document-cancellation p { color:#b98784; font-size:11px; margin:6px 0; }
+.document-cancellation small { display:block; color:#bb9996; font-size:10px; }
+.document-cancellation .text-btn { display:flex; margin-top:8px; }
+.settings-grid .store-line > div { min-width:0; }
+.settings-grid .store-line p { margin-top:2px; font-size:10px; }
+.settings-users .table-footer { font-size:10px; }
+@media(max-width:760px){ .settings-users .panel-header { align-items:flex-start; flex-wrap:wrap; }.settings-message{padding:18px;}.settings-users .table-footer{line-height:1.8;} }
+@media print{.document-cancellation{background:#fff;border-color:#bbb;}.document-cancellation p,.document-cancellation small{color:#444;}}

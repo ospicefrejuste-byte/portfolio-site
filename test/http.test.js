@@ -61,7 +61,7 @@ test('HTTP authentication, authorization, origin checks and authenticated image 
     const config = await request('/api/config');
     assert.equal(config.status, 200);
     assert.equal(config.headers.get('cache-control'), 'no-store');
-    assert.deepEqual(await config.json(), { demoMode: true });
+    assert.deepEqual(await config.json(), { demoMode: true, registrationEnabled:true });
     assert.deepEqual(await (await request('/api/session')).json(), { user: null });
     await expectError(await request('/api/state'), 401, 'UNAUTHORIZED');
     await expectError(await jsonPost('/api/commands', { id: randomUUID(), type: 'settings.update', payload: { noPrices: true, businessName: 'Interdit' } }), 401, 'UNAUTHORIZED');

@@ -8,7 +8,9 @@ Le socle utilise Node.js 24, Express et SQLite pour une installation simple sur 
 
 Les comptes de démonstration servent à vérifier les parcours administrateur, caissier et agent d'inventaire. La configuration de production doit désactiver ces comptes et utiliser un administrateur provisionné par configuration sécurisée. Le périmètre fonctionnel réellement disponible, les commandes de lancement et les limites sont décrits dans le [README](../README.md).
 
-L'authentification locale stocke des mots de passe hachés avec scrypt et des sessions serveur limitées dans le temps ; les jetons de session sont hachés dans SQLite. Le mode production exige le provisionnement initial d'un administrateur et refuse les connexions des comptes publics de démonstration. Invitations, récupération de compte, administration complète des utilisateurs et autorisations par magasin restent à construire.
+L'authentification locale stocke des mots de passe hachés avec scrypt et des sessions serveur limitées dans le temps ; les jetons de session sont hachés dans SQLite. Le mode production exige le provisionnement initial d'un administrateur et refuse les connexions des comptes publics de démonstration. L'administration du commerce permet de gérer ses magasins et ses comptes, leurs rôles et leur activation. Invitations, récupération de compte en libre-service et autorisations affectées à un magasin restent des évolutions distinctes.
+
+La démonstration Windows est un fichier HTML autonome avec un moteur métier local et des rôles simulés. Les données modifiées sont conservées dans le navigateur. La version serveur vérifie les droits par l'API et utilise SQLite ; cette distinction doit rester visible dans les produits et les documents de livraison.
 
 ```mermaid
 flowchart LR
@@ -23,7 +25,9 @@ SQLite convient au prototype et à une instance locale. Plusieurs terminaux peuv
 
 Le modèle actuel stocke les objets métier en JSON dans SQLite et les soldes par produit/magasin dans une table dédiée. Les commandes sont transactionnelles (`BEGIN IMMEDIATE`) et dédupliquées. Les quantités sont conservées en milli-unités, les montants du prototype en francs CFA XOF entiers ; chaque ligne commerciale est arrondie au franc avant totalisation. Les catégories utilisent des chemins textuels et un produit a une photo. Les documents sont enregistrés directement. Le journal normalisé, les brouillons et le modèle relationnel cible ci-dessous constituent des évolutions explicites.
 
-## Règles métier à préserver
+## Règles métier de la cible complète
+
+Les règles ci-dessous orientent les évolutions ; les paragraphes « premier incrément » indiquent les limites de la version actuellement livrée. Le [dossier de remise](HANDOFF.md) et le [guide de déploiement](DEPLOYMENT.md) définissent les conditions pratiques de publication du pilote.
 
 ### Stock et documents
 
@@ -37,6 +41,8 @@ Le modèle actuel stocke les objets métier en JSON dans SQLite et les soldes pa
 La référence SKU est unique dans une organisation, même lorsqu'un produit est présent dans plusieurs magasins. Une catégorie peut avoir un parent ; un magasin, une zone et un emplacement ne sont pas une catégorie. Les unités (pièce, kg, litre, carton) doivent être explicites. La conversion carton → pièce nécessite un facteur propre au produit, pas une simple modification du libellé.
 
 Le premier incrément refuse le changement d'unité si l'article a du stock, un document ou une ligne d'inventaire. Un article encore inutilisé avec un stock nul peut être modifié. Les lignes des documents conservent le nom, le SKU et l'unité historiques du produit.
+
+L'annulation d'un document non payé est réservée à l'administrateur et exige un motif. Elle conserve l'original, le marque annulé et enregistre un document inverse lié, dans la même transaction que les mouvements compensatoires. Les ventes, achats, transferts et ajustements manuels sont concernés ; l'ajustement d'un inventaire validé ne peut pas être annulé par cette voie. L'original annulé et son inverse sont exclus des ventes, marges et dettes actives. Si un paiement a été reçu, l'opération est refusée : les remboursements restent à implémenter et ne peuvent pas être remplacés par une correction fictive d'encaissement.
 
 ### Montants, quantités et valorisation
 
@@ -80,11 +86,15 @@ La validation applique l'écart comme ajustement documenté, atomiquement et une
 | Validation d'inventaire | Oui | Non | Non |
 | Utilisateurs et paramétrage | Oui | Non | Non |
 
+Pour le premier incrément serveur, les rôles portent sur l'ensemble du commerce et ses magasins. L'administrateur crée les comptes réels et gère leur rôle, activation et mot de passe. Les opérations d'administration des utilisateurs passent par des routes API dédiées et exigent une connexion au serveur ; les mots de passe ne sont pas enregistrés dans la file hors-ligne. La désactivation et les changements d'adresse, rôle ou mot de passe révoquent toutes les sessions du compte concerné ; un changement de nom seul les conserve. Le serveur empêche de désactiver ou rétrograder le dernier administrateur réel actif.
+
 Les droits sont vérifiés sur chaque route API et chaque objet demandé. Masquer un bouton ou une colonne ne protège pas les données. Les réponses, recherches, exports et le cache local d'un rôle restreint excluent les prix d'achat et les marges. Le cache est effacé à la déconnexion et lors d'un changement de compte.
 
-La version Cloud ajoute une organisation (`tenant`) obligatoire à toute donnée métier. Les requêtes filtrent simultanément l'organisation, les magasins autorisés et le rôle ; un identifiant d'objet fourni par le client ne constitue jamais une preuve d'accès. Les clés étrangères et contraintes d'unicité incluent l'organisation lorsque nécessaire. Les administrateurs d'un commerce n'accèdent pas aux données d'un autre.
+La version serveur rattache les nouveaux comptes à une organisation (`tenant_id` sur les utilisateurs et `tenantId` sur les enregistrements métier). Les accès métier sont exécutés dans le périmètre obtenu en base depuis l'utilisateur authentifié, avec restauration de ce périmètre après chaque opération synchrone. Les stocks sont associés aux identifiants uniques des produits et magasins de ce périmètre. Les fichiers image possèdent leur propre table d'appartenance. Les anciennes données sans organisation restent dans le périmètre historique, inaccessible aux nouveaux inscrits. Les contraintes SKU et les numéros de documents sont évalués par commerce. Les tests HTTP vérifient lecture, écritures, utilisateurs et images entre deux commerces indépendants.
 
-Pour la mise en production commerciale : vérifier le refus des comptes de démonstration, compléter l'invitation et la récupération de compte, la révocation des sessions, la politique de cookies, la protection CSRF, la limitation des tentatives et le journal d'audit. Le déploiement doit fournir HTTPS et configurer explicitement l'origine et le proxy de confiance. Les secrets restent dans la configuration du déploiement.
+L'inscription conserve une demande temporaire contenant un mot de passe et un code hachés avec scrypt, une date d'expiration, le nombre d'essais et les informations de boutique. Le code provient du générateur cryptographique, expire après 15 minutes et est limité à cinq essais. La validation crée le compte administrateur, l'organisation, le magasin et la session dans une transaction, puis supprime la demande. Le transport capture les messages en mémoire pour les tests ; la production utilise SMTP chiffré et refuse une configuration manquante. La récupération de mot de passe et la sélection de plusieurs organisations par une même adresse restent à réaliser.
+
+Le déploiement du pilote vérifie le refus des comptes de démonstration, les restrictions API, la révocation des sessions, la politique de cookies, la protection d'origine et la limitation des tentatives. Il fournit HTTPS et configure explicitement l'origine et le proxy de confiance. Les secrets restent dans la configuration du déploiement. L'invitation, la récupération en libre-service, l'affectation par magasin et un journal d'audit complet restent dans les étapes suivantes.
 
 ## Modèle de données cible
 
@@ -164,6 +174,10 @@ Les photos passent par contrôle de format et de taille, noms générés et stoc
 
 Un export JSON ou CSV est un échange de données, pas une sauvegarde complète et restaurable. Une sauvegarde doit inclure la base, les photos, les paramètres nécessaires et un manifeste avec version et contrôles d'intégrité.
 
+Le premier incrément fournit des outils de sauvegarde locale : snapshot SQLite via son API de sauvegarde, images, manifeste SHA-256 et vérification des références du catalogue. La planification est activée par `STOCK_BACKUP_DIR` ; elle lance une sauvegarde au démarrage, puis selon `STOCK_BACKUP_INTERVAL_HOURS` (24 heures par défaut), et conserve `STOCK_BACKUP_RETENTION` sauvegardes (7 par défaut). La restauration exige un service arrêté et une destination neuve, vérifie l'intégrité et révoque les sessions restaurées. Les commandes se trouvent dans [BACKUPS.md](BACKUPS.md).
+
+La copie vers un stockage extérieur et sa surveillance font partie de la prestation d'hébergement. Des sauvegardes conservées sur le disque de production ne couvrent pas la perte de ce disque.
+
 En SQLite, utiliser l'API de sauvegarde ou une procédure cohérente avec le mode WAL ; copier seulement le fichier principal pendant des écritures peut perdre des données. En Cloud, utiliser PostgreSQL avec sauvegardes automatisées et restauration à un instant donné, plus un stockage objet versionné pour les images. Définir rétention, chiffrement, contrôle d'accès, stockage hors de l'instance et fréquence selon les objectifs de perte de données et de délai de reprise.
 
 Les tâches planifiées doivent être surveillées. Une restauration vers une instance isolée, puis les vérifications des relations, soldes, documents et photos, font partie des critères de mise en production.
@@ -172,12 +186,12 @@ Les tâches planifiées doivent être surveillées. Une restauration vers une in
 
 | Étape | Livraison | Critère de passage |
 | --- | --- | --- |
-| 1. Socle local | Catalogue, recherche, magasins, mouvements, inventaire, rôles de démonstration, interface responsive et persistance | Tests des règles de stock, des accès, de l'idempotence et de la concurrence ; parcours navigateur |
+| 1. Pilote serveur et démonstration | Catalogue, magasins configurables, comptes et rôles, mouvements, annulation non payée, inventaire, sauvegardes locales et interface responsive | Tests métier et navigateur, restrictions API, concurrence et restauration ; périmètre démo clairement indiqué |
 | 2. Cloud sécurisé | PostgreSQL, organisations, sessions de production, HTTPS, stockage objet et migrations | Isolation entre commerces, contrôle des magasins, charge et restauration |
 | 3. Gestion commerciale | Documents brouillon/validé, journal normalisé, retours, achats, valorisation et frais | Totaux et dettes exacts ; bénéfice basé sur le coût des ventes ; corrections auditables |
 | 4. Synchronisation et hors-ligne | Domaine TypeScript partagé, journal incrémental, outbox persistante, cache par rôle et conflits | Coupure/reprise, redémarrage, double envoi, deux appareils, rôle révoqué et stock insuffisant |
 | 5. Applications mobiles | Expo/React Native ou Capacitor validé, adaptation tactile, stockage local, connectivité | Essais Android/iOS réels, mises à jour, mode avion et gestion des sessions |
 | 6. Échanges et facturation | Import Excel, PDF, tickets, bordereaux, adaptateurs imprimantes et e-MECeF | Fichiers représentatifs, arrondis, exigences fiscales officielles du Bénin et matériel compatible |
-| 7. Exploitation | Sauvegardes automatiques base/images, audit, alertes, performances et documentation opérateur | Restauration complète, objectifs de reprise mesurés et pilote en magasin |
+| 7. Exploitation | Copies de sauvegarde extérieures, audit, alertes, performances et documentation opérateur | Restauration complète, objectifs de reprise mesurés et pilote en magasin |
 
 Ces étapes sont itératives : chaque livraison conserve les invariants du journal, les protections API et les tests déjà validés. Les comptes de démonstration et les hypothèses fiscales sont retirés ou résolus avant toute exploitation commerciale.

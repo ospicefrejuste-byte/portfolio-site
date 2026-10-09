@@ -1,4 +1,4 @@
-const CACHE = 'comptoir-shell-v2';
+const CACHE = 'comptoir-shell-v3';
 const ASSETS = ['/', '/index.html', '/script.js', '/style.css', '/offline.js', '/icon.svg', '/manifest.webmanifest'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));

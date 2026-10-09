@@ -25,7 +25,21 @@ services:
         value: /var/lib/comptoir/data/stock.sqlite
       - key: STOCK_UPLOAD_DIR
         value: /var/lib/comptoir/uploads
-      - key: STOCK_ADMIN_EMAIL
+      - key: STOCK_BACKUP_DIR
+        value: /var/lib/comptoir/data/backups
+      - key: REGISTRATION_ENABLED
+        value: "true"
+      - key: EMAIL_TRANSPORT
+        value: smtp
+      - key: SMTP_HOST
         sync: false
-      - key: STOCK_ADMIN_PASSWORD
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: MAIL_FROM
         sync: false

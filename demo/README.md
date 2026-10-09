@@ -8,7 +8,9 @@ node scripts/build-demo.js
 
 Ouvrir ensuite `dist/Comptoir-demo.html` directement dans le navigateur. Le fichier contient l'interface et les règles métier ; aucun serveur Node.js, compte d'hébergement ou connexion Internet n'est nécessaire pour l'essayer. Choisir **Administrateur** sur l'écran d'accueil pour commencer.
 
-Les articles, mouvements, paiements et inventaires sont enregistrés dans le stockage du navigateur de cet appareil. Les comptes et les rôles sont des exemples publics permettant de tester les parcours ; ils ne protègent pas ce stockage comme une authentification serveur. Utiliser des données fictives pour cette démonstration. Effacer les données du navigateur efface également celles de la démo ; exporter les données utiles avant cette opération.
+Les articles, mouvements, paiements et inventaires sont enregistrés dans le stockage du navigateur de cet appareil. Les comptes et les rôles sont des exemples publics permettant de tester les parcours ; ils ne protègent pas ce stockage comme une authentification serveur. Utiliser des données fictives. Les paramètres permettent d'ajouter des magasins et des profils simulés, puis de télécharger et restaurer une sauvegarde JSON contenant les photos. La restauration remplace les données locales et demande de choisir à nouveau un profil. Effacer les données du navigateur efface également celles de la démo.
+
+La véritable inscription par e-mail, mot de passe et code de vérification fonctionne dans la version serveur hébergée, avec le service d'e-mail configuré. Chaque inscrit y crée un espace commercial indépendant. Le fichier Windows autonome n'envoie pas de messages et n'affiche pas cette inscription.
 
 La version serveur conserve son fonctionnement et sa configuration de déploiement décrits dans `docs/DEPLOYMENT.md`. La démonstration autonome ne réalise aucun partage de stock entre appareils.
 
@@ -22,4 +24,4 @@ Un [aperçu interactif HTMLPreview](https://htmlpreview.github.io/?https://githu
 
 ## Vérification de la démonstration
 
-Les 13 tests du moteur vérifient les règles de stock, paiements, rôles et inventaires. Quatre parcours navigateur vérifient la vente, le paiement, les photos et leur conservation après rechargement, l'inventaire, les vues mobiles et les écritures simultanées de deux fenêtres. Ils chargent le fichier HTML complet par une requête interceptée, puis fonctionnent sans réseau ni backend. Le Chromium géré de cet environnement interdit `file://` ; l'ouverture directe d'un fichier téléchargé n'a donc pas été testée dans ce navigateur.
+Les tests du moteur vérifient stock, paiements, rôles, inventaires, annulations et sauvegardes. Les parcours navigateur vérifient aussi les photos, rechargements, vues mobiles, écritures simultanées, nouveaux magasins et profils, et restauration avec déconnexion des autres fenêtres. Ils chargent le fichier HTML complet par une requête interceptée, puis fonctionnent sans réseau ni backend. Le Chromium géré de cet environnement interdit `file://` ; l'ouverture directe d'un fichier téléchargé n'a donc pas été testée dans ce navigateur.

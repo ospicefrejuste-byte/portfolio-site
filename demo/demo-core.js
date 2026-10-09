@@ -1,9 +1,9 @@
 /* Local demonstration engine. Roles are simulated; this provides no authentication. */
 (function (root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports ? require('../lib/reversals') : root.ComptoirReversals);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.ComptoirDemoCore = api.DemoCore;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (reversals) {
   'use strict';
   const copy = value => JSON.parse(JSON.stringify(value));
   const now = () => new Date().toISOString();
@@ -48,9 +48,12 @@
         this.data[name] = copy(seed[name]);
       }
       this.data.settings = copy(seed.settings || { currency: 'XOF', noPrices: false, businessName: 'Comptoir' });
+      this.data.stores.forEach(store => { store.version ||= 1; });
       this.data.stocks.forEach(stock => { stock.quantity = ticks(stock.quantity); });
       this.commands = new Map((seed._commands || []).map(command => [command.id, copy(command)]));
     }
+    all(table) { return this.data[table]; }
+    get(table, id) { return this.data[table].find(item => item.id === id); }
     need(table, id, label) {
       const entity = typeof id === 'string' && this.data[table].find(item => item.id === id);
       if (!entity) fail(`${label} introuvable.`, 'NOT_FOUND', 404);
@@ -75,7 +78,7 @@
         else {
           result.inventories = [];
           result.contacts = result.contacts.filter(contact => contact.type === 'customer');
-          result.documents = result.documents.filter(document => document.type === 'sale');
+          result.documents = result.documents.filter(document => document.type === 'sale' && !document.reversalOf);
           result.documents.forEach(document => document.lines.forEach(line => { delete line.purchaseCost; }));
         }
       }
@@ -112,7 +115,8 @@
         'document.create': () => this.document(user, payload), 'payment.create': () => this.payment(user, payload),
         'inventory.create': () => this.inventory(user, payload), 'inventory.count': () => this.count(payload),
         'inventory.validate': () => this.validate(user, payload), 'expense.create': () => this.expense(user, payload),
-        'settings.update': () => this.settings(payload)
+        'settings.update': () => this.settings(payload), 'store.save': () => this.store(payload),
+        'document.cancel': () => reversals.cancelDocument(this,user,payload)
       };
       if (!Object.hasOwn(handlers, type)) fail('Type de commande inconnu.', 'UNKNOWN_COMMAND');
       const before = copy(this.data);
@@ -121,6 +125,15 @@
         this.commands.set(id, { id, userId: user.id, signature, createdAt: now() });
         return { ok: true };
       } catch (error) { this.data = before; throw error; }
+    }
+    store(input) {
+      const id = input.id ? text(input.id,'Identifiant',120) : uuid(), previous = this.get('stores',id);
+      if (previous && input.expectedVersion !== previous.version) fail('Ce magasin a changé. Actualisez les données.','VERSION_CONFLICT',409);
+      if (!previous && input.expectedVersion != null && input.expectedVersion !== 0) fail('Ce magasin n’existe plus.','VERSION_CONFLICT',409);
+      const name = text(input.name,'Nom du magasin',160), city = text(input.city,'Ville',160,false);
+      if (this.data.stores.some(store => store.id !== id && store.name.toLocaleLowerCase() === name.toLocaleLowerCase())) fail('Un magasin porte déjà ce nom.','DUPLICATE_STORE',409);
+      this.put('stores',{...previous,id,name,city,address:text(input.address ?? previous?.address,'Adresse',500,false),phone:text(input.phone ?? previous?.phone,'Téléphone',50,false),taxId:text(input.taxId ?? previous?.taxId,'IFU',100,false),version:(previous?.version || 0)+1});
+      this.data.products.forEach(product => { if (!this.data.stocks.some(stock => stock.productId === product.id && stock.storeId === id)) this.data.stocks.push({productId:product.id,storeId:id,quantity:0,version:1}); });
     }
     product(input) {
       const id = input.id ? text(input.id, 'Identifiant', 120) : uuid(), previous = this.data.products.find(product => product.id === id);
@@ -187,6 +200,7 @@
     }
     payment(user, input) {
       const document = this.need('documents', input.documentId, 'Document'), value = amount(input.amount);
+      if (document.status === 'cancelled' || document.reversalOf) fail('Un document annulé ne reçoit plus de paiement.','DOCUMENT_CANCELLED',409);
       if (!['sale', 'purchase'].includes(document.type)) fail('Ce document ne reçoit pas de paiement.');
       if (!value) fail('Le paiement doit être supérieur à zéro.');
       if (document.paid + value > document.total) fail('Le paiement dépasse le solde restant.', 'OVERPAYMENT');

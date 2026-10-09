@@ -4,7 +4,7 @@ Première version exécutable d'une application de gestion de stock, de vente et
 
 ## Essayer sans installation
 
-Une [démonstration autonome](demo/README.md) permet d'essayer les produits, ventes, paiements et inventaires dans un fichier HTML unique. Construire le fichier avec `npm run build:demo`, puis ouvrir `dist/Comptoir-demo.html` dans le navigateur et choisir **Administrateur**. Le fichier fonctionne sans serveur ni abonnement ; les données d'essai restent sur cet appareil et les comptes sont des rôles de démonstration.
+Une [démonstration autonome](demo/README.md) permet d'essayer les produits, ventes, paiements et inventaires dans un fichier HTML unique. Construire le fichier avec `npm run build:demo`, puis ouvrir `dist/Comptoir-demo.html` dans le navigateur et choisir **Administrateur**. Le fichier fonctionne sans serveur ni abonnement ; les données d'essai restent sur cet appareil et les comptes sont des rôles de démonstration. Il n'envoie pas de courriel et ne crée pas de compte de production.
 
 ## Démarrer
 
@@ -47,7 +47,9 @@ Pour obtenir une adresse HTTPS accessible depuis un téléphone ou un ordinateur
 
 Le mot de passe de ces comptes est `Demo2026!`. Il est public et réservé aux essais locaux. Les données de démonstration permettent de tester immédiatement les recherches, les magasins et les alertes de stock. Les coordonnées et IFU de démonstration sont fictifs.
 
-Pour un démarrage en mode production, fournir `NODE_ENV=production`, `STOCK_ADMIN_EMAIL` et `STOCK_ADMIN_PASSWORD` par la configuration sécurisée de l'environnement. Le mot de passe administrateur doit comporter au moins 12 caractères. Le mode production désactive les comptes de démonstration et une base neuve démarre sans catalogue commercial de démonstration. Une base déjà utilisée conserve ses données : utiliser une base distincte pour les essais et la production.
+Pour un démarrage en mode production, fournir `NODE_ENV=production` et, pour le bootstrap administrateur, `STOCK_ADMIN_EMAIL` et `STOCK_ADMIN_PASSWORD` par la configuration sécurisée de l'environnement. Le mot de passe administrateur doit comporter au moins 12 caractères. Le mode production désactive les comptes de démonstration et une base neuve démarre sans catalogue commercial de démonstration. Une base déjà utilisée conserve ses données : utiliser une base distincte pour les essais et la production.
+
+Une instance réellement ouverte au public peut aussi proposer le parcours **Créer un compte** décrit ci-dessous. Il faut alors activer `REGISTRATION_ENABLED` et configurer un relais SMTP avant de communiquer l'adresse aux commerçants. Si l'envoi de courriel n'est pas configuré, garder l'inscription publique désactivée et utiliser le compte administrateur de bootstrap.
 
 Un déploiement commercial exige également HTTPS, la gestion complète des utilisateurs, l'isolation des organisations, la sauvegarde et les validations décrites dans l'[architecture](docs/ARCHITECTURE.md).
 
@@ -61,17 +63,37 @@ Un déploiement commercial exige également HTTPS, la gestion complète des util
 | `STOCK_ADMIN_PASSWORD` | Secret initial de cet administrateur, au moins 12 caractères |
 | `APP_ORIGIN` | Origine autorisée du site, par exemple `https://stock.exemple.fr` |
 | `TRUST_PROXY` | `1` uniquement derrière le proxy HTTPS unique prévu par le déploiement |
+| `REGISTRATION_ENABLED` | `true` pour afficher l'inscription publique après configuration du courriel |
+| `SMTP_HOST` | Nom DNS du relais SMTP transactionnel |
+| `SMTP_PORT` | Port SMTP du relais, généralement `587` ou `465` |
+| `SMTP_USER` | Identifiant du relais SMTP, à conserver dans le gestionnaire de secrets |
+| `SMTP_PASSWORD` | Mot de passe ou jeton SMTP, à conserver dans le gestionnaire de secrets |
+| `MAIL_FROM` | Adresse expéditrice vérifiée, par exemple `Comptoir <no-reply@exemple.bj>` |
+| `SMTP_SECURE` | `true` pour TLS implicite (souvent port 465), `false` pour STARTTLS (souvent port 587) |
+| `EMAIL_TRANSPORT` | `smtp` en production ; `capture` pour les tests locaux, sans envoi réel |
 
-Les variables administrateur servent au provisionnement initial ; modifier leur valeur ne remplace pas le mot de passe d'un compte déjà créé. Ne pas enregistrer de secrets dans le dépôt.
+Les codes à six chiffres expirent après 15 minutes, acceptent cinq essais et peuvent être renvoyés après 60 secondes, au maximum cinq envois par heure et par inscription. La devise est XOF et le fuseau Africa/Porto-Novo. En développement, les messages sont capturés en mémoire ; les tests consultent le transport directement, aucune route HTTP ne divulgue les codes.
+
+Les variables administrateur servent au provisionnement initial ; modifier leur valeur ne remplace pas le mot de passe d'un compte déjà créé. `SMTP_USER` et `SMTP_PASSWORD` sont des secrets : les saisir dans le coffre de l'hébergeur, jamais dans `render.yaml`, le dépôt, une capture d'écran ou un message. Ne pas enregistrer de secrets dans le dépôt.
+
+### S'inscrire et créer sa boutique (production)
+
+Le propriétaire ouvre l'adresse HTTPS et choisit **Créer un compte**. Il saisit son nom, son adresse e-mail, un mot de passe d'au moins 12 caractères, le nom de sa boutique et sa ville. Comptoir envoie un code à usage unique à cette adresse. Le compte n'est créé et activé qu'après la saisie d'un code valide. Le code et le mot de passe sont hachés dans la demande en attente ; aucun secret n'est envoyé dans une réponse d'API ou conservé dans la file hors-ligne.
+
+La vérification crée, dans une même transaction, le compte propriétaire **Administrateur**, son espace commercial et son premier magasin vide, puis ouvre une session. L'administrateur peut compléter l'adresse, le téléphone et l'IFU dans les paramètres du magasin, ajouter les produits et créer des comptes **Caissier / vendeur** ou **Agent d'inventaire**. Les mots de passe des collaborateurs sont choisis par l'administrateur et ne sont jamais affichés ensuite.
+
+Une adresse e-mail ne peut correspondre qu'à un compte actif selon la règle d'unicité du serveur. Les demandes répétées sont limitées par adresse et par adresse IP ; une erreur d'envoi doit rester visible sans révéler si une adresse existe déjà. Le prestataire doit tester un vrai message reçu, un code expiré, un code réutilisé, un dépassement d'essais et une adresse déjà utilisée avant d'ouvrir l'inscription au public.
+
+Chaque inscription crée un espace indépendant dans la plateforme. Les données métier et les photos sont filtrées par l'espace obtenu depuis la session serveur ; le navigateur ne choisit pas ce périmètre. Les comptes créés par un administrateur rejoignent son commerce. Les données historiques et de démonstration restent dans leur espace initial et ne sont pas attribuées aux nouveaux inscrits. Les tests HTTP couvrent les tentatives d'accès croisé aux magasins, produits, contacts, documents, inventaires, utilisateurs et photos.
 
 ## Parcours du premier incrément
 
-1. Se connecter comme administrateur et consulter le tableau de bord. Choisir un magasin pour voir son catalogue et les références sous le seuil minimum.
-2. Rechercher par texte, puis créer ou modifier un produit : SKU, catégorie, unité, prix, seuil, marque, tags, emplacement et notes. Ajouter une photo si nécessaire.
+1. Créer le compte propriétaire, vérifier l'adresse e-mail avec le code reçu, puis créer la première boutique. Se connecter comme administrateur et compléter les paramètres.
+2. Choisir un magasin pour voir son catalogue et les références sous le seuil minimum. Rechercher par texte, puis créer ou modifier un produit : SKU, catégorie, unité, prix, seuil, marque, tags, emplacement et notes. Ajouter une photo si nécessaire.
 3. Créer un tiers client ou fournisseur, puis enregistrer un document d'achat, de vente, de transfert ou d'ajustement. Les articles se sélectionnent par recherche. Un paiement peut être partiel ; les versements suivants complètent le règlement.
 4. Créer une session d'inventaire et saisir les quantités réellement comptées. Consulter les écarts et faire valider la session par un administrateur. Si le stock a changé depuis sa création, résoudre le conflit avant validation.
 5. Consulter les rapports, enregistrer les frais généraux et exporter les données en CSV. Importer un catalogue depuis un CSV pour préparer un essai avec ses propres articles.
-6. Essayer les deux rôles restreints : le caissier traite les ventes sans accès aux coûts d'achat ni aux marges ; l'agent saisit les comptages autorisés.
+6. Ajouter les utilisateurs depuis l'administration et essayer les deux rôles restreints : le caissier traite les ventes sans accès aux coûts d'achat ni aux marges ; l'agent saisit les comptages autorisés.
 
 Le mode « sans prix » permet de masquer les données financières pour les parcours de comptage. Les droits restent contrôlés par l'API.
 
@@ -116,16 +138,16 @@ Chaque scénario démarre son propre serveur, une base SQLite en mémoire et un 
 
 ## Périmètre et prochaines étapes
 
-Le premier incrément regroupe catalogue et recherche, plusieurs magasins dans une instance, documents de stock, tiers et paiements, sessions de comptage, rapports, frais, rôles de démonstration, CSV et une interface Web/PWA. SQLite conserve les données métier du serveur ; les photos sont des fichiers locaux.
+Le premier incrément regroupe catalogue et recherche, plusieurs magasins dans une instance, documents de stock, tiers et paiements, sessions de comptage, rapports, frais, inscription vérifiée par e-mail, compte propriétaire administrateur, création de la première boutique, utilisateurs aux rôles limités, CSV et une interface Web/PWA. SQLite conserve les données métier du serveur ; les photos sont des fichiers locaux.
 
-La prochaine étape est le socle Cloud : PostgreSQL, isolation des commerces et authentification de production. Elle prépare la synchronisation et le domaine TypeScript partagé avec les futures applications mobiles.
+Le serveur permet désormais l'inscription de plusieurs commerces indépendants, avec vérification e-mail et isolation des données. La prochaine étape prépare PostgreSQL, la récupération de compte, la synchronisation incrémentale et les futures applications mobiles. Le déploiement SQLite reste limité à une instance serveur avec disque persistant.
 
 Les capacités suivantes nécessitent encore une livraison spécifique :
 
-- Cloud multi-organisations, PostgreSQL, comptes et sessions de production complets, synchronisation incrémentale et conflits entre appareils.
+- PostgreSQL et stockage objet pour plusieurs instances serveur, récupération de compte et synchronisation incrémentale avec conflits entre appareils.
 - Applications natives Android/iOS et intégrations matérielles Bluetooth/Wi-Fi.
 - Import/export Excel `.xlsx`, PDF générés et facturation normalisée adaptée au Bénin.
-- Sauvegardes automatiques cohérentes de la base **et** des images, rétention et restauration testée.
+- Externalisation des sauvegardes vers un stockage distinct du serveur et surveillance des échecs ; la sauvegarde locale cohérente, sa rétention et sa restauration contrôlée sont livrées dans [BACKUPS.md](docs/BACKUPS.md).
 - Valorisation comptable complète, taxes, remises et retours selon les règles retenues pour le commerce.
 
 Le téléchargement d'un instantané JSON constitue un export local ; aucune interface de restauration de cet instantané n'est fournie. Il ne remplace pas une sauvegarde automatique incluant la base SQLite, les photos et une procédure de restauration. L'impression du navigateur, lorsqu'elle est proposée, dépend de celui-ci ; l'impression directe Bluetooth/Wi-Fi demande un adaptateur et du matériel compatible.

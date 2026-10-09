@@ -88,7 +88,7 @@ test('production behind an HTTPS proxy uses a real admin, Secure cookies and per
     assert.equal(Object.hasOwn(body, 'token'), false);
     return rawCookie.split(';')[0];
   };
-  assert.deepEqual(await (await fetch(base() + '/api/config')).json(), { demoMode: false });
+  assert.deepEqual(await (await fetch(base() + '/api/config')).json(), { demoMode: false, registrationEnabled:false });
   assert.deepEqual(await (await fetch(base() + '/api/health')).json(), { ok: true });
   assert.deepEqual(await (await fetch(base() + '/__test-proxy', { headers: proxyHeaders })).json(), { secure: true, protocol: 'https' });
   const demo = await post('/api/login', { email: 'admin@stock.local', password: 'Demo2026!' });
@@ -117,7 +117,7 @@ test('production behind an HTTPS proxy uses a real admin, Secure cookies and per
   const persisted = await fetch(base() + imagePath, { headers: { Cookie: renewedCookie } });
   assert.equal(persisted.status, 200);
   assert.deepEqual(Buffer.from(await persisted.arrayBuffer()), tinyPng);
-  assert.deepEqual(await (await fetch(base() + '/api/config')).json(), { demoMode: false });
+  assert.deepEqual(await (await fetch(base() + '/api/config')).json(), { demoMode: false, registrationEnabled:false });
 });
 
 test('production without APP_ORIGIN accepts the actual external Host and rejects a different origin', async t => {

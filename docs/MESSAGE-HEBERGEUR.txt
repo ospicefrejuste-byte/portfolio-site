@@ -1,0 +1,32 @@
+Objet : Devis et mise en ligne de Comptoir — plateforme de gestion de boutiques au Bénin
+
+Bonjour,
+
+Je souhaite faire mettre en ligne Comptoir, une application de gestion de stock, ventes et inventaires destinée à mon commerce au Bénin. Le code et la configuration de déploiement sont préparés. Je souhaite obtenir une adresse HTTPS que je pourrai ouvrir sur mon ordinateur Windows et mon téléphone, ainsi qu'un compte administrateur personnel.
+
+Sources à utiliser :
+- Dépôt : https://github.com/ospicefrejuste-byte/portfolio-site
+- Branche : codex/comptoir-cloud-deploy
+- Version de livraison : tag comptoir-v0.2.0 (merci de consigner le SHA effectivement déployé)
+- Dossier de remise : https://github.com/ospicefrejuste-byte/portfolio-site/blob/codex/comptoir-cloud-deploy/docs/HANDOFF.md
+- Instructions techniques : docs/DEPLOYMENT.md
+
+L'application serveur utilise Node.js 24, Express et SQLite. Le dépôt contient un Dockerfile et un Blueprint Render avec une instance et un disque persistant pour la base et les photos. Un hébergement de pages HTML seules ne convient pas. Vous pouvez proposer Render ou un hébergement équivalent répondant à ces besoins.
+
+Merci d'inclure dans votre proposition :
+1. Création du service dans un compte d'hébergement dont je reste propriétaire, configuration HTTPS et remise du lien actif.
+2. Mode production sans comptes publics de démonstration ; configuration du service d'e-mail transactionnel, inscription par adresse e-mail et mot de passe, réception d'un code à six chiffres et création de la boutique du propriétaire vérifié.
+3. Sauvegardes cohérentes de la base et des photos, copies hors de l'instance de production, fréquence et rétention précisées, puis test de restauration.
+4. Vérification de deux inscriptions indépendantes et de leur séparation des produits, stocks, utilisateurs et photos, puis des parcours catalogue, transfert, vente avec paiement partiel, inventaire et droits des utilisateurs.
+5. Remise du commit déployé et d'une procédure simple de mise à jour, sauvegarde et restauration.
+
+Merci de chiffrer séparément les frais initiaux, l'hébergement mensuel, le disque, l'éventuel domaine, les sauvegardes extérieures et la maintenance. Présentez le tarif réel de l'hébergeur avant de créer un service payant, et indiquez votre délai de réalisation.
+
+La plateforme crée un espace indépendant par commerce inscrit, avec ses magasins et ses collaborateurs. La récupération de mot de passe, les applications natives, les imprimantes Bluetooth/Wi-Fi et la facturation fiscale e-MECeF restent des évolutions à chiffrer séparément.
+
+Je ne transmettrai pas de mot de passe ou de secret par ce message ; nous utiliserons les outils sécurisés de l'hébergeur pour les configurer.
+
+Merci de me répondre avec votre devis, le périmètre exact pris en charge et les étapes pour obtenir le lien public.
+
+Cordialement,
+Le propriétaire du commerce
