@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Installation · Cours de renforcement scolaire</title>
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <main class="auth-card">
+      <a href="/" class="home-link">← Accueil</a>
+      <div class="auth-logo">CR</div>
+      <p class="eyebrow">PREMIÈRE INSTALLATION</p>
+      <h1>Créez votre compte administrateur.</h1>
+      <p class="intro">
+        Le code d’installation se trouve dans le fichier privé
+        <code>setup-token</code> du serveur, ou dans la configuration de votre
+        hébergeur.
+      </p>
+      <form id="auth-form" data-setup="true">
+        <label for="token">Code d’installation</label
+        ><input
+          id="token"
+          name="token"
+          type="password"
+          required
+          autocomplete="off"
+        /><label for="username">Identifiant administrateur</label
+        ><input
+          id="username"
+          name="username"
+          required
+          minlength="3"
+          maxlength="80"
+          autocomplete="username"
+          pattern="[a-zA-Z0-9][a-zA-Z0-9@._-]{2,79}"
+        /><label for="password"
+          >Votre mot de passe (12 caractères minimum)</label
+        ><input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minlength="12"
+          maxlength="128"
+          autocomplete="new-password"
+        /><label for="confirm-password">Confirmer le mot de passe</label
+        ><input
+          id="confirm-password"
+          name="confirmation"
+          type="password"
+          required
+          minlength="12"
+          maxlength="128"
+          autocomplete="new-password"
+        /><button type="submit">Créer mon compte administrateur →</button>
+        <p id="auth-result" role="alert"></p>
+      </form>
+      <p class="help">
+        Ce code ne peut être utilisé qu’une fois. Aucun compte ni mot de passe
+        par défaut n’est créé.
+      </p>
+      <a class="home-link" href="connexion.html">J’ai déjà un compte →</a>
+    </main>
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>

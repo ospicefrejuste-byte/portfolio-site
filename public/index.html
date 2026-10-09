@@ -1,25 +1,12 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio - DJOMATIN Hospice Fréjuste</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <header>
-    <h1>DJOMATIN Hospice Fréjuste</h1>
-    <p>Graphiste créatif spécialisé en communication visuelle</p>
-  </header>
-
-  <section id="portfolio">
-    <h2>Portfolio</h2>
-    <div id="portfolio-gallery" class="portfolio-gallery"></div>
-
-    <input type="file" id="uploadImage" accept="image/*" multiple>
-    <button id="uploadBtn">Uploader les images</button>
-  </section>
-
-  <script src="script.js"></script>
-</body>
-</html>
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inscription · Cours de renforcement scolaire</title><link rel="stylesheet" href="eleve.css"><script src="vendor/kkiapay-2.0.38.js" defer></script><script src="inscription.js" defer></script></head>
+<body><header><div><strong>COURS DE RENFORCEMENT SCOLAIRE</strong><small>Ensemble pour une meilleure réussite</small><a class="admin-entry" href="/administration">Administration →</a></div></header><main>
+<article id="registration-panel"><div class="steps">1. Inscription → 2. Confirmation → 3. Paiement</div><h1>Inscrivez-vous aux cours</h1><p class="intro">Remplissez ce formulaire. Après validation, vous pourrez payer les frais du mois.</p><form id="registration" novalidate><div class="grid">
+<label>Nom complet de l’élève<input name="name" autocomplete="name" required></label><label>Classe<select name="class" id="class"></select></label>
+<label class="wide">Centre de formation<select name="centre"><option>CSP Les Adorables de la Cité</option><option>CP La Boussole</option><option>EPP Borarou</option></select></label>
+<label>Nom du parent / responsable<input name="guardian" required></label><label>Téléphone du responsable<input name="phone" type="tel" placeholder="01 00 00 00 00" autocomplete="tel" required></label></div>
+<fieldset><legend>Matières souhaitées</legend><label class="choice"><input name="subjects" type="checkbox" value="Mathématiques" checked>Mathématiques</label><label class="choice"><input name="subjects" type="checkbox" value="Physique-Chimie" checked>Physique-Chimie</label><label class="choice"><input name="subjects" type="checkbox" value="SVT" checked>SVT</label></fieldset>
+<div class="fee"><span>Frais mensuels</span><strong id="fee"></strong></div><div class="notice">Votre demande sera transmise à l’établissement. Les frais sont calculés selon la classe choisie.</div><label class="choice consent"><input id="consent" type="checkbox">J’accepte la transmission de cette préinscription à l’établissement.</label><p id="error" class="error" role="alert"></p><button type="submit">Valider mon inscription →</button></form></article>
+<article id="confirmation" hidden><div class="success" role="status"><strong>Préinscription reçue !</strong><br>Votre dossier a été transmis. Vous pouvez payer les frais du mois ou fermer cette page.</div><h1 id="student-name"></h1><dl><dt>Classe</dt><dd id="summary-class"></dd><dt>Centre</dt><dd id="summary-centre"></dd><dt>Frais du mois</dt><dd id="amount"></dd></dl><p class="intro">Référence : <span id="reference"></span></p><p id="payment-note" class="notice">Le paiement sera confirmé après vérification auprès de KKiaPay.</p><p id="payment-status" role="status"></p><button id="retry-confirmation" class="secondary" hidden>Vérifier à nouveau le paiement</button><div id="paid" class="success" hidden><strong>Paiement confirmé</strong><p>Montant : <span id="receipt-amount"></span><br>Référence de paiement : <span id="receipt-reference"></span></p><span id="receipt-mode"></span></div><div class="actions"><button id="pay">Payer les frais du mois</button><button id="new-registration" class="secondary">Inscrire un autre élève</button></div></article>
+<footer>Vos inscriptions sont reçues par l’établissement.<br>Contacts : 01 41 77 84 49 / 01 95 48 91 34</footer></main>
+</body></html>

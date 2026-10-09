@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>COUR DE RENFORCEMENT SCOLAIRE</title>
+    <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="admin-beauty.css" /></head>
+  <body class="admin-app">
+    <aside>
+      <a class="brand" href="#dashboard"
+        ><span class="logo">CR</span
+        ><span>COUR DE RENFORCEMENT<small>SCOLAIRE</small></span></a
+      ><a href="/" style="color: #dce9e7; font-size: 12px; margin-top: 24px"
+        >← Retour à l’accueil</a
+      >
+      <div class="school-label">ESPACE DE GESTION</div>
+      <nav id="nav"></nav>
+      <div class="sidebar-bottom">
+        <span class="status-dot"></span> Année scolaire 2026 – 2027
+        <p>Apprendre. Progresser. Réussir.</p>
+      </div>
+    </aside>
+    <main>
+      <header>
+        <div>
+          <span class="eyebrow">VOTRE ÉTABLISSEMENT, EN UN COUP D’ŒIL</span>
+          <h1 id="title">Tableau de bord</h1>
+        </div>
+        <div class="profile">
+          <span id="account-name"></span
+          ><button class="secondary" id="change-password">
+            Mon mot de passe</button
+          ><button class="secondary" id="logout">Déconnexion</button>
+        </div>
+      </header>
+      <div class="demo" id="connection-status">
+        Chargement de votre espace sécurisé…
+      </div>
+      <section id="content"></section>
+      <footer>
+        COUR DE RENFORCEMENT SCOLAIRE <span>Chaque progrès compte.</span>
+      </footer>
+    </main>
+    <dialog id="modal">
+      <form id="form">
+        <div class="dialog-head">
+          <h2 id="modal-title"></h2>
+          <button
+            type="button"
+            id="close"
+            class="icon-button"
+            aria-label="Fermer"
+          >
+            ×
+          </button>
+        </div>
+        <div id="fields"></div>
+        <p id="error" role="alert"></p>
+        <button class="primary" type="submit">Enregistrer</button>
+      </form>
+    </dialog>
+    <div id="toast" role="status"></div>
+    <script src="vendor/kkiapay-2.0.38.js"></script>
+    <script src="api.js"></script>
+    <script src="script.js"></script><script src="admin-analytics.js"></script>
+  </body>
+</html>

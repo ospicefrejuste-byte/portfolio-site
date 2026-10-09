@@ -1,0 +1,34 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:?Renseignez l’origine HTTPS du site dans .env}
+      CRS_DATA_DIR: /data
+      TRUST_PROXY: "1"
+      KKIAPAY_SANDBOX: ${KKIAPAY_SANDBOX:-true}
+    volumes:
+      - school_data:/data
+    expose:
+      - "3000"
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:?Renseignez le domaine du site dans .env}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - app
+volumes:
+  school_data:
+  caddy_data:
+  caddy_config:

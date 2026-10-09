@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Connexion · Cours de renforcement scolaire</title>
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <main class="auth-card">
+      <a href="/" class="home-link">← Accueil</a>
+      <div class="auth-logo">CR</div>
+      <p class="eyebrow">COURS DE RENFORCEMENT SCOLAIRE</p>
+      <h1>Connexion à l’administration.</h1>
+      <p class="intro">
+        Le superviseur se connecte avec son identifiant et son mot de passe. Les élèves peuvent s’inscrire et payer depuis l’accueil.
+      </p>
+      <form id="auth-form">
+        <label for="username">Identifiant</label
+        ><input
+          id="username"
+          name="username"
+          required
+          autocomplete="username"
+          maxlength="80"
+        /><label for="password">Mot de passe</label
+        ><input
+          id="password"
+          name="password"
+          type="password"
+          required
+          autocomplete="current-password"
+          maxlength="128"
+        /><button type="submit">Se connecter →</button>
+        <p id="auth-result" role="alert"></p>
+      </form>
+      <p class="help">
+        Mot de passe oublié ? Contactez l’administration pour une
+        réinitialisation.
+      </p>
+      <a id="setup-link" class="home-link" href="installation.html" hidden
+        >Configurer le premier administrateur →</a
+      >
+    </main>
+    <script src="api.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>
