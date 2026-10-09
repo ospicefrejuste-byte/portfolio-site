@@ -1,4 +1,4 @@
-# Comptoir 0.2.0
+# Comptoir 0.2.1
 
 ## Ouvrir la démonstration sur Windows
 
@@ -26,7 +26,7 @@ Transmettre `MESSAGE-HEBERGEUR.txt` à un prestataire Node.js/Docker : il préci
 la demande de mise en ligne, d'e-mail, de sauvegarde et de réception du service.
 
 Sources vérifiées :
-https://github.com/ospicefrejuste-byte/portfolio-site/tree/comptoir-v0.2.0
+https://github.com/ospicefrejuste-byte/portfolio-site/tree/comptoir-v0.2.1
 
 GitHub Pages peut publier cette démonstration : **Settings → Pages → Deploy from
 a branch → comptoir-demo → /(root)**. Utiliser l'adresse réellement attribuée
