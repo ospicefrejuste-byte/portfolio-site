@@ -5,3 +5,5 @@ node_modules/
 *.sqlite-wal
 .env
 backups/
+
+tests/.cloud-browser.generated.cjs

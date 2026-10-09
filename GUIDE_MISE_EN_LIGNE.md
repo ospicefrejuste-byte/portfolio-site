@@ -1,3 +1,7 @@
+# Option gratuite avec base partagée
+
+Pour Netlify + Supabase, suivre [GUIDE_HEBERGEMENT_GRATUIT.md](GUIDE_HEBERGEMENT_GRATUIT.md). Le guide ci-dessous concerne une installation autonome Node.js ou Docker.
+
 # Mettre le site en ligne
 
 Le dossier contient la vraie application avec un serveur et une base de données. Elle doit être installée sur un hébergement Node.js 24 ou Docker, avec un disque persistant pour conserver les élèves, comptes et paiements.

@@ -4,7 +4,7 @@ La version complète utilise un serveur, une base SQLite persistante et des sess
 
 ## Première installation
 
-1. Déployer le serveur avec un disque persistant et HTTPS. Le fichier `render.yaml` propose une installation Render **payante** : vérifier le prix du service et du disque avant d'appliquer ce fichier. Il n'a pas été déployé automatiquement.
+1. Configurer Netlify et la base Supabase en suivant `GUIDE_HEBERGEMENT_GRATUIT.md`. Choisir les offres Free et vérifier leurs quotas.
 2. Récupérer en privé la valeur `CRS_SETUP_TOKEN` dans les variables de l'hébergement. Si cette variable n'est pas définie, utiliser le fichier privé `/data/setup-token` du serveur. Ne partager ni ce code ni le mot de passe dans la conversation.
 3. Cliquer sur **Administration**, puis **Configurer le premier administrateur**. Renseigner le code d'installation, choisir son identifiant et un mot de passe d'au moins 12 caractères, puis confirmer le mot de passe.
 4. La création est possible une seule fois. Ensuite, utiliser son identifiant et son mot de passe pour se connecter. Un visiteur ne peut pas créer un autre compte superviseur depuis la page publique.

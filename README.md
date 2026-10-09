@@ -1,3 +1,7 @@
+# Hébergement gratuit avec base partagée
+
+Pour la configuration Netlify + Supabase, suivre [GUIDE_HEBERGEMENT_GRATUIT.md](GUIDE_HEBERGEMENT_GRATUIT.md). La branche de publication est `site-complet-gratuit`. Cette configuration utilise PostgreSQL et protège l’administration côté serveur.
+
 # COURS DE RENFORCEMENT SCOLAIRE
 
 Application Node.js 24 / Express / SQLite avec page publique, préinscriptions serveur, authentification et gestion par rôles.

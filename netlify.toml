@@ -1,0 +1,66 @@
+[build]
+  command = "npm run build:cloud"
+  publish = "public"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "24"
+
+[functions]
+  node_bundler = "esbuild"
+  external_node_modules = ["pg"]
+  included_files = ["public/gestion.html"]
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/api/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/administration"
+  to = "/.netlify/functions/api/administration"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/administration/"
+  to = "/.netlify/functions/api/administration/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/gestion.html"
+  to = "/.netlify/functions/api/gestion.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/gestion"
+  to = "/.netlify/functions/api/gestion.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/gestion/"
+  to = "/.netlify/functions/api/gestion.html"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
+    X-Frame-Options = "DENY"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src https://widget-v3.kkiapay.me; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
+
+[[headers]]
+  for = "/connexion.html"
+  [headers.values]
+    Cache-Control = "no-store"
+
+[[headers]]
+  for = "/installation.html"
+  [headers.values]
+    Cache-Control = "no-store"
