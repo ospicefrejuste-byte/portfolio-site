@@ -1,5 +1,7 @@
 # Démo des cours de renforcement scolaire
 
-Démo statique autonome. Les données restent dans le navigateur : elles ne sont pas partagées entre appareils. Les paiements et les rôles sont simulés. Utiliser uniquement des données fictives.
+Page publique : inscription puis simulation de paiement Mobile Money. Aucun lien vers la gestion dans le parcours élève.
 
-Sur Netlify : importer ce dépôt, sélectionner la branche `demo-cours-netlify`, laisser la commande de construction vide et utiliser `.` comme dossier de publication.
+Page administrateur de démonstration : `/admin-demo.html`. Ce site statique ne fournit pas de connexion sécurisée. Les données sont stockées dans le navigateur et ne sont pas partagées entre appareils. Utiliser uniquement des informations fictives. Les encaissements sont simulés et ne représentent aucun paiement réel.
+
+La version complète avec comptes et permissions côté serveur reste nécessaire pour une utilisation réelle.
