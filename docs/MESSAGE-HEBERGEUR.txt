@@ -7,7 +7,7 @@ Je souhaite faire mettre en ligne Comptoir, une application de gestion de stock,
 Sources à utiliser :
 - Dépôt : https://github.com/ospicefrejuste-byte/portfolio-site
 - Branche : codex/comptoir-cloud-deploy
-- Version de livraison : tag comptoir-v0.2.0 (merci de consigner le SHA effectivement déployé)
+- Version de livraison : tag comptoir-v0.2.1 (merci de consigner le SHA effectivement déployé)
 - Dossier de remise : https://github.com/ospicefrejuste-byte/portfolio-site/blob/codex/comptoir-cloud-deploy/docs/HANDOFF.md
 - Instructions techniques : docs/DEPLOYMENT.md
 

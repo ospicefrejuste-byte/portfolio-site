@@ -15,7 +15,7 @@ try{
   fs.mkdirSync(path.dirname(output),{recursive:true});
   fs.copyFileSync(path.join(root,'dist','Comptoir-demo.html'),path.join(staging,'Ouvrir-Comptoir.html'));
   const instructions=[
-    'COMPTOIR — VERSION WINDOWS 0.2.0',
+    'COMPTOIR — VERSION WINDOWS 0.2.1',
     '',
     '1. Faites un clic droit sur le ZIP, puis choisissez « Extraire tout ».',
     '2. Dans le dossier extrait, ouvrez Ouvrir-Comptoir.html avec Microsoft Edge ou Chrome.',
@@ -36,7 +36,7 @@ try{
     'Le fichier autonome ne crée pas de compte serveur et n’envoie pas de codes.',
     '',
     'Code et dossier à transmettre au prestataire :',
-    'https://github.com/ospicefrejuste-byte/portfolio-site/tree/comptoir-v0.2.0',
+    'https://github.com/ospicefrejuste-byte/portfolio-site/tree/comptoir-v0.2.1',
     'Message prêt à envoyer : docs/MESSAGE-HEBERGEUR.txt dans le dépôt.',
     ''
   ].join('\r\n');

@@ -26,6 +26,21 @@ function createApp(options = {}) {
   const production = service.production;
   app.locals.service = service;
   app.locals.uploadDir = uploadDir;
+  app.locals.dbPath = service.dbPath;
+  const backupDir = process.env.STOCK_BACKUP_DIR;
+  if (backupDir) {
+    try {
+      app.locals.backupScheduler = require('./lib/backups').startBackupScheduler({
+        service, dbPath: service.dbPath, uploadDir, targetDir: path.resolve(backupDir),
+        intervalMs: Number(process.env.STOCK_BACKUP_INTERVAL_HOURS || 24) * 3_600_000, retention: Number(process.env.STOCK_BACKUP_RETENTION || 7),
+        onError(error) { console.error(`La sauvegarde automatique a échoué (${error.code || 'BACKUP_ERROR'}).`); },
+        onComplete(result) { console.log(`Sauvegarde automatique créée : ${path.basename(result.path)}.`); }
+      });
+    } catch (error) {
+      if (!options.service) service.close();
+      throw error;
+    }
+  }
   app.disable('x-powered-by');
   if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
   app.use((req, res, next) => {
@@ -53,7 +68,34 @@ function createApp(options = {}) {
     next();
   }
   app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
-  app.get('/api/config', (_req, res) => res.json({ demoMode: !production }));
+  app.get('/api/config', (_req, res) => res.json({ demoMode: !production, registrationEnabled: service.registrationEnabled }));
+  const registrationLimits = new Map();
+  function registrationRateLimit(kind,maximum) {
+    return (req,_res,next)=>{
+      const now=Date.now();
+      for (const [key,value] of registrationLimits) if(value.until<=now) registrationLimits.delete(key);
+      const email=typeof req.body?.email==='string'?req.body.email.trim().toLowerCase().slice(0,254):'';
+      const keys=[`${kind}:ip:${req.ip}`,`${kind}:email:${email}`];
+      if (registrationLimits.size>10_000) return next(new AppError('Trop de demandes. Réessayez plus tard.','RATE_LIMITED',429));
+      const buckets=keys.map(key=>registrationLimits.get(key)||{count:0,until:now+15*60*1000});
+      if(buckets.some(bucket=>bucket.count>=maximum)) return next(new AppError('Trop de demandes. Réessayez dans quelques minutes.','RATE_LIMITED',429));
+      keys.forEach((key,index)=>{buckets[index].count++;registrationLimits.set(key,buckets[index]);});
+      next();
+    };
+  }
+  app.post('/api/register',sameOrigin,registrationRateLimit('register',10),async(req,res,next)=>{
+    try { res.status(202).json(await service.register(req.body)); } catch(error) { next(error); }
+  });
+  app.post('/api/register/resend',sameOrigin,registrationRateLimit('resend',10),async(req,res,next)=>{
+    try { res.status(202).json(await service.resendRegistration(req.body)); } catch(error) { next(error); }
+  });
+  app.post('/api/register/verify',sameOrigin,registrationRateLimit('verify',30),(req,res,next)=>{
+    try {
+      const {user,token,verified}=service.verifyRegistration(req.body);
+      res.cookie('stock_session',token,{httpOnly:true,sameSite:'strict',secure:production,maxAge:12*60*60*1000,path:'/'});
+      res.json({user,verified});
+    } catch(error) { next(error); }
+  });
   const attempts = new Map();
   app.post('/api/login', sameOrigin, (req, res, next) => {
     const key = req.ip;
@@ -81,6 +123,15 @@ function createApp(options = {}) {
   app.post('/api/commands', sameOrigin, requireAuth, (req, res, next) => {
     try { res.json(service.command(req.user, req.body)); } catch (error) { next(error); }
   });
+  app.get('/api/admin/users', requireAuth, (req, res, next) => {
+    try { res.json({ users: service.listUsers(req.user) }); } catch (error) { next(error); }
+  });
+  app.post('/api/admin/users', sameOrigin, requireAuth, (req, res, next) => {
+    try { res.status(201).json({ user: service.createUser(req.user, req.body) }); } catch (error) { next(error); }
+  });
+  app.patch('/api/admin/users/:id', sameOrigin, requireAuth, (req, res, next) => {
+    try { res.json({ user: service.updateUser(req.user, req.params.id, req.body) }); } catch (error) { next(error); }
+  });
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
   const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024, files: 4, fields: 0, parts: 4 }, fileFilter(_req, file, cb) {
@@ -103,14 +154,20 @@ function createApp(options = {}) {
         if (!extension || extension !== allowedImage[file.mimetype]) throw new AppError('Le contenu ne correspond pas au format image annoncé.', 'INVALID_IMAGE');
         return { buffer: file.buffer, filename: `${randomUUID()}.${extension}` };
       });
-      for (const file of valid) { fs.writeFileSync(path.join(uploadDir, file.filename), file.buffer, { flag: 'wx', mode: 0o600 }); saved.push(file.filename); }
+      for (const file of valid) { fs.writeFileSync(path.join(uploadDir, file.filename), file.buffer, { flag: 'wx', mode: 0o600 }); saved.push(file.filename); service.recordUpload(req.user,file.filename); }
       res.json(saved.map(filename => `/uploads/${filename}`));
     } catch (error) {
-      for (const filename of saved) fs.unlinkSync(path.join(uploadDir, filename));
+      for (const filename of saved) { fs.unlinkSync(path.join(uploadDir, filename)); service.db.prepare('DELETE FROM upload_files WHERE filename=?').run(filename); }
       next(error);
     }
   });
-  app.use('/uploads', requireAuth, express.static(uploadDir, { dotfiles: 'deny', immutable: true, maxAge: '7d', setHeaders(res) { res.set('Content-Security-Policy', "default-src 'none'; sandbox"); } }));
+  app.use('/uploads', requireAuth, (req,res,next)=>{
+    try {
+      const filename=req.path.slice(1);
+      if (!/^[a-f0-9-]+\.(?:jpg|png|webp)$/.test(filename)||!service.mayReadUpload(req.user,filename)) throw new AppError('Photo introuvable.','NOT_FOUND',404);
+      res.set('Cache-Control','private, no-store'); next();
+    } catch(error) { next(error); }
+  }, express.static(uploadDir, { dotfiles: 'deny', cacheControl:false, setHeaders(res) { res.set('Content-Security-Policy', "default-src 'none'; sandbox"); } }));
   app.use(express.static(path.join(__dirname, 'public'), { etag: true, setHeaders(res, filename) {
     if (filename.endsWith('sw.js')) res.set('Cache-Control', 'no-cache');
   } }));
@@ -136,14 +193,17 @@ if (require.main === module) {
     shuttingDown = true;
     const deadline = setTimeout(() => {
       server.closeAllConnections();
-      app.locals.service.close();
-      process.exit(1);
+      try { app.locals.service.close(); } finally { process.exit(1); }
     }, 10_000);
     deadline.unref();
-    server.close(() => {
+    server.close(async () => {
+      let exitCode = 0;
+      try { await app.locals.backupScheduler?.stop(); }
+      catch { exitCode = 1; console.error('La sauvegarde ne s’est pas arrêtée correctement.'); }
+      try { app.locals.service.close(); }
+      catch { exitCode = 1; }
       clearTimeout(deadline);
-      app.locals.service.close();
-      process.exit(0);
+      process.exit(exitCode);
     });
   });
 }

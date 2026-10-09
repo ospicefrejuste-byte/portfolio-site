@@ -20,7 +20,7 @@ Le texte prêt à copier figure dans [MESSAGE-HEBERGEUR.txt](MESSAGE-HEBERGEUR.t
 | --- | --- |
 | Dépôt | [ospicefrejuste-byte/portfolio-site](https://github.com/ospicefrejuste-byte/portfolio-site) |
 | Branche de livraison | [`codex/comptoir-cloud-deploy`](https://github.com/ospicefrejuste-byte/portfolio-site/tree/codex/comptoir-cloud-deploy) |
-| Version à déployer | Tag `comptoir-v0.2.0` — son SHA est à consigner dans la remise |
+| Version à déployer | Tag `comptoir-v0.2.1` — son SHA est à consigner dans la remise |
 | Lancement, fonctionnalités et tests | [README](../README.md) |
 | Déploiement Render et variables | [DEPLOYMENT.md](DEPLOYMENT.md) |
 | Modèle métier et étapes suivantes | [ARCHITECTURE.md](ARCHITECTURE.md) |
