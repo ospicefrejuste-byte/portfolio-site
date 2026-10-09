@@ -496,6 +496,30 @@ tr.inventory-line { display: table-row; padding: 0; }
 .login-card .field label { font-size: 11px; }
 .login-card .field input { min-height: 43px; font-size: 12px; }
 .login-submit { width: 100%; min-height: 43px; margin-top: 6px; justify-content: space-between; padding: 11px 14px; font-size: 12px; }
+.register-card { width: 480px; }
+.register-card > .subtitle { max-width: 430px; }
+.register-section { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 9px; padding: 12px 0 1px; margin-top: 2px; border-top: 1px solid var(--border); }
+.register-section-title { color: #717a8e; font-size: 11px; font-weight: 650; }
+.register-section p { color: #a3aaba; font-size: 10px; }
+.register-card .form-grid { gap: 12px 14px; }
+.register-card .field { margin-bottom: 4px; }
+.register-card .field-hint { line-height: 1.45; }
+.auth-links { color: #a1a8b8; font-size: 10px; text-align: center; margin: 17px 0 0; }
+.auth-link { border: 0; padding: 0; color: var(--primary); background: transparent; font-weight: 650; font-size: inherit; }
+.auth-link:hover { color: var(--primary-dark); text-decoration: underline; }
+.auth-link.muted { color: #9299aa; font-weight: 500; }
+.auth-message { color: var(--green); background: var(--green-soft); padding: 10px 12px; border-radius: 6px; margin: 4px 0 16px; font-size: 11px; }
+.auth-message.success { border: 1px solid #d5eddf; }
+.verification-summary { display: flex; align-items: flex-start; gap: 11px; padding: 13px; margin: 2px 0 21px; color: #6d5a91; background: var(--primary-soft); border: 1px solid #e2dafb; border-radius: 8px; font-size: 11px; }
+.verification-summary > .icon { width: 18px; height: 18px; padding: 2px; color: var(--green); background: var(--green-soft); border-radius: 50%; }
+.verification-summary strong { display: block; font-weight: 650; }
+.verification-summary p { margin-top: 3px; color: #9589aa; font-size: 10px; }
+.verification-code-field { max-width: 270px; margin: 0 auto 17px; text-align: center; }
+.verification-code-field label { text-align: left; }
+.verification-code-field input { text-align: center; letter-spacing: 7px; font-size: 19px !important; font-weight: 650; }
+.verification-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 18px; margin-top: 18px; }
+.verification-actions #resend-countdown { color: #a4aabb; font-weight: 400; }
+.register-card .login-security { margin-top: 20px; }
 .demo-accounts { margin-top: 25px; padding-top: 20px; }
 .demo-heading { margin-bottom: 12px; }
 .demo-heading > .badge { font-size: 8px; letter-spacing: .5px; padding: 3px 6px; }
@@ -771,14 +795,178 @@ tr.inventory-line { display: table-row; padding: 0; }
   .chart { break-inside: avoid; }
 }
 
+/* Administration and document audit details. */
+.settings-users { grid-column: 1 / -1; }
+.settings-message { display:flex; align-items:center; justify-content:space-between; gap:15px; padding:20px 22px; color:#9aa3b5; font-size:11px; }
+.checkbox-label { display:flex!important; align-items:center; gap:9px; color:#788297; line-height:1.7; cursor:pointer; }
+.checkbox-label input[type="checkbox"] { margin:0; min-height:0; width:15px; height:15px; flex-shrink:0; }
+.document-cancellation { margin-bottom:24px; padding:16px 18px; border:1px solid #f3d4d2; border-radius:9px; background:#fff4f3; color:#bd7774; }
+.document-cancellation > strong { display:flex; align-items:center; gap:7px; font-size:12px; font-weight:600; }
+.document-cancellation > strong .icon { width:16px; height:16px; }
+.document-cancellation p { color:#b98784; font-size:11px; margin:6px 0; }
+.document-cancellation small { display:block; color:#bb9996; font-size:10px; }
+.document-cancellation .text-btn { display:flex; margin-top:8px; }
+.settings-grid .store-line > div { min-width:0; }
+.settings-grid .store-line p { margin-top:2px; font-size:10px; }
+.settings-users .table-footer { font-size:10px; }
+@media(max-width:760px){ .settings-users .panel-header { align-items:flex-start; flex-wrap:wrap; }.settings-message{padding:18px;}.settings-users .table-footer{line-height:1.8;} }
+@media print{.document-cancellation{background:#fff;border-color:#bbb;}.document-cancellation p,.document-cancellation small{color:#444;}}
+
 .demo-banner { position:sticky; top:0; z-index:80; padding:9px 20px; display:flex; align-items:center; justify-content:center; gap:18px; background:#f0ecff; border-bottom:1px solid #e6ddfb; color:#8069a2; font:500 10px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }.demo-banner span { opacity:.72; font-weight:400; }.sidebar { top:34px; height:calc(100dvh - 34px); }.app-shell,.login-shell { min-height:calc(100vh - 34px); }@media(max-width:760px){.demo-banner{gap:6px;padding:8px 12px;font-size:9px;}.demo-banner span{display:none;}.sidebar{top:30px;height:calc(100dvh - 30px);}}@media print{.demo-banner{display:none!important;}}
 </style></head>
-<body><div class="demo-banner">Démonstration locale · données sur cet appareil <span>Comptes et rôles simulés</span></div><div id="app"><div class="loading-screen"><span class="loading-mark">C</span><p>Ouverture de votre comptoir…</p></div></div><div id="modal-root"></div><div id="toast-root" aria-live="polite" aria-atomic="true"></div><script>window.ComptoirDemoSeed={"products":[{"id":"product-riz","name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","category":"Épicerie / Céréales","brand":"Royal","tags":["alimentaire"],"unit":"sac","purchasePrice":3200,"sellingPrice":4500,"minStock":20,"location":"A1","color":"#f4e4c8","photo":"","notes":"","version":1},{"id":"product-huile","name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","category":"Épicerie / Huiles","brand":"Lesieur","tags":["alimentaire"],"unit":"bouteille","purchasePrice":1150,"sellingPrice":1600,"minStock":15,"location":"A2","color":"#f5e9b2","photo":"","notes":"","version":1},{"id":"product-sucre","name":"Sucre blanc 1 kg","sku":"ALI-SUC-001","category":"Épicerie / Céréales","brand":"Sucrivoire","tags":["alimentaire"],"unit":"sachet","purchasePrice":600,"sellingPrice":850,"minStock":20,"location":"A3","color":"#f2e3ed","photo":"","notes":"","version":1},{"id":"product-lait","name":"Lait en poudre 400 g","sku":"ALI-LAI-400","category":"Épicerie / Petit déjeuner","brand":"Nido","tags":["alimentaire"],"unit":"boîte","purchasePrice":2200,"sellingPrice":2900,"minStock":12,"location":"B1","color":"#e5ebd2","photo":"","notes":"","version":1},{"id":"product-cafe","name":"Café instantané 100 g","sku":"ALI-CAF-100","category":"Épicerie / Petit déjeuner","brand":"Nescafé","tags":["alimentaire"],"unit":"pot","purchasePrice":1800,"sellingPrice":2500,"minStock":10,"location":"B2","color":"#e4d8cf","photo":"","notes":"","version":1},{"id":"product-eau","name":"Eau minérale 1,5 L","sku":"BOI-EAU-150","category":"Boissons / Eaux","brand":"Awa","tags":[],"unit":"bouteille","purchasePrice":250,"sellingPrice":400,"minStock":30,"location":"C1","color":"#d5e7eb","photo":"","notes":"","version":1},{"id":"product-jus","name":"Jus de mangue 1 L","sku":"BOI-JUS-001","category":"Boissons / Jus","brand":"Ivorio","tags":[],"unit":"brique","purchasePrice":650,"sellingPrice":1000,"minStock":15,"location":"C2","color":"#f3dfc2","photo":"","notes":"","version":1},{"id":"product-savon","name":"Savon de Marseille 200 g","sku":"HYG-SAV-200","category":"Hygiène / Corps","brand":"Le Chat","tags":[],"unit":"pièce","purchasePrice":450,"sellingPrice":700,"minStock":15,"location":"D1","color":"#d5e4d4","photo":"","notes":"","version":1},{"id":"product-lessive","name":"Lessive en poudre 1 kg","sku":"ENT-LES-001","category":"Entretien / Linge","brand":"Omo","tags":[],"unit":"sachet","purchasePrice":950,"sellingPrice":1400,"minStock":10,"location":"D2","color":"#dbdeed","photo":"","notes":"","version":1},{"id":"product-farine","name":"Farine de blé","sku":"ALI-FAR-VRA","category":"Épicerie / Céréales","brand":"Les Grands Moulins","tags":["alimentaire"],"unit":"kg","purchasePrice":400,"sellingPrice":600,"minStock":25,"location":"A4","color":"#ece3d5","photo":"","notes":"","version":1}],"stores":[{"id":"store-centre","name":"Boutique du Centre","city":"Cotonou"},{"id":"store-nord","name":"Boutique du Nord","city":"Porto-Novo"},{"id":"store-depot","name":"Dépôt principal","city":"Cotonou"}],"stocks":[{"productId":"product-riz","storeId":"store-centre","quantity":31,"version":2},{"productId":"product-riz","storeId":"store-nord","quantity":14,"version":1},{"productId":"product-riz","storeId":"store-depot","quantity":150,"version":2},{"productId":"product-huile","storeId":"store-centre","quantity":6,"version":2},{"productId":"product-huile","storeId":"store-nord","quantity":26,"version":1},{"productId":"product-huile","storeId":"store-depot","quantity":100,"version":2},{"productId":"product-sucre","storeId":"store-centre","quantity":48,"version":1},{"productId":"product-sucre","storeId":"store-nord","quantity":14,"version":2},{"productId":"product-sucre","storeId":"store-depot","quantity":100,"version":1},{"productId":"product-lait","storeId":"store-centre","quantity":7,"version":1},{"productId":"product-lait","storeId":"store-nord","quantity":16,"version":1},{"productId":"product-lait","storeId":"store-depot","quantity":45,"version":1},{"productId":"product-cafe","storeId":"store-centre","quantity":23,"version":2},{"productId":"product-cafe","storeId":"store-nord","quantity":12,"version":1},{"productId":"product-cafe","storeId":"store-depot","quantity":40,"version":1},{"productId":"product-eau","storeId":"store-centre","quantity":90,"version":2},{"productId":"product-eau","storeId":"store-nord","quantity":42,"version":1},{"productId":"product-eau","storeId":"store-depot","quantity":240,"version":1},{"productId":"product-jus","storeId":"store-centre","quantity":22,"version":1},{"productId":"product-jus","storeId":"store-nord","quantity":16,"version":2},{"productId":"product-jus","storeId":"store-depot","quantity":52,"version":2},{"productId":"product-savon","storeId":"store-centre","quantity":12,"version":1},{"productId":"product-savon","storeId":"store-nord","quantity":32,"version":2},{"productId":"product-savon","storeId":"store-depot","quantity":88,"version":2},{"productId":"product-lessive","storeId":"store-centre","quantity":32,"version":1},{"productId":"product-lessive","storeId":"store-nord","quantity":15,"version":1},{"productId":"product-lessive","storeId":"store-depot","quantity":65,"version":1},{"productId":"product-farine","storeId":"store-centre","quantity":42.5,"version":1},{"productId":"product-farine","storeId":"store-nord","quantity":19.25,"version":2},{"productId":"product-farine","storeId":"store-depot","quantity":180,"version":1}],"documents":[{"id":"172f02c9-01b5-4a2f-80a0-6c298f5560c7","number":"ACH-2026-0001","type":"purchase","storeId":"store-depot","toStoreId":null,"contactId":"supplier-sodico","lines":[{"productId":"product-riz","quantity":30,"unitPrice":3200,"purchaseCost":3200,"name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","unit":"sac"},{"productId":"product-huile","quantity":20,"unitPrice":1150,"purchaseCost":1150,"name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","unit":"bouteille"}],"total":119000,"paid":80000,"payments":[{"id":"a3301910-1d1f-401c-afc0-939b0972eb5d","amount":80000,"date":"2026-10-03","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.381Z"}],"note":"Réapprovisionnement hebdomadaire","date":"2026-10-03","createdAt":"2026-10-08T16:17:05.381Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"b1b0d824-02ec-4c93-991c-133ccd506861","number":"VEN-2026-0001","type":"sale","storeId":"store-centre","toStoreId":null,"contactId":"customer-restaurant","lines":[{"productId":"product-riz","quantity":5,"unitPrice":4500,"purchaseCost":3200,"name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","unit":"sac"},{"productId":"product-huile","quantity":3,"unitPrice":1600,"purchaseCost":1150,"name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","unit":"bouteille"}],"total":27300,"paid":15000,"payments":[{"id":"364f707f-85b9-4cd1-b1f4-7f1aa0599425","amount":15000,"date":"2026-10-06","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.382Z"}],"note":"Livraison au restaurant","date":"2026-10-06","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"a1307c4a-91a7-4ddc-94e9-5845ee89121b","number":"VEN-2026-0002","type":"sale","storeId":"store-centre","toStoreId":null,"contactId":null,"lines":[{"productId":"product-cafe","quantity":2,"unitPrice":2500,"purchaseCost":1800,"name":"Café instantané 100 g","sku":"ALI-CAF-100","unit":"pot"},{"productId":"product-eau","quantity":6,"unitPrice":400,"purchaseCost":250,"name":"Eau minérale 1,5 L","sku":"BOI-EAU-150","unit":"bouteille"}],"total":7400,"paid":7400,"payments":[{"id":"377dc435-2356-4a8b-b618-d08cb5227c48","amount":7400,"date":"2026-10-07","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.382Z"}],"note":"Vente comptoir","date":"2026-10-07","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"95a99180-2017-431d-9de0-aaec37af865b","number":"TRA-2026-0001","type":"transfer","storeId":"store-depot","toStoreId":"store-nord","contactId":null,"lines":[{"productId":"product-savon","quantity":12,"unitPrice":0,"purchaseCost":450,"name":"Savon de Marseille 200 g","sku":"HYG-SAV-200","unit":"pièce"},{"productId":"product-jus","quantity":8,"unitPrice":0,"purchaseCost":650,"name":"Jus de mangue 1 L","sku":"BOI-JUS-001","unit":"brique"}],"total":0,"paid":0,"payments":[],"note":"Mise en rayon Nord","date":"2026-10-07","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"4845fd68-6344-4293-966f-80509208c870","number":"VEN-2026-0003","type":"sale","storeId":"store-nord","toStoreId":null,"contactId":"customer-awa","lines":[{"productId":"product-sucre","quantity":4,"unitPrice":850,"purchaseCost":600,"name":"Sucre blanc 1 kg","sku":"ALI-SUC-001","unit":"sachet"},{"productId":"product-farine","quantity":2.5,"unitPrice":600,"purchaseCost":400,"name":"Farine de blé","sku":"ALI-FAR-VRA","unit":"kg"}],"total":4900,"paid":4900,"payments":[{"id":"ca67b212-1a02-49fc-90ff-598f11ab47c9","amount":4900,"date":"2026-10-08","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"}],"note":"Vente du jour","date":"2026-10-08","createdAt":"2026-10-08T16:17:05.383Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"}],"contacts":[{"id":"customer-awa","type":"customer","name":"Awa Coulibaly","phone":"+229 01 97 12 34 56","address":"Cadjèhoun, Cotonou","taxId":""},{"id":"customer-restaurant","type":"customer","name":"Restaurant Le Palmier","phone":"+229 01 96 54 32 10","address":"Ganhi, Cotonou","taxId":"EXEMPLE-IFU-001"},{"id":"supplier-sodico","type":"supplier","name":"Sodico Distribution","phone":"+229 01 21 00 11 22","address":"Akpakpa, Cotonou","taxId":"EXEMPLE-IFU-002"},{"id":"supplier-moulins","type":"supplier","name":"Les Grands Moulins","phone":"+229 01 21 30 40 50","address":"Port de Cotonou","taxId":"EXEMPLE-IFU-003"}],"inventories":[],"expenses":[{"id":"c1d7f663-de46-46b7-b02c-e0c9bbc64d31","storeId":"store-centre","category":"Transport","amount":3500,"date":"2026-10-06","note":"Livraison clients","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"},{"id":"5f66e41c-7cd7-42b3-b0ac-896722801ad8","storeId":"store-centre","category":"Électricité","amount":18000,"date":"2026-10-05","note":"Facture mensuelle","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"}],"settings":{"id":"main","currency":"XOF","noPrices":false,"businessName":"Comptoir"},"_demoUsers":[{"id":"e7175ae1-caa1-4570-b14b-729c1d704997","email":"admin@stock.local","name":"Aminata Diallo","role":"admin"},{"id":"376e2de3-e96e-4338-8c95-674881be40ae","email":"cashier@stock.local","name":"Moussa Traoré","role":"cashier"},{"id":"a01d8431-99b7-477f-a3d9-1c43de1390c1","email":"inventory@stock.local","name":"Fatou Koné","role":"inventory"}]};</script><script>/* Local demonstration engine. Roles are simulated; this provides no authentication. */
+<body><div class="demo-banner">Démonstration locale · données sur cet appareil <span>Comptes et rôles simulés</span></div><div id="app"><div class="loading-screen"><span class="loading-mark">C</span><p>Ouverture de votre comptoir…</p></div></div><div id="modal-root"></div><div id="toast-root" aria-live="polite" aria-atomic="true"></div><script>window.ComptoirDemoSeed={"products":[{"id":"product-riz","name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","category":"Épicerie / Céréales","brand":"Royal","tags":["alimentaire"],"unit":"sac","purchasePrice":3200,"sellingPrice":4500,"minStock":20,"location":"A1","color":"#f4e4c8","photo":"","notes":"","version":1},{"id":"product-huile","name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","category":"Épicerie / Huiles","brand":"Lesieur","tags":["alimentaire"],"unit":"bouteille","purchasePrice":1150,"sellingPrice":1600,"minStock":15,"location":"A2","color":"#f5e9b2","photo":"","notes":"","version":1},{"id":"product-sucre","name":"Sucre blanc 1 kg","sku":"ALI-SUC-001","category":"Épicerie / Céréales","brand":"Sucrivoire","tags":["alimentaire"],"unit":"sachet","purchasePrice":600,"sellingPrice":850,"minStock":20,"location":"A3","color":"#f2e3ed","photo":"","notes":"","version":1},{"id":"product-lait","name":"Lait en poudre 400 g","sku":"ALI-LAI-400","category":"Épicerie / Petit déjeuner","brand":"Nido","tags":["alimentaire"],"unit":"boîte","purchasePrice":2200,"sellingPrice":2900,"minStock":12,"location":"B1","color":"#e5ebd2","photo":"","notes":"","version":1},{"id":"product-cafe","name":"Café instantané 100 g","sku":"ALI-CAF-100","category":"Épicerie / Petit déjeuner","brand":"Nescafé","tags":["alimentaire"],"unit":"pot","purchasePrice":1800,"sellingPrice":2500,"minStock":10,"location":"B2","color":"#e4d8cf","photo":"","notes":"","version":1},{"id":"product-eau","name":"Eau minérale 1,5 L","sku":"BOI-EAU-150","category":"Boissons / Eaux","brand":"Awa","tags":[],"unit":"bouteille","purchasePrice":250,"sellingPrice":400,"minStock":30,"location":"C1","color":"#d5e7eb","photo":"","notes":"","version":1},{"id":"product-jus","name":"Jus de mangue 1 L","sku":"BOI-JUS-001","category":"Boissons / Jus","brand":"Ivorio","tags":[],"unit":"brique","purchasePrice":650,"sellingPrice":1000,"minStock":15,"location":"C2","color":"#f3dfc2","photo":"","notes":"","version":1},{"id":"product-savon","name":"Savon de Marseille 200 g","sku":"HYG-SAV-200","category":"Hygiène / Corps","brand":"Le Chat","tags":[],"unit":"pièce","purchasePrice":450,"sellingPrice":700,"minStock":15,"location":"D1","color":"#d5e4d4","photo":"","notes":"","version":1},{"id":"product-lessive","name":"Lessive en poudre 1 kg","sku":"ENT-LES-001","category":"Entretien / Linge","brand":"Omo","tags":[],"unit":"sachet","purchasePrice":950,"sellingPrice":1400,"minStock":10,"location":"D2","color":"#dbdeed","photo":"","notes":"","version":1},{"id":"product-farine","name":"Farine de blé","sku":"ALI-FAR-VRA","category":"Épicerie / Céréales","brand":"Les Grands Moulins","tags":["alimentaire"],"unit":"kg","purchasePrice":400,"sellingPrice":600,"minStock":25,"location":"A4","color":"#ece3d5","photo":"","notes":"","version":1}],"stores":[{"id":"store-centre","name":"Boutique du Centre","city":"Cotonou"},{"id":"store-nord","name":"Boutique du Nord","city":"Porto-Novo"},{"id":"store-depot","name":"Dépôt principal","city":"Cotonou"}],"stocks":[{"productId":"product-riz","storeId":"store-centre","quantity":31,"version":2},{"productId":"product-riz","storeId":"store-nord","quantity":14,"version":1},{"productId":"product-riz","storeId":"store-depot","quantity":150,"version":2},{"productId":"product-huile","storeId":"store-centre","quantity":6,"version":2},{"productId":"product-huile","storeId":"store-nord","quantity":26,"version":1},{"productId":"product-huile","storeId":"store-depot","quantity":100,"version":2},{"productId":"product-sucre","storeId":"store-centre","quantity":48,"version":1},{"productId":"product-sucre","storeId":"store-nord","quantity":14,"version":2},{"productId":"product-sucre","storeId":"store-depot","quantity":100,"version":1},{"productId":"product-lait","storeId":"store-centre","quantity":7,"version":1},{"productId":"product-lait","storeId":"store-nord","quantity":16,"version":1},{"productId":"product-lait","storeId":"store-depot","quantity":45,"version":1},{"productId":"product-cafe","storeId":"store-centre","quantity":23,"version":2},{"productId":"product-cafe","storeId":"store-nord","quantity":12,"version":1},{"productId":"product-cafe","storeId":"store-depot","quantity":40,"version":1},{"productId":"product-eau","storeId":"store-centre","quantity":90,"version":2},{"productId":"product-eau","storeId":"store-nord","quantity":42,"version":1},{"productId":"product-eau","storeId":"store-depot","quantity":240,"version":1},{"productId":"product-jus","storeId":"store-centre","quantity":22,"version":1},{"productId":"product-jus","storeId":"store-nord","quantity":16,"version":2},{"productId":"product-jus","storeId":"store-depot","quantity":52,"version":2},{"productId":"product-savon","storeId":"store-centre","quantity":12,"version":1},{"productId":"product-savon","storeId":"store-nord","quantity":32,"version":2},{"productId":"product-savon","storeId":"store-depot","quantity":88,"version":2},{"productId":"product-lessive","storeId":"store-centre","quantity":32,"version":1},{"productId":"product-lessive","storeId":"store-nord","quantity":15,"version":1},{"productId":"product-lessive","storeId":"store-depot","quantity":65,"version":1},{"productId":"product-farine","storeId":"store-centre","quantity":42.5,"version":1},{"productId":"product-farine","storeId":"store-nord","quantity":19.25,"version":2},{"productId":"product-farine","storeId":"store-depot","quantity":180,"version":1}],"documents":[{"id":"172f02c9-01b5-4a2f-80a0-6c298f5560c7","number":"ACH-2026-0001","type":"purchase","storeId":"store-depot","toStoreId":null,"contactId":"supplier-sodico","lines":[{"productId":"product-riz","quantity":30,"unitPrice":3200,"purchaseCost":3200,"name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","unit":"sac"},{"productId":"product-huile","quantity":20,"unitPrice":1150,"purchaseCost":1150,"name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","unit":"bouteille"}],"total":119000,"paid":80000,"payments":[{"id":"a3301910-1d1f-401c-afc0-939b0972eb5d","amount":80000,"date":"2026-10-03","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.381Z"}],"note":"Réapprovisionnement hebdomadaire","date":"2026-10-03","createdAt":"2026-10-08T16:17:05.381Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"b1b0d824-02ec-4c93-991c-133ccd506861","number":"VEN-2026-0001","type":"sale","storeId":"store-centre","toStoreId":null,"contactId":"customer-restaurant","lines":[{"productId":"product-riz","quantity":5,"unitPrice":4500,"purchaseCost":3200,"name":"Riz parfumé 5 kg","sku":"ALI-RIZ-005","unit":"sac"},{"productId":"product-huile","quantity":3,"unitPrice":1600,"purchaseCost":1150,"name":"Huile de tournesol 1 L","sku":"ALI-HUI-001","unit":"bouteille"}],"total":27300,"paid":15000,"payments":[{"id":"364f707f-85b9-4cd1-b1f4-7f1aa0599425","amount":15000,"date":"2026-10-06","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.382Z"}],"note":"Livraison au restaurant","date":"2026-10-06","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"a1307c4a-91a7-4ddc-94e9-5845ee89121b","number":"VEN-2026-0002","type":"sale","storeId":"store-centre","toStoreId":null,"contactId":null,"lines":[{"productId":"product-cafe","quantity":2,"unitPrice":2500,"purchaseCost":1800,"name":"Café instantané 100 g","sku":"ALI-CAF-100","unit":"pot"},{"productId":"product-eau","quantity":6,"unitPrice":400,"purchaseCost":250,"name":"Eau minérale 1,5 L","sku":"BOI-EAU-150","unit":"bouteille"}],"total":7400,"paid":7400,"payments":[{"id":"377dc435-2356-4a8b-b618-d08cb5227c48","amount":7400,"date":"2026-10-07","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.382Z"}],"note":"Vente comptoir","date":"2026-10-07","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"95a99180-2017-431d-9de0-aaec37af865b","number":"TRA-2026-0001","type":"transfer","storeId":"store-depot","toStoreId":"store-nord","contactId":null,"lines":[{"productId":"product-savon","quantity":12,"unitPrice":0,"purchaseCost":450,"name":"Savon de Marseille 200 g","sku":"HYG-SAV-200","unit":"pièce"},{"productId":"product-jus","quantity":8,"unitPrice":0,"purchaseCost":650,"name":"Jus de mangue 1 L","sku":"BOI-JUS-001","unit":"brique"}],"total":0,"paid":0,"payments":[],"note":"Mise en rayon Nord","date":"2026-10-07","createdAt":"2026-10-08T16:17:05.382Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"},{"id":"4845fd68-6344-4293-966f-80509208c870","number":"VEN-2026-0003","type":"sale","storeId":"store-nord","toStoreId":null,"contactId":"customer-awa","lines":[{"productId":"product-sucre","quantity":4,"unitPrice":850,"purchaseCost":600,"name":"Sucre blanc 1 kg","sku":"ALI-SUC-001","unit":"sachet"},{"productId":"product-farine","quantity":2.5,"unitPrice":600,"purchaseCost":400,"name":"Farine de blé","sku":"ALI-FAR-VRA","unit":"kg"}],"total":4900,"paid":4900,"payments":[{"id":"ca67b212-1a02-49fc-90ff-598f11ab47c9","amount":4900,"date":"2026-10-08","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"}],"note":"Vente du jour","date":"2026-10-08","createdAt":"2026-10-08T16:17:05.383Z","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997"}],"contacts":[{"id":"customer-awa","type":"customer","name":"Awa Coulibaly","phone":"+229 01 97 12 34 56","address":"Cadjèhoun, Cotonou","taxId":""},{"id":"customer-restaurant","type":"customer","name":"Restaurant Le Palmier","phone":"+229 01 96 54 32 10","address":"Ganhi, Cotonou","taxId":"EXEMPLE-IFU-001"},{"id":"supplier-sodico","type":"supplier","name":"Sodico Distribution","phone":"+229 01 21 00 11 22","address":"Akpakpa, Cotonou","taxId":"EXEMPLE-IFU-002"},{"id":"supplier-moulins","type":"supplier","name":"Les Grands Moulins","phone":"+229 01 21 30 40 50","address":"Port de Cotonou","taxId":"EXEMPLE-IFU-003"}],"inventories":[],"expenses":[{"id":"c1d7f663-de46-46b7-b02c-e0c9bbc64d31","storeId":"store-centre","category":"Transport","amount":3500,"date":"2026-10-06","note":"Livraison clients","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"},{"id":"5f66e41c-7cd7-42b3-b0ac-896722801ad8","storeId":"store-centre","category":"Électricité","amount":18000,"date":"2026-10-05","note":"Facture mensuelle","createdBy":"e7175ae1-caa1-4570-b14b-729c1d704997","createdAt":"2026-10-08T16:17:05.383Z"}],"settings":{"id":"main","currency":"XOF","noPrices":false,"businessName":"Comptoir"},"_demoUsers":[{"id":"e7175ae1-caa1-4570-b14b-729c1d704997","email":"admin@stock.local","name":"Aminata Diallo","role":"admin"},{"id":"376e2de3-e96e-4338-8c95-674881be40ae","email":"cashier@stock.local","name":"Moussa Traoré","role":"cashier"},{"id":"a01d8431-99b7-477f-a3d9-1c43de1390c1","email":"inventory@stock.local","name":"Fatou Koné","role":"inventory"}]};</script><script>(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory({
+      uuid: require('node:crypto').randomUUID,
+      // Resolve AppError at call time: business.js also imports this module.
+      createError(message, code, status) {
+        const { AppError } = require('./business');
+        return new AppError(message, code, status);
+      }
+    });
+  } else {
+    root.ComptoirReversals = factory({
+      uuid: () => root.crypto.randomUUID(),
+      createError(message, code, status) {
+        const error = new Error(message);
+        error.code = code; error.status = status;
+        return error;
+      }
+    });
+  }
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (dependencies) {
+'use strict';
+const { uuid, createError } = dependencies;
+
+const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Africa/Porto-Novo', year: 'numeric', month: '2-digit', day: '2-digit'
+});
+
+function fail(message, code = 'INVALID_INPUT', status = 400) {
+  throw createError(message, code, status);
+}
+
+function requiredText(value, label, max) {
+  if (typeof value !== 'string' || !value.trim() || value.trim().length > max) {
+    fail(`${label} obligatoire, entre 1 et ${max} caractères.`);
+  }
+  return value.trim();
+}
+
+function scaledQuantity(line, signed) {
+  const value = line.quantity;
+  const scaled = Math.round(value * 1000);
+  if (typeof value !== 'number' || !Number.isFinite(value) || !Number.isSafeInteger(scaled) ||
+      !scaled || (!signed && scaled < 0) || Math.abs(scaled / 1000 - value) > 1e-8) {
+    fail('Les quantités du document ne permettent pas son annulation.', 'INVALID_DOCUMENT', 409);
+  }
+  return scaled;
+}
+
+function nextCancellationNumber(service, businessDate) {
+  const prefix = `ANN-${businessDate.slice(0, 4)}-`;
+  const previous = service.all('documents').reduce((last, document) => {
+    if (typeof document.number !== 'string' || !document.number.startsWith(prefix)) return last;
+    const suffix = document.number.slice(prefix.length);
+    if (!/^\d+$/.test(suffix)) return last;
+    const value = Number(suffix);
+    return Number.isSafeInteger(value) ? Math.max(last, value) : last;
+  }, 0);
+  return `${prefix}${String(previous + 1).padStart(4, '0')}`;
+}
+
+/**
+ * Cancel a whole, unpaid document without deleting its audit trail.
+ * The caller must wrap this function in the same transaction as its command ID.
+ * Financial reports must exclude cancelled originals and reversalOf documents.
+ */
+function cancelDocument(service, user, input) {
+  if (!user) fail('Connexion requise.', 'UNAUTHORIZED', 401);
+  if (user.role !== 'admin') fail('L’annulation est réservée aux administrateurs.', 'FORBIDDEN', 403);
+  if (!input || typeof input !== 'object' || Array.isArray(input)) fail('Données d’annulation invalides.');
+  const documentId = requiredText(input.documentId, 'Identifiant du document', 120);
+  const reason = requiredText(input.reason, 'Motif d’annulation', 1000);
+  const original = service.need('documents', documentId, 'Document');
+
+  if (original.reversalOf) fail('Un document d’annulation ne peut pas être annulé à nouveau.', 'REVERSAL_DOCUMENT', 409);
+  if (original.status === 'cancelled' || original.reversalDocumentId) {
+    fail('Ce document est déjà annulé.', 'DOCUMENT_CANCELLED', 409);
+  }
+  if (original.inventoryId) {
+    fail('Ce mouvement provient d’un inventaire validé. Effectuez un nouvel inventaire pour corriger le stock.', 'INVENTORY_ADJUSTMENT', 409);
+  }
+  if ((original.paid || 0) > 0 || original.payments?.some(payment => payment.amount > 0)) {
+    fail('Ce document comporte un paiement. Un remboursement réel doit être enregistré avant son annulation ; cette opération n’est pas encore disponible.', 'REFUND_REQUIRED', 409);
+  }
+  if (!['sale', 'purchase', 'transfer', 'adjustment'].includes(original.type) || !original.lines?.length) {
+    fail('Ce document ne peut pas être annulé.', 'INVALID_DOCUMENT', 409);
+  }
+
+  const storeId = service.need('stores', original.storeId, 'Magasin').id;
+  const toStoreId = original.type === 'transfer'
+    ? service.need('stores', original.toStoreId, 'Magasin de destination').id : null;
+  if (toStoreId === storeId) fail('Le transfert doit concerner deux magasins distincts.', 'INVALID_DOCUMENT', 409);
+
+  const deltas = new Map();
+  const addDelta = (productId, targetStoreId, delta) => {
+    const key = JSON.stringify([productId, targetStoreId]);
+    const previous = deltas.get(key);
+    const sum = (previous?.delta || 0) + delta;
+    if (!Number.isSafeInteger(sum)) fail('Quantité de stock trop importante.', 'INVALID_DOCUMENT', 409);
+    deltas.set(key, { productId, storeId: targetStoreId, delta: sum });
+  };
+  const lines = original.lines.map(line => {
+    const productId = service.need('products', line.productId, 'Article').id;
+    const scaled = scaledQuantity(line, original.type === 'adjustment');
+    if (original.type === 'sale' || original.type === 'transfer') addDelta(productId, storeId, scaled);
+    else addDelta(productId, storeId, -scaled);
+    if (original.type === 'transfer') addDelta(productId, toStoreId, -scaled);
+    // Keep the historical labels, unit and costs instead of today's catalogue.
+    return { ...line, quantity: original.type === 'adjustment' ? -scaled / 1000 : scaled / 1000 };
+  });
+
+  // Validate every store before the first write. The outer transaction also
+  // protects the ledger and command ID if a later write fails.
+  for (const movement of deltas.values()) {
+    const next = service.stock(movement.productId, movement.storeId).quantity + movement.delta;
+    if (next < 0) {
+      const product = service.need('products', movement.productId, 'Article');
+      fail(`Stock insuffisant pour annuler ce document : ${product.name}.`, 'INSUFFICIENT_STOCK', 409);
+    }
+    if (!Number.isSafeInteger(next) || next > 1_000_000_000_000) fail('Quantité de stock trop importante.');
+  }
+
+  const now = new Date();
+  const businessDate = dateFormatter.format(now);
+  const inverseType = { sale: 'purchase', purchase: 'sale', transfer: 'transfer', adjustment: 'adjustment' }[original.type];
+  const reversal = {
+    id: uuid(), number: nextCancellationNumber(service, businessDate), type: inverseType,
+    storeId: original.type === 'transfer' ? toStoreId : storeId,
+    toStoreId: original.type === 'transfer' ? storeId : null,
+    contactId: null, lines, total: 0, paid: 0, payments: [],
+    note: `Annulation de ${original.number} : ${reason}`,
+    date: businessDate, createdAt: now.toISOString(), createdBy: user.id,
+    reversalOf: original.id, cancellationReason: reason
+  };
+  const cancelled = {
+    ...original, status: 'cancelled', cancelledAt: now.toISOString(),
+    cancelledBy: user.id, cancellationReason: reason, reversalDocumentId: reversal.id
+  };
+
+  for (const movement of deltas.values()) service.move(movement.productId, movement.storeId, movement.delta);
+  service.put('documents', reversal);
+  service.put('documents', cancelled);
+  return { documentId: original.id, reversalDocumentId: reversal.id };
+}
+
+return { cancelDocument };
+});
+</script><script>/* Local demonstration engine. Roles are simulated; this provides no authentication. */
 (function (root, factory) {
-  const api = factory();
+  const api = factory(typeof module === 'object' && module.exports ? require('../lib/reversals') : root.ComptoirReversals);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.ComptoirDemoCore = api.DemoCore;
-})(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+})(typeof globalThis !== 'undefined' ? globalThis : this, function (reversals) {
   'use strict';
   const copy = value => JSON.parse(JSON.stringify(value));
   const now = () => new Date().toISOString();
@@ -823,9 +1011,12 @@ tr.inventory-line { display: table-row; padding: 0; }
         this.data[name] = copy(seed[name]);
       }
       this.data.settings = copy(seed.settings || { currency: 'XOF', noPrices: false, businessName: 'Comptoir' });
+      this.data.stores.forEach(store => { store.version ||= 1; });
       this.data.stocks.forEach(stock => { stock.quantity = ticks(stock.quantity); });
       this.commands = new Map((seed._commands || []).map(command => [command.id, copy(command)]));
     }
+    all(table) { return this.data[table]; }
+    get(table, id) { return this.data[table].find(item => item.id === id); }
     need(table, id, label) {
       const entity = typeof id === 'string' && this.data[table].find(item => item.id === id);
       if (!entity) fail(`${label} introuvable.`, 'NOT_FOUND', 404);
@@ -850,7 +1041,7 @@ tr.inventory-line { display: table-row; padding: 0; }
         else {
           result.inventories = [];
           result.contacts = result.contacts.filter(contact => contact.type === 'customer');
-          result.documents = result.documents.filter(document => document.type === 'sale');
+          result.documents = result.documents.filter(document => document.type === 'sale' && !document.reversalOf);
           result.documents.forEach(document => document.lines.forEach(line => { delete line.purchaseCost; }));
         }
       }
@@ -887,7 +1078,8 @@ tr.inventory-line { display: table-row; padding: 0; }
         'document.create': () => this.document(user, payload), 'payment.create': () => this.payment(user, payload),
         'inventory.create': () => this.inventory(user, payload), 'inventory.count': () => this.count(payload),
         'inventory.validate': () => this.validate(user, payload), 'expense.create': () => this.expense(user, payload),
-        'settings.update': () => this.settings(payload)
+        'settings.update': () => this.settings(payload), 'store.save': () => this.store(payload),
+        'document.cancel': () => reversals.cancelDocument(this,user,payload)
       };
       if (!Object.hasOwn(handlers, type)) fail('Type de commande inconnu.', 'UNKNOWN_COMMAND');
       const before = copy(this.data);
@@ -896,6 +1088,15 @@ tr.inventory-line { display: table-row; padding: 0; }
         this.commands.set(id, { id, userId: user.id, signature, createdAt: now() });
         return { ok: true };
       } catch (error) { this.data = before; throw error; }
+    }
+    store(input) {
+      const id = input.id ? text(input.id,'Identifiant',120) : uuid(), previous = this.get('stores',id);
+      if (previous && input.expectedVersion !== previous.version) fail('Ce magasin a changé. Actualisez les données.','VERSION_CONFLICT',409);
+      if (!previous && input.expectedVersion != null && input.expectedVersion !== 0) fail('Ce magasin n’existe plus.','VERSION_CONFLICT',409);
+      const name = text(input.name,'Nom du magasin',160), city = text(input.city,'Ville',160,false);
+      if (this.data.stores.some(store => store.id !== id && store.name.toLocaleLowerCase() === name.toLocaleLowerCase())) fail('Un magasin porte déjà ce nom.','DUPLICATE_STORE',409);
+      this.put('stores',{...previous,id,name,city,address:text(input.address ?? previous?.address,'Adresse',500,false),phone:text(input.phone ?? previous?.phone,'Téléphone',50,false),taxId:text(input.taxId ?? previous?.taxId,'IFU',100,false),version:(previous?.version || 0)+1});
+      this.data.products.forEach(product => { if (!this.data.stocks.some(stock => stock.productId === product.id && stock.storeId === id)) this.data.stocks.push({productId:product.id,storeId:id,quantity:0,version:1}); });
     }
     product(input) {
       const id = input.id ? text(input.id, 'Identifiant', 120) : uuid(), previous = this.data.products.find(product => product.id === id);
@@ -962,6 +1163,7 @@ tr.inventory-line { display: table-row; padding: 0; }
     }
     payment(user, input) {
       const document = this.need('documents', input.documentId, 'Document'), value = amount(input.amount);
+      if (document.status === 'cancelled' || document.reversalOf) fail('Un document annulé ne reçoit plus de paiement.','DOCUMENT_CANCELLED',409);
       if (!['sale', 'purchase'].includes(document.type)) fail('Ce document ne reçoit pas de paiement.');
       if (!value) fail('Le paiement doit être supérieur à zéro.');
       if (document.paid + value > document.total) fail('Le paiement dépasse le solde restant.', 'OVERPAYMENT');
@@ -1013,6 +1215,70 @@ tr.inventory-line { display: table-row; padding: 0; }
   }
   return { DemoCore, DemoError };
 });
+</script><script>/* Portable backups contain fictitious local data and simulated profiles only. */
+(function(root,factory){
+  const api=factory();
+  if(typeof module==='object'&&module.exports)module.exports=api;else root.ComptoirDemoBackups=api;
+})(typeof globalThis!=='undefined'?globalThis:this,function(){
+  'use strict';
+  const fail=()=>{throw Object.assign(new Error('Sauvegarde invalide ou incompatible. Les données actuelles ont été conservées.'),{code:'INVALID_BACKUP',status:400});};
+  const object=value=>value&&typeof value==='object'&&!Array.isArray(value);
+  const id=value=>typeof value==='string'&&/^[A-Za-z0-9_-]{1,120}$/.test(value);
+  const money=value=>Number.isSafeInteger(value)&&value>=0&&value<=1e12;
+  const qty=(value,signed=false)=>typeof value==='number'&&Number.isFinite(value)&&Math.abs(value)<=1e9&&(signed||value>=0)&&Math.abs(Math.round(value*1000)/1000-value)<1e-8;
+  const text=(value,max)=>typeof value==='string'&&value.length<=max;
+  function validateBackup(input){
+    let encoded,backup;
+    try{encoded=JSON.stringify(input);if(new TextEncoder().encode(encoded).length>25*1024*1024)fail();backup=JSON.parse(encoded);}catch{fail();}
+    if(!object(backup)||backup.format!=='comptoir-demo-backup'||backup.version!==1||!Number.isFinite(Date.parse(backup.exportedAt))||!object(backup.state)||!Array.isArray(backup.profiles))fail();
+    const state=backup.state, maps={};
+    for(const table of['products','stores','documents','contacts','inventories','expenses']){
+      if(!Array.isArray(state[table])||state[table].length>50000)fail();
+      maps[table]=new Map();
+      for(const row of state[table]){if(!object(row)||!id(row.id)||maps[table].has(row.id))fail();maps[table].set(row.id,row);}
+    }
+    const ref=(table,value)=>maps[table].has(value),safeDate=value=>text(value,40)&&Number.isFinite(Date.parse(value));
+    if(!state.stores.length||state.stores.some(s=>!text(s.name,160)||!s.name.trim()||!text(s.city||'',160)||(s.version!=null&&(!Number.isSafeInteger(s.version)||s.version<1))))fail();
+    state.stores.forEach(s=>{s.version ||= 1;});
+    const skus=new Set();
+    for(const p of state.products){
+      if(!text(p.name,160)||!p.name.trim()||!text(p.sku,100)||!p.sku.trim()||skus.has(p.sku.toLowerCase())||!text(p.unit,30)||!text(p.category,160)||!text(p.brand,100)||!text(p.location,160)||!text(p.notes,3000)||!money(p.purchasePrice)||!money(p.sellingPrice)||!qty(p.minStock)||!Number.isSafeInteger(p.version)||p.version<1||!/^#[a-f0-9]{6}$/i.test(p.color)||!Array.isArray(p.tags)||p.tags.length>30||p.tags.some(t=>!text(t,60))||!text(p.photo,7000000))fail();
+      skus.add(p.sku.toLowerCase());
+      if(p.photo){if(!/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/]+={0,2}$/.test(p.photo))fail();try{atob(p.photo.slice(p.photo.indexOf(',')+1));}catch{fail();}}
+    }
+    if(!Array.isArray(state.stocks))fail();const stocks=new Set();
+    for(const s of state.stocks){const key=JSON.stringify([s.productId,s.storeId]);if(!object(s)||!ref('products',s.productId)||!ref('stores',s.storeId)||!qty(s.quantity)||!Number.isSafeInteger(s.version)||s.version<0||stocks.has(key))fail();stocks.add(key);}
+    if(stocks.size!==state.products.length*state.stores.length)fail();
+    for(const c of state.contacts)if(!['customer','supplier'].includes(c.type)||!text(c.name,160)||!c.name.trim()||!text(c.phone,50)||!text(c.address,500)||!text(c.taxId,100))fail();
+    for(const d of state.documents){
+      if(!['sale','purchase','transfer','adjustment'].includes(d.type)||!ref('stores',d.storeId)||(d.type==='transfer'&&(!ref('stores',d.toStoreId)||d.toStoreId===d.storeId))||(d.contactId&&!ref('contacts',d.contactId))||!money(d.total)||!money(d.paid)||d.paid>d.total||!safeDate(d.date)||!safeDate(d.createdAt)||!id(d.createdBy)||!text(d.number,100)||!text(d.note,4000)||!Array.isArray(d.lines)||!d.lines.length||d.lines.length>500||!Array.isArray(d.payments))fail();
+      const lines=new Set();let total=0;
+      for(const l of d.lines){if(!ref('products',l.productId)||lines.has(l.productId)||!qty(l.quantity,d.type==='adjustment')||!l.quantity||!money(l.unitPrice)||!money(l.purchaseCost)||!text(l.name,160)||!text(l.sku,100)||!text(l.unit,30))fail();lines.add(l.productId);total+=Math.round(l.quantity*l.unitPrice);}
+      if(!d.reversalOf&&total!==d.total)fail();
+      if(d.reversalOf&&(!ref('documents',d.reversalOf)||d.total||d.paid))fail();
+      if(d.status!=null&&d.status!=='cancelled')fail();
+      if(d.status==='cancelled'&&(!ref('documents',d.reversalDocumentId)||d.paid||!text(d.cancellationReason,1000)))fail();
+      let paid=0;const payments=new Set();
+      for(const p of d.payments){if(!id(p.id)||payments.has(p.id)||!money(p.amount)||!p.amount||!safeDate(p.date)||!safeDate(p.createdAt)||!id(p.createdBy))fail();payments.add(p.id);paid+=p.amount;}
+      if(paid!==d.paid)fail();
+    }
+    for(const inv of state.inventories){
+      if(!ref('stores',inv.storeId)||!['draft','validated'].includes(inv.status)||!text(inv.name,160)||!text(inv.category,160)||!safeDate(inv.createdAt)||!Array.isArray(inv.lines)||!inv.lines.length)fail();
+      const ids=new Set();for(const l of inv.lines){if(!ref('products',l.productId)||ids.has(l.productId)||!qty(l.theoretical)||(l.counted!==null&&!qty(l.counted))||!Number.isSafeInteger(l.stockVersion)||l.stockVersion<0)fail();ids.add(l.productId);}
+      if(inv.documentId&&!ref('documents',inv.documentId))fail();
+      if(inv.status==='validated'&&(inv.lines.some(l=>l.counted===null)||!safeDate(inv.validatedAt)))fail();
+    }
+    for(const e of state.expenses)if(!ref('stores',e.storeId)||!money(e.amount)||!safeDate(e.date)||!text(e.category,100)||!text(e.note,2000)||!safeDate(e.createdAt))fail();
+    if(!object(state.settings)||state.settings.currency!=='XOF'||typeof state.settings.noPrices!=='boolean'||!text(state.settings.businessName,160))fail();
+    state._commands ||= [];const commands=new Set();
+    if(!Array.isArray(state._commands))fail();for(const c of state._commands){if(!id(c.id)||commands.has(c.id)||!id(c.userId)||!text(c.signature,20000000)||!safeDate(c.createdAt))fail();commands.add(c.id);}
+    const profiles=new Set(),emails=new Set();
+    for(const p of backup.profiles){if(!object(p)||Object.keys(p).some(k=>!['id','email','name','role','active','demo'].includes(k))||!id(p.id)||profiles.has(p.id)||!text(p.email,254)||!/^\S+@\S+\.\S+$/.test(p.email)||emails.has(p.email.toLowerCase())||!text(p.name,160)||!p.name.trim()||!['admin','cashier','inventory'].includes(p.role)||typeof p.active!=='boolean'||p.demo!==true)fail();profiles.add(p.id);emails.add(p.email.toLowerCase());}
+    if(!backup.profiles.some(p=>p.role==='admin'&&p.active))fail();
+    return backup;
+  }
+  return {validateBackup};
+});
 </script><script>/* Local demonstration only. These public accounts simulate roles; they are not authentication. */
 (function demoBrowser(global) {
   'use strict';
@@ -1021,7 +1287,7 @@ tr.inventory-line { display: table-row; padding: 0; }
   document.addEventListener('click', event => {
     if (event.target.closest?.('a[href="#"]')) event.preventDefault();
   });
-  const users = seed._demoUsers.map(({id,email,name,role}) => ({id,email,name,role}));
+  let users = seed._demoUsers.map(({id,email,name,role}) => ({id,email,name,role,active:true,demo:true}));
   const copy = value => structuredClone(value);
   const problem = (message,status=400,code='demo_error') => Object.assign(new Error(message),{status,code});
   const database = new Promise((resolve,reject) => {
@@ -1049,28 +1315,68 @@ tr.inventory-line { display: table-row; padding: 0; }
       return request;
     });
     core = new global.ComptoirDemoCore(saved || initial);
+    const profiles = await storage('readonly',store=>store.get('profiles'));
+    if(profiles)users=profiles;else await storage('readwrite',store=>store.put(users,'profiles'));
     const session = await storage('readonly',store => store.get('session'));
     currentUser = users.find(user => user.id === session?.userId) || null;
   })();
   // A rejected initialization is reported by request(), without an unhandled promise rejection.
   ready.catch(() => {});
-  const requireUser = () => {
+  const requireUser = async () => {
+    users=await storage('readonly',store=>store.get('profiles')) || users;
+    const session=await storage('readonly',store=>store.get('session'));
+    currentUser=session?.userId===currentUser?.id?users.find(user=>user.id===currentUser.id&&user.active!==false):null;
     if (!currentUser) throw problem('Choisissez un compte de démonstration pour ouvrir votre comptoir.',401,'session_required');
     return currentUser;
   };
+  async function updateProfile(data,id) {
+    const actor=await requireUser();
+    if(actor.role!=='admin')throw problem('Action réservée au profil administrateur.',403,'forbidden');
+    if(!data||Object.keys(data).some(key=>!['name','email','role','active'].includes(key)))throw problem('Profil de démonstration invalide. Ne saisissez aucun mot de passe personnel.');
+    const db=await database;
+    return new Promise((resolve,reject)=>{
+      const tx=db.transaction('business','readwrite'),store=tx.objectStore('business'),sessionRequest=store.get('session'),req=store.get('profiles');
+      let result,failure,next;
+      req.onsuccess=()=>{
+        try {
+          next=req.result||users;
+          if(sessionRequest.result?.userId!==actor.id||!next.some(user=>user.id===actor.id&&user.role==='admin'&&user.active))throw problem('Accès modifiés. Choisissez à nouveau un profil.',401);
+          const previous=id&&next.find(user=>user.id===id);
+          if(id&&!previous)throw problem('Profil introuvable.',404);
+          const value={...previous,...data,id:id||crypto.randomUUID(),demo:true};
+          value.email=String(value.email||'').trim().toLowerCase();value.name=String(value.name||'').trim();
+          if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.email)||value.email.length>254||!value.name||value.name.length>160||!['admin','cashier','inventory'].includes(value.role)||typeof value.active!=='boolean')throw problem('Nom, e-mail, rôle ou statut invalide.');
+          if(next.some(user=>user.id!==value.id&&user.email===value.email))throw problem('Cette adresse est déjà utilisée.',409);
+          next=next.filter(user=>user.id!==value.id).concat(value);
+          if(!next.some(user=>user.role==='admin'&&user.active))throw problem('Conservez au moins un administrateur actif.',409);
+          store.put(next,'profiles');result={user:value};
+          if(previous&&previous.id===actor.id&&(previous.role!==value.role||previous.active!==value.active||previous.email!==value.email))store.delete('session');
+        }catch(error){failure=error;tx.abort();}
+      };
+      tx.oncomplete=()=>{users=next;resolve(copy(result));};
+      tx.onerror=tx.onabort=()=>reject(failure||problem('Profil non enregistré.',503));
+    });
+  }
+  async function clearCache() {
+    const db=await new Promise((resolve,reject)=>{const req=indexedDB.open('comptoir-demo-cache',1);req.onupgradeneeded=()=>{req.result.createObjectStore('cache');req.result.createObjectStore('commands',{keyPath:'id'});};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);});
+    try {await new Promise((resolve,reject)=>{const tx=db.transaction(['cache','commands'],'readwrite');tx.objectStore('cache').clear();tx.objectStore('commands').clear();tx.oncomplete=resolve;tx.onerror=tx.onabort=()=>reject(tx.error);});}finally{db.close();}
+  }
   const readFile = file => new Promise((resolve,reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject(problem('Cette photo ne peut pas être lue.',400,'invalid_photo'));
     reader.readAsDataURL(file);
   });
-  async function execute(path,data) {
+  async function execute(path,data,method=data?'POST':'GET') {
     await ready;
+    if(path==='/api/admin/users'&&method==='POST')return updateProfile(data);
+    if(path.startsWith('/api/admin/users/')&&method==='PATCH')return updateProfile(data,decodeURIComponent(path.slice('/api/admin/users/'.length)));
     switch (path) {
       case '/api/config': return {demoMode:true,localDemo:true};
       case '/api/session': return {user:currentUser ? copy(currentUser) : null,demo:true};
       case '/api/login': {
-        const user = users.find(user => user.email.toLowerCase() === String(data?.email || '').trim().toLowerCase());
+        users=await storage('readonly',store=>store.get('profiles'))||users;
+        const user = users.find(user => user.active!==false&&user.email.toLowerCase() === String(data?.email || '').trim().toLowerCase());
         if (!user || data?.password !== 'Demo2026!') throw problem('Utilisez un des comptes de démonstration ci-dessous (mot de passe public : Demo2026!).',401,'invalid_demo_account');
         await storage('readwrite',store => store.put({userId:user.id},'session'));
         currentUser = user;
@@ -1081,25 +1387,27 @@ tr.inventory-line { display: table-row; padding: 0; }
         currentUser = null;
         return {ok:true};
       case '/api/state': {
-        const user = requireUser();
+        const user = await requireUser();
         const saved = await storage('readonly',store => store.get('snapshot'));
         core = new global.ComptoirDemoCore(saved || seed);
         return {...copy(core.state(user)),user:copy(user)};
       }
       case '/api/commands': {
-        const user = requireUser();
+        const user = await requireUser();
         const db = await database;
         // IndexedDB serializes this transaction across windows. Read, validate and write
         // the latest snapshot together; a failure aborts the write and its in-memory draft.
         return new Promise((resolve,reject) => {
           const tx = db.transaction('business','readwrite');
           const store = tx.objectStore('business');
-          const request = store.get('snapshot');
+          const request = store.get('snapshot'), sessionRequest=store.get('session'),profilesRequest=store.get('profiles');
           let nextCore, result, failure;
-          request.onsuccess = () => {
+          profilesRequest.onsuccess = () => {
             try {
+              const actor=(profilesRequest.result||users).find(profile=>profile.id===user.id&&profile.active);
+              if(sessionRequest.result?.userId!==user.id||!actor)throw problem('Choisissez à nouveau un profil.',401);
               nextCore = new global.ComptoirDemoCore(request.result || seed);
-              result = nextCore.command(user,copy(data));
+              result = nextCore.command(actor,copy(data));
               store.put(nextCore.exportState(),'snapshot');
             } catch (error) { failure = error; tx.abort(); }
           };
@@ -1108,11 +1416,11 @@ tr.inventory-line { display: table-row; padding: 0; }
         });
       }
       case '/upload': {
-        requireUser();
+        await requireUser();
         if (currentUser.role !== 'admin') throw problem('Les photos se modifient avec le rôle administrateur de démonstration.',403,'forbidden');
         if (!(data instanceof FormData)) throw problem('Aucune photo sélectionnée.',400,'invalid_photo');
         const files = data.getAll('images');
-        if (!files.length || files.length > 5) throw problem('Sélectionnez entre une et cinq photos.',400,'invalid_photo');
+        if (!files.length || files.length > 4) throw problem('Sélectionnez entre une et quatre photos.',400,'invalid_photo');
         const photos = [];
         for (const file of files) {
           if (!(file instanceof File) || !['image/png','image/jpeg','image/webp'].includes(file.type) || !file.size || file.size > 5 * 1024 * 1024) {
@@ -1124,13 +1432,33 @@ tr.inventory-line { display: table-row; padding: 0; }
         }
         return photos;
       }
+      case '/api/admin/users': {
+        if((await requireUser()).role!=='admin')throw problem('Profil administrateur requis.',403);
+        return {users:copy(users)};
+      }
+      case '/api/demo/backup': {
+        if((await requireUser()).role!=='admin')throw problem('Profil administrateur requis.',403);
+        const db=await database;
+        return new Promise((resolve,reject)=>{
+          const tx=db.transaction('business','readonly'),store=tx.objectStore('business'),snapshot=store.get('snapshot'),profiles=store.get('profiles');
+          tx.oncomplete=()=>resolve({format:'comptoir-demo-backup',version:1,exportedAt:new Date().toISOString(),state:copy(snapshot.result),profiles:copy(profiles.result)});
+          tx.onerror=()=>reject(problem('Sauvegarde locale indisponible.',503));
+        });
+      }
+      case '/api/demo/restore': {
+        if((await requireUser()).role!=='admin')throw problem('Profil administrateur requis.',403);
+        const backup=global.ComptoirDemoBackups.validateBackup(data?.backup);
+        await storage('readwrite',store=>{store.put(backup.state,'snapshot');store.put(backup.profiles,'profiles');return store.delete('session');});
+        currentUser=null;users=backup.profiles;core=new global.ComptoirDemoCore(backup.state);
+        await clearCache();return {ok:true,relogin:true};
+      }
       default: throw problem('Cette opération ne fait pas partie de la démonstration locale.',404,'unknown_operation');
     }
   }
   global.ComptoirDemoAPI = Object.freeze({
-    request(path,data) {
+    request(path,data,method=data?'POST':'GET') {
       // Commands and session changes use one queue so a write cannot be lost to an overlapping request.
-      const result = chain.then(() => execute(path,data));
+      const result = chain.then(() => execute(path,data,method));
       chain = result.catch(() => {});
       return result;
     },
@@ -1178,6 +1506,15 @@ const local = {
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const root = $('#app'), modalRoot = $('#modal-root');
   let state, user, storeId = '', view = 'dashboard', search = '', category = '', stockFilter = '', documentFilter = '', syncing = false, pending = [], demoMode = false, cached = false, toastTimer, reportPeriod = 'month';
+  let localDemo=false, registrationEnabled=false, adminUsers=[], usersStatus='idle', usersError='';
+  // Registration is deliberately kept in memory.  In particular, the
+  // password and verification code never enter IndexedDB, the offline queue,
+  // or a URL.  The hosted server contract is:
+  // POST /api/register { email, name, password, shop: { name, city } }
+  // POST /api/register/verify { email, registrationId, code }
+  // POST /api/register/resend { email, registrationId }
+  let authMode='login', loginPrefill='', registrationTimer=null;
+  let registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
   const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const normalize = text => String(text ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
   const num = value => new Intl.NumberFormat('fr-FR', {maximumFractionDigits:3}).format(value || 0);
@@ -1193,6 +1530,11 @@ const local = {
   const prices = () => user?.role !== 'inventory' && !state?.settings?.noPrices;
   const qty = (productId, sid = storeId) => state.stocks.filter(s => s.productId === productId && (sid === 'all' || s.storeId === sid)).reduce((sum,s) => sum+s.quantity,0);
   const docs = () => state.documents.filter(d => storeId === 'all' || d.storeId === storeId || d.toStoreId === storeId);
+  const activeDocument = d => d.status !== 'cancelled' && !d.reversalOf;
+  const activeDocs = () => docs().filter(activeDocument);
+  const documentLabel = d => d.reversalOf?'Annulation':typeNames[d.type];
+  const documentStatus = d => d.status==='cancelled'?'Annulé':d.reversalOf?'Annulation':d.paid>=d.total?'Réglé':d.paid?'Partiel':'Impayé';
+  const remaining = d => activeDocument(d)?Math.max(0,d.total-d.paid):0;
   const typeNames = {sale:'Vente',purchase:'Achat',transfer:'Transfert',adjustment:'Ajustement'};
   const typeTone = {sale:'success',purchase:'purple',transfer:'neutral',adjustment:'warning'};
   const roleNames = {admin:'Administrateur',cashier:'Caissier',inventory:"Agent d’inventaire"};
@@ -1236,8 +1578,8 @@ const local = {
     $('#toast-root').innerHTML = `<div class="toast ${error?'error':'success'}" role="status">${icon(error?'alert':'check')}<span>${esc(message)}</span></div>`;
     toastTimer = setTimeout(()=>$('#toast-root').innerHTML='',5500);
   }
-  async function api(path, data) {
-    return window.ComptoirDemoAPI.request(path,data);
+  async function api(path, data, method = data ? 'POST' : 'GET') {
+    return window.ComptoirDemoAPI.request(path,data,method);
   }
   async function refresh() {
     const incoming = await api('/api/state');
@@ -1372,7 +1714,7 @@ const local = {
     updateSync(); bindShell();
   }
   function bindShell() {
-    $$('[data-view]',root).forEach(el=>el.addEventListener('click',event=>{event.preventDefault();view=el.dataset.view;search='';category='';document.body.classList.remove('nav-open');render();}));
+    $$('[data-view]',root).forEach(el=>el.addEventListener('click',event=>{event.preventDefault();view=el.dataset.view;search='';category='';if(view==='settings')usersStatus='idle';document.body.classList.remove('nav-open');render();}));
     $$('[data-action]',root).forEach(el=>el.addEventListener('click',()=>action(el.dataset.action,el.dataset)));
     $('#store-select')?.addEventListener('change',event=>{storeId=event.target.value;render();});
     $('#product-search')?.addEventListener('input',event=>{
@@ -1386,19 +1728,22 @@ const local = {
     $$('[data-document]',root).forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.document)));
     $$('[data-inventory]',root).forEach(el=>el.addEventListener('click',()=>inventoryDetail(el.dataset.inventory)));
     $$('[data-contact]',root).forEach(el=>el.addEventListener('click',()=>contactDetail(el.dataset.contact)));
+    $$('[data-edit-store]',root).forEach(el=>el.addEventListener('click',()=>storeForm(el.dataset.editStore)));
+    $$('[data-edit-user]',root).forEach(el=>el.addEventListener('click',()=>userForm(el.dataset.editUser)));
     $('#settings-form')?.addEventListener('submit',async event=>{
       event.preventDefault();
       const form=event.currentTarget,button=$('[type=submit]',form);button.disabled=true;
       try {await perform('settings.update',{businessName:form.elements.businessName.value,noPrices:form.elements.noPrices.checked},'Préférences enregistrées.');}
       catch(error){toast(error.message,true);button.disabled=false;}
     });
+    if(view==='settings' && admin() && usersStatus==='idle')loadAdminUsers();
   }
   const storeSelect = () => `<select id="store-select" class="select" aria-label="Magasin"><option value="all">Tous les magasins</option>${state.stores.map(s=>`<option value="${s.id}" ${s.id===storeId?'selected':''}>${esc(s.name)}</option>`).join('')}</select>`;
   function dashboard() {
     const low=state.products.filter(p=>qty(p.id)<=p.minStock);
     const valuation=state.products.reduce((sum,p)=>sum+qty(p.id)*(p.purchasePrice||0),0);
     const retailValue=state.products.reduce((sum,p)=>sum+qty(p.id)*(p.sellingPrice||0),0);
-    const sales=docs().filter(d=>d.type==='sale');
+    const sales=activeDocs().filter(d=>d.type==='sale');
     const daily=sales.filter(d=>d.date?.slice(0,10)===today()).reduce((sum,d)=>sum+d.total,0);
     const receivables=sales.reduce((sum,d)=>sum+Math.max(0,d.total-d.paid),0);
     const inProgress=state.inventories.filter(i=>i.status==='draft'&&(storeId==='all'||i.storeId===storeId)).length;
@@ -1414,17 +1759,17 @@ const local = {
       <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Activité du commerce</h2><p class="panel-description">Entrées et sorties sur les 7 derniers jours</p></div><span class="badge neutral">7 jours</span></div>${activityChart()}<div class="chart-summary"><div><span>${prices()?'Ventes sur la période':'Quantités sorties'}</span><strong>${prices()?money(periodDocuments(7,'sale').reduce((s,d)=>s+d.total,0)):num(periodDocuments(7,'sale').reduce((s,d)=>s+d.lines.reduce((t,l)=>t+l.quantity,0),0))}</strong></div><div><span>${prices()?'Achats sur la période':'Quantités entrées'}</span><strong>${prices()?money(periodDocuments(7,'purchase').reduce((s,d)=>s+d.total,0)):num(periodDocuments(7,'purchase').reduce((s,d)=>s+d.lines.reduce((t,l)=>t+l.quantity,0),0))}</strong></div></div></section>
       <section class="panel quick-panel"><div class="panel-header"><div><h2 class="panel-title">Aller à l’essentiel</h2><p class="panel-description">Vos actions du quotidien</p></div></div><div class="quick-actions">${user.role!=='inventory'?`<button class="quick-action" data-action="new-sale"><span class="quick-icon green">${icon('cart')}</span><span><strong>Enregistrer une vente</strong><small>Articles, client et paiement</small></span>${icon('chevron')}</button>`:''}${admin()?`<button class="quick-action" data-action="new-purchase"><span class="quick-icon purple">${icon('download')}</span><span><strong>Réceptionner du stock</strong><small>Ajouter une entrée fournisseur</small></span>${icon('chevron')}</button>`:''}${user.role!=='cashier'?`<button class="quick-action" data-action="new-inventory"><span class="quick-icon blue">${icon('clipboard')}</span><span><strong>Démarrer un inventaire</strong><small>Compter et vérifier les écarts</small></span>${icon('chevron')}</button>`:''}${admin()?`<button class="quick-action" data-action="new-product"><span class="quick-icon orange">${icon('box')}</span><span><strong>Ajouter un produit</strong><small>Enrichir votre catalogue</small></span>${icon('chevron')}</button>`:''}</div><div class="quick-note">${icon('wifi')}Démonstration autonome, disponible sans connexion</div></section>
       <section class="panel"><div class="panel-header"><div><h2 class="panel-title">À réapprovisionner <span class="count-chip">${low.length}</span></h2><p class="panel-description">Ces articles ont atteint leur seuil minimum</p></div><button class="text-btn" data-action="show-low">Tout voir ${icon('chevron')}</button></div><div class="table-wrapper"><table><thead><tr><th>Produit</th><th>Stock actuel</th><th>Seuil min.</th><th>État</th></tr></thead><tbody>${low.slice(0,4).map(p=>`<tr><td>${productCell(p)}</td><td>${stockCell(p)}</td><td>${num(p.minStock)}</td><td>${stockBadge(p)}</td></tr>`).join('')}</tbody></table>${!low.length?empty('Votre stock est au vert','Aucun article sous son seuil minimum.','check'):''}</div></section>
-      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Derniers mouvements</h2><p class="panel-description">L’historique de votre activité</p></div>${user.role!=='inventory'?'<button class="text-btn" data-view="documents">Tout voir</button>':''}</div><div class="activity-list">${recent.map(d=>`<button class="activity-item" data-document="${d.id}"><span class="activity-icon ${typeTone[d.type]}">${icon(d.type==='sale'?'cart':d.type==='purchase'?'download':'arrows')}</span><span class="activity-copy"><strong>${typeNames[d.type]} · ${esc(d.number)}</strong><small>${esc(storeName(d.storeId))} · ${date(d.date || d.createdAt)}</small></span><span class="activity-meta"><strong>${prices()&&['sale','purchase'].includes(d.type)?money(d.total):num(d.lines.reduce((sum,l)=>sum+Math.abs(l.quantity),0))+' unités'}</strong>${d.total>0&&prices()?`<small>${d.paid>=d.total?'Réglé':'Paiement partiel'}</small>`:''}</span></button>`).join('')}${!recent.length?empty('Aucun mouvement','Vos opérations apparaîtront ici.','arrows'):''}</div>${prices()&&receivables?`<div class="receivables-note">${icon('wallet')}<span>Créances clients</span><strong>${money(receivables)}</strong></div>`:''}</section></div>`;
+      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Derniers mouvements</h2><p class="panel-description">L’historique de votre activité</p></div>${user.role!=='inventory'?'<button class="text-btn" data-view="documents">Tout voir</button>':''}</div><div class="activity-list">${recent.map(d=>`<button class="activity-item" data-document="${d.id}"><span class="activity-icon ${typeTone[d.type]}">${icon(d.type==='sale'?'cart':d.type==='purchase'?'download':'arrows')}</span><span class="activity-copy"><strong>${documentLabel(d)} · ${esc(d.number)}</strong><small>${esc(storeName(d.storeId))} · ${date(d.date || d.createdAt)}</small></span><span class="activity-meta"><strong>${prices()&&['sale','purchase'].includes(d.type)?money(d.total):num(d.lines.reduce((sum,l)=>sum+Math.abs(l.quantity),0))+' unités'}</strong>${d.total>0&&prices()?`<small>${d.status==='cancelled'?'Annulé':d.reversalOf?'Contre-mouvement':d.paid>=d.total?'Réglé':'Paiement partiel'}</small>`:''}</span></button>`).join('')}${!recent.length?empty('Aucun mouvement','Vos opérations apparaîtront ici.','arrows'):''}</div>${prices()&&receivables?`<div class="receivables-note">${icon('wallet')}<span>Créances clients</span><strong>${money(receivables)}</strong></div>`:''}</section></div>`;
   }
   function periodDocuments(days,type) {
     const start=firstDay(days);
-    return docs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)>=start&&(d.date || d.createdAt).slice(0,10)<=today());
+    return activeDocs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)>=start&&(d.date || d.createdAt).slice(0,10)<=today());
   }
   function activityChart() {
     const values=[];
     for(let offset=6;offset>=0;offset--){
       const day=new Date();day.setUTCDate(day.getUTCDate()-offset);const key=businessDay(day);
-      const totals=['sale','purchase'].map(type=>docs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)===key).reduce((sum,d)=>sum+(prices()?d.total:d.lines.reduce((s,l)=>s+l.quantity,0)),0));
+      const totals=['sale','purchase'].map(type=>activeDocs().filter(d=>d.type===type&&(d.date || d.createdAt).slice(0,10)===key).reduce((sum,d)=>sum+(prices()?d.total:d.lines.reduce((s,l)=>s+l.quantity,0)),0));
       values.push({label:new Intl.DateTimeFormat('fr-FR',{timeZone:'Africa/Porto-Novo',weekday:'short'}).format(day),totals});
     }
     const max=Math.max(1,...values.flatMap(v=>v.totals));
@@ -1438,7 +1783,7 @@ const local = {
   function documentsPage() {
     const list=docs().filter(d=>!documentFilter||d.type===documentFilter).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
     return heading('CHAQUE OPÉRATION LAISSE UNE TRACE','Mouvements de stock','Ventes, achats, transferts et ajustements dans un seul historique.',`${storeSelect()}${btn('Nouvelle opération','new-document')}`)+
-    `<div class="panel"><div class="toolbar"><div class="tabs">${['','sale','purchase','transfer','adjustment'].filter(t=>admin()||!t||t==='sale').map(t=>`<button class="tab ${documentFilter===t?'active':''}" data-action="filter-documents" data-filter="${t}">${t?typeNames[t]+'s':'Tous les mouvements'}</button>`).join('')}</div>${btn('Exporter CSV','export-documents','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Document</th><th>Opération</th><th>Date</th><th>Magasin / Tiers</th><th>Articles</th>${prices()?'<th>Total</th><th>Paiement</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td><strong>${esc(d.number)}</strong></td><td>${badge(typeNames[d.type],typeTone[d.type])}</td><td>${date(d.date||d.createdAt)}</td><td>${esc(storeName(d.storeId))}<small class="cell-secondary">${esc(d.type==='transfer'?storeName(d.toStoreId):contactName(d.contactId))}</small></td><td>${d.lines.length} ligne${d.lines.length>1?'s':''}</td>${prices()?`<td class="money-cell">${['sale','purchase'].includes(d.type)?money(d.total):'—'}</td><td>${['sale','purchase'].includes(d.type)?badge(d.paid>=d.total?'Réglé':d.paid?'Partiel':'Impayé',d.paid>=d.total?'success':'warning'):'—'}</td>`:''}<td><button class="icon-btn" data-document="${d.id}" aria-label="Voir ${esc(d.number)}">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucune opération pour ce filtre','Enregistrez votre premier mouvement de stock.','arrows'):''}</div><div class="table-footer">${list.length} document${list.length>1?'s':''} enregistré${list.length>1?'s':''}</div></div>`;
+    `<div class="panel"><div class="toolbar"><div class="tabs">${['','sale','purchase','transfer','adjustment'].filter(t=>admin()||!t||t==='sale').map(t=>`<button class="tab ${documentFilter===t?'active':''}" data-action="filter-documents" data-filter="${t}">${t?typeNames[t]+'s':'Tous les mouvements'}</button>`).join('')}</div>${btn('Exporter CSV','export-documents','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Document</th><th>Opération</th><th>Date</th><th>Magasin / Tiers</th><th>Articles</th>${prices()?'<th>Total</th><th>Paiement</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td><strong>${esc(d.number)}</strong></td><td>${badge(documentLabel(d),d.reversalOf?'neutral':typeTone[d.type])}</td><td>${date(d.date||d.createdAt)}</td><td>${esc(storeName(d.storeId))}<small class="cell-secondary">${esc(d.type==='transfer'?storeName(d.toStoreId):contactName(d.contactId))}</small></td><td>${d.lines.length} ligne${d.lines.length>1?'s':''}</td>${prices()?`<td class="money-cell">${['sale','purchase'].includes(d.type)?money(d.total):'—'}</td><td>${d.status==='cancelled'?badge('Annulé','danger'):d.reversalOf?badge('Contre-mouvement','neutral'):['sale','purchase'].includes(d.type)?badge(documentStatus(d),d.paid>=d.total?'success':'warning'):'—'}</td>`:''}<td><button class="icon-btn" data-document="${d.id}" aria-label="Voir ${esc(d.number)}">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucune opération pour ce filtre','Enregistrez votre premier mouvement de stock.','arrows'):''}</div><div class="table-footer">${list.length} document${list.length>1?'s':''} enregistré${list.length>1?'s':''}</div></div>`;
   }
   function inventoriesPage() {
     const list=state.inventories.filter(i=>storeId==='all'||i.storeId===storeId).sort((a,b)=>b.createdAt.localeCompare(a.createdAt));
@@ -1453,14 +1798,14 @@ const local = {
     const list=state.contacts.filter(c=>admin()||c.type==='customer');
     return heading('VOS RELATIONS COMMERCIALES','Clients & fournisseurs','Coordonnées, documents et soldes de vos partenaires.',(admin()?btn('Ajouter un contact','new-contact'):''))+
     `<div class="panel"><div class="panel-header"><h2 class="panel-title">Carnet d’adresses <span class="count-chip">${list.length}</span></h2></div><div class="table-wrapper"><table><thead><tr><th>Nom</th><th>Type</th><th>Téléphone</th><th>IFU / NIF</th>${prices()?'<th>Solde à régler</th>':''}<th></th></tr></thead><tbody>${list.map(c=>{
-      const balance=state.documents.filter(d=>d.contactId===c.id&&['sale','purchase'].includes(d.type)).reduce((s,d)=>s+d.total-d.paid,0);
+      const balance=state.documents.filter(d=>d.contactId===c.id&&activeDocument(d)&&['sale','purchase'].includes(d.type)).reduce((s,d)=>s+remaining(d),0);
       return `<tr><td><div class="product-cell"><span class="contact-avatar">${esc(c.name.slice(0,2).toUpperCase())}</span><div><strong>${esc(c.name)}</strong><small class="cell-secondary">${esc(c.address||'Adresse non renseignée')}</small></div></div></td><td>${badge(c.type==='customer'?'Client':'Fournisseur',c.type==='customer'?'purple':'neutral')}</td><td>${esc(c.phone||'—')}</td><td>${esc(c.taxId||'—')}</td>${prices()?`<td class="${balance?'balance-due':''}">${money(balance)}</td>`:''}<td><button class="icon-btn" data-contact="${c.id}" aria-label="Voir ${esc(c.name)}">${icon('chevron')}</button></td></tr>`;
     }).join('')}</tbody></table>${!list.length?empty('Votre carnet est vide','Ajoutez un client ou un fournisseur.','users'):''}</div></div>`;
   }
   function reportDocuments() {
     const days={day:1,week:7,month:30,all:36500}[reportPeriod];
     const start=firstDay(days);
-    return docs().filter(d=>(d.date||d.createdAt).slice(0,10)>=start&&(d.date||d.createdAt).slice(0,10)<=today());
+    return activeDocs().filter(d=>(d.date||d.createdAt).slice(0,10)>=start&&(d.date||d.createdAt).slice(0,10)<=today());
   }
   function reportsPage() {
     const list=reportDocuments(), sales=list.filter(d=>d.type==='sale'), revenue=sales.reduce((s,d)=>s+d.total,0);
@@ -1473,8 +1818,66 @@ const local = {
     `${prices()?`<div class="metrics">${metric('Chiffre d’affaires',money(revenue),sales.length+' documents de vente','cart','purple')}${metric('Bénéfice brut estimé',money(gross),'Coûts d’achat enregistrés lors des ventes','trend','green')}${metric('Frais généraux',money(expenseTotal),expenses.length+' dépenses enregistrées','wallet','orange')}${metric('Résultat net estimé',money(gross-expenseTotal),'Bénéfice brut moins frais saisis, hors taxes','chart','blue')}</div>`:''}<div class="dashboard-grid"><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Rapport de réapprovisionnement</h2><p class="panel-description">Quantité suggérée : retour au double du seuil minimum</p></div>${btn('CSV','export-reorder','download','secondary small')}</div><div class="table-wrapper"><table><thead><tr><th>Produit</th><th>Disponible</th><th>Seuil</th><th>À commander</th></tr></thead><tbody>${low.map(p=>`<tr><td>${productCell(p)}</td><td>${num(qty(p.id))}</td><td>${num(p.minStock)}</td><td><strong>${num(Math.max(0,p.minStock*2-qty(p.id)))}</strong> ${esc(p.unit)}</td></tr>`).join('')}</tbody></table>${!low.length?empty('Aucun besoin urgent','Tous les articles dépassent leur seuil minimum.','check'):''}</div></section><section class="panel"><div class="panel-header"><div><h2 class="panel-title">Frais généraux</h2><p class="panel-description">Dépenses sur la période sélectionnée</p></div>${prices()?btn('Ajouter','new-expense','plus','secondary small'):''}</div>${prices()?`<div class="activity-list">${expenses.map(e=>`<div class="activity-item"><span class="activity-icon neutral">${icon('wallet')}</span><div class="activity-copy"><strong>${esc(e.category)}</strong><small>${date(e.date)} · ${esc(e.note||storeName(e.storeId))}</small></div><strong>${money(e.amount)}</strong></div>`).join('')}${!expenses.length?empty('Aucune dépense saisie','Loyer, salaires, transport… complétez votre résultat.','wallet'):''}</div>`:'<div class="panel-body">Activez les prix dans les paramètres pour saisir les frais.</div>'}</section></div><div class="callout report-callout">${icon('alert')}Les résultats sont des estimations hors taxes, fondées sur les documents et dépenses saisis. La valeur du stock au prix de vente n’est pas un bénéfice réalisé.</div>`;
   }
   function settingsPage() {
-    return heading('UN ESPACE À VOTRE MESURE','Paramètres','Personnalisez votre commerce et consultez les capacités de cette version.')+
-    `<div class="grid-2"><section class="panel"><div class="panel-header"><h2 class="panel-title">Préférences du commerce</h2></div><div class="panel-body"><form id="settings-form"><div class="field"><label for="business-name">Nom du commerce</label><input class="input" id="business-name" name="businessName" maxlength="100" value="${esc(state.settings.businessName)}" required></div><div class="settings-row"><div><strong>Mode sans prix</strong><p>Conservez les quantités, masquez les données financières.</p></div><label class="switch"><input type="checkbox" name="noPrices" ${state.settings.noPrices?'checked':''} aria-label="Mode sans prix"><span></span></label></div><div class="settings-row"><div><strong>Devise</strong><p>Franc CFA BCEAO (XOF) · Montants entiers</p></div><span class="badge neutral">XOF</span></div><button class="btn primary" type="submit">${icon('check')}Enregistrer les préférences</button></form></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Magasins & accès</h2></div><div class="panel-body">${state.stores.map(s=>`<div class="settings-row"><span class="store-line">${icon('store')}<strong>${esc(s.name)}</strong></span><span>${esc(s.city||'')}</span></div>`).join('')}<p class="field-hint">Les données sont séparées par magasin. Les rôles sont simulés dans cette démonstration : administrateur, caissier et agent d’inventaire.</p></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Données & sauvegarde</h2></div><div class="panel-body"><p>Exportez un instantané JSON de vos données métier. Ce fichier inclut les photos du catalogue, mais aucun compte ni mot de passe.</p><div class="heading-actions">${btn('Exporter les données','backup','download','secondary')}${btn('Importer le catalogue','import-products','upload','secondary')}</div><p class="field-hint">Le fichier HTML contient les données fictives initiales. Vos modifications restent dans le stockage du navigateur ; exportez-les avant de changer d’appareil.</p></div></section><section class="panel"><div class="panel-header"><h2 class="panel-title">Stockage sur cet appareil</h2></div><div class="panel-body"><p>Vos opérations sont validées et enregistrées sur cet appareil, sans connexion et sans serveur.</p><div class="settings-row"><strong>Saisies en attente</strong><span class="badge ${pending.length?'warning':'success'}">${pending.length}</span></div>${btn('Voir la file d’attente','sync','refresh','secondary')}<p class="field-hint">Cette démonstration ne synchronise pas vos données avec un autre appareil. Utilisez uniquement des données fictives.</p></div></section></div>`;
+    return heading('UN ESPACE À VOTRE MESURE','Paramètres','Organisez vos magasins, vos collaborateurs et vos données.')+
+    `<div class="grid-2 settings-grid">
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Préférences du commerce</h2></div><div class="panel-body"><form id="settings-form"><div class="field"><label for="business-name">Nom du commerce</label><input class="input" id="business-name" name="businessName" maxlength="100" value="${esc(state.settings.businessName)}" required></div><div class="settings-row"><div><strong>Mode sans prix</strong><p>Conservez les quantités, masquez les données financières.</p></div><label class="switch"><input type="checkbox" name="noPrices" ${state.settings.noPrices?'checked':''} aria-label="Mode sans prix"><span></span></label></div><div class="settings-row"><div><strong>Devise</strong><p>Franc CFA BCEAO (XOF) · Montants entiers</p></div><span class="badge neutral">XOF</span></div><button class="btn primary" type="submit">${icon('check')}Enregistrer les préférences</button></form></div></section>
+      <section class="panel"><div class="panel-header"><div><h2 class="panel-title">Magasins & dépôts</h2><p class="panel-description">Chaque emplacement conserve son propre stock.</p></div>${btn('Ajouter','new-store','plus','secondary small')}</div><div class="panel-body">${state.stores.map(s=>`<div class="settings-row"><div class="store-line">${icon('store')}<div><strong>${esc(s.name)}</strong><p>${esc(s.city||'Ville non renseignée')}</p></div></div><button class="icon-btn" data-edit-store="${s.id}" aria-label="Modifier ${esc(s.name)}">${icon('edit')}</button></div>`).join('')}<p class="field-hint">Un nouveau magasin commence avec un stock vide. Enregistrez un achat ou un transfert pour l’approvisionner.</p></div></section>
+      ${usersPanel()}
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Données & sauvegarde</h2></div><div class="panel-body"><p>${localDemo?'Conservez une copie de vos données, des photos et des profils de démonstration. Elle peut être restaurée dans cette version autonome.':'Exportez vos données métier en JSON. La sauvegarde complète de la base et des images se configure sur le serveur.'}</p><div class="heading-actions">${btn(localDemo?'Télécharger une sauvegarde':'Exporter les données','backup','download','secondary')}${localDemo?btn('Restaurer une sauvegarde','restore-backup','upload','secondary'):''}${btn('Importer le catalogue','import-products','upload','secondary')}</div><p class="field-hint">${localDemo?'La restauration remplace les données présentes sur cet appareil. Téléchargez une sauvegarde avant de changer de navigateur ou d’ordinateur.':'L’export JSON ne remplace pas la sauvegarde complète du serveur. Consultez le guide de sauvegarde pour configurer sa fréquence et sa destination.'}</p></div></section>
+      <section class="panel"><div class="panel-header"><h2 class="panel-title">Stockage sur cet appareil</h2></div><div class="panel-body"><p>Vos opérations sont validées et enregistrées sur cet appareil, sans connexion et sans serveur.</p><div class="settings-row"><strong>Saisies en attente</strong><span class="badge ${pending.length?'warning':'success'}">${pending.length}</span></div>${btn('Voir la file d’attente','sync','refresh','secondary')}<p class="field-hint">Cette démonstration ne synchronise pas vos données avec un autre appareil. Utilisez uniquement des données fictives.</p></div></section>
+    </div>`;
+  }
+  function usersPanel() {
+    const title=localDemo?'Profils de démonstration':'Utilisateurs et accès';
+    let body;
+    if(usersStatus==='ready')body=`<div class="table-wrapper"><table><thead><tr><th>Collaborateur</th><th>Rôle</th><th>État</th><th></th></tr></thead><tbody>${adminUsers.map(account=>`<tr><td><div class="product-cell"><span class="contact-avatar">${esc(account.name.slice(0,2).toUpperCase())}</span><div><strong>${esc(account.name)}</strong><small class="cell-secondary">${esc(account.email)}</small></div></div></td><td>${roleNames[account.role]||esc(account.role)}</td><td>${badge(account.active?'Actif':'Désactivé',account.active?'success':'neutral')}</td><td><button class="icon-btn" data-edit-user="${account.id}" aria-label="Modifier ${esc(account.name)}">${icon('edit')}</button></td></tr>`).join('')}</tbody></table></div>`;
+    else if(usersStatus==='error')body=`<div class="settings-message"><p>${esc(usersError)}</p>${btn('Réessayer','refresh-users','refresh','secondary small')}</div>`;
+    else body='<div class="settings-message" role="status">Chargement des utilisateurs…</div>';
+    return `<section class="panel settings-users"><div class="panel-header"><div><h2 class="panel-title">${title}</h2><p class="panel-description">${localDemo?'Comptes et rôles simulés, destinés à explorer l’application.':'Attribuez à chaque collaborateur les accès dont il a besoin.'}</p></div>${btn('Ajouter un utilisateur','new-user','plus','secondary small')}</div>${body}<div class="table-footer">${localDemo?'Les nouveaux profils utilisent le mot de passe public Demo2026!.':'Les changements de rôle, de mot de passe et de statut prennent effet immédiatement.'}</div></section>`;
+  }
+  async function loadAdminUsers() {
+    if(!admin()||usersStatus==='loading')return;
+    const actor=user.id;
+    usersStatus='loading';usersError='';
+    try {
+      if(!localDemo&&!true)throw new Error('La gestion des utilisateurs nécessite une connexion.');
+      const result=await api('/api/admin/users');
+      if(user?.id!==actor||!admin())return;
+      adminUsers=result.users;usersStatus='ready';
+    } catch(error) {
+      if(user?.id!==actor||!admin())return;
+      usersStatus='error';usersError=error.message;
+    }
+    if(view==='settings')render();
+  }
+  function storeForm(id) {
+    const store=state.stores.find(s=>s.id===id);
+    formModal(store?'Modifier le magasin':'Ajouter un magasin',field('Nom du magasin / dépôt','name',store?.name||'',{required:true,full:true})+field('Ville','city',store?.city||'',{full:true})+field('Adresse','address',store?.address||'',{full:true,maxLength:500})+field('Téléphone','phone',store?.phone||'',{type:'tel',maxLength:50})+field('IFU / NIF','taxId',store?.taxId||'',{maxLength:100}),async data=>{
+      await perform('store.save',{id:store?.id,name:data.get('name'),city:data.get('city'),address:data.get('address'),phone:data.get('phone'),taxId:data.get('taxId'),expectedVersion:store?.version},store?'Magasin modifié.':'Magasin ajouté.');
+    });
+  }
+  function userForm(id) {
+    if(!localDemo&&!true){toast('La gestion des utilisateurs nécessite une connexion.',true);return;}
+    const account=adminUsers.find(u=>u.id===id);
+    const title=account?'Modifier l’utilisateur':'Ajouter un utilisateur';
+    const password=localDemo?'<div class="callout full">Profil de démonstration · Mot de passe public : <strong>Demo2026!</strong>.</div>':field(account?'Nouveau mot de passe (facultatif)':'Mot de passe','password','',{type:'password',required:!account,minLength:12,maxLength:200,autocomplete:'new-password',hint:account?'Laissez vide pour conserver le mot de passe actuel. Sinon, 12 caractères minimum.':'12 caractères minimum.'});
+    const fields=field('Nom du collaborateur','name',account?.name||'',{required:true,maxLength:160})+field('Adresse e-mail','email',account?.email||'',{type:'email',required:true,maxLength:254})+field('Rôle','role',account?.role||'cashier',{options:Object.entries(roleNames)})+password+`<div class="field full"><label class="checkbox-label"><input type="checkbox" name="active" ${account?.active===false?'':'checked'}>Compte actif</label><small class="field-hint">Un compte désactivé conserve son historique et ne peut plus ouvrir de session.</small></div>`;
+    formModal(title,fields,async data=>{
+      if(!localDemo&&!true)throw new Error('Reconnectez-vous pour enregistrer cet utilisateur.');
+      const payload={name:data.get('name'),email:data.get('email'),role:data.get('role'),active:data.get('active')==='on'};
+      if(!localDemo&&data.get('password'))payload.password=data.get('password');
+      // Account credentials are sent directly and never enter the offline outbox or cache.
+      await api(account?'/api/admin/users/'+encodeURIComponent(account.id):'/api/admin/users',payload,account?'PATCH':'POST');
+      adminUsers=[];usersStatus='idle';
+      try {await refresh();render();toast(account?'Utilisateur modifié.':'Utilisateur ajouté.');}
+      catch(error){
+        if(error.status!==401)throw error;
+        const formerId=user?.id;
+        user=null;state=null;closeModal();
+        await local.remove('lastUser');if(formerId)await local.remove('state:'+formerId);
+        renderLogin('Vos accès ont changé. Reconnectez-vous pour continuer.');
+      }
+    });
   }
   function modal(title,body,footer='',wide=false) {
     modalRoot.innerHTML=`<div class="dialog-backdrop"><section class="dialog ${wide?'wide':''}" role="dialog" aria-modal="true" aria-labelledby="dialog-title"><div class="dialog-header"><div><h2 id="dialog-title">${title}</h2></div><button class="icon-btn" data-close aria-label="Fermer">${icon('close')}</button></div><div class="dialog-body">${body}</div>${footer?`<div class="dialog-footer">${footer}</div>`:''}</section></div>`;
@@ -1485,14 +1888,14 @@ const local = {
   }
   function closeModal() {modalRoot.innerHTML='';document.body.classList.remove('modal-open');}
   function field(label,name,value='',options={}) {
-    return `<div class="field ${options.full?'full':''}"><label for="field-${name}">${label}${options.required?' <span class="required">*</span>':''}</label>${options.options?`<select class="input" id="field-${name}" name="${name}" ${options.required?'required':''}>${options.options.map(([v,l])=>`<option value="${esc(v)}" ${String(value)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`:options.area?`<textarea class="input" id="field-${name}" name="${name}" rows="3" maxlength="1000">${esc(value)}</textarea>`:`<input class="input" id="field-${name}" name="${name}" type="${options.type||'text'}" value="${esc(value)}" ${options.required?'required':''} ${options.min!==undefined?`min="${options.min}"`:''} ${options.step?`step="${options.step}"`:''} ${options.max!==undefined?`max="${options.max}"`:''} ${options.placeholder?`placeholder="${esc(options.placeholder)}"`:''} ${options.readonly?'readonly':''}>`}${options.hint?`<small class="field-hint">${options.hint}</small>`:''}</div>`;
+    return `<div class="field ${options.full?'full':''}"><label for="field-${name}">${label}${options.required?' <span class="required">*</span>':''}</label>${options.options?`<select class="input" id="field-${name}" name="${name}" ${options.required?'required':''}>${options.options.map(([v,l])=>`<option value="${esc(v)}" ${String(value)===String(v)?'selected':''}>${esc(l)}</option>`).join('')}</select>`:options.area?`<textarea class="input" id="field-${name}" name="${name}" rows="3" maxlength="1000" ${options.required?'required':''}>${esc(value)}</textarea>`:`<input class="input" id="field-${name}" name="${name}" type="${options.type||'text'}" value="${esc(value)}" ${options.required?'required':''} ${options.min!==undefined?`min="${options.min}"`:''} ${options.step?`step="${options.step}"`:''} ${options.max!==undefined?`max="${options.max}"`:''} ${options.placeholder?`placeholder="${esc(options.placeholder)}"`:''} ${options.readonly?'readonly':''} ${options.minLength?`minlength="${options.minLength}"`:''} ${options.maxLength?`maxlength="${options.maxLength}"`:''} ${options.autocomplete?`autocomplete="${options.autocomplete}"`:''}>`}${options.hint?`<small class="field-hint">${options.hint}</small>`:''}</div>`;
   }
   function formModal(title,body,onSubmit,wide=false,submitLabel='Enregistrer') {
     modal(title,`<form id="dialog-form"><div class="form-grid">${body}</div><div class="form-error" role="alert"></div><div class="dialog-footer"><button type="button" class="btn secondary" data-close>Annuler</button><button type="submit" class="btn primary">${icon('check')}${submitLabel}</button></div></form>`,'',wide);
     $('#dialog-form').addEventListener('submit',async event=>{
       event.preventDefault();const form=event.currentTarget;const button=$('[type=submit]',form);
       button.disabled=true;$('.form-error',form).textContent='';
-      try {await onSubmit(new FormData(form),form);closeModal();}
+      try {await onSubmit(new FormData(form),form);if(form.isConnected)closeModal();}
       catch(error){$('.form-error',form).textContent=error.message;button.disabled=false;}
     });
   }
@@ -1523,7 +1926,7 @@ const local = {
   }
   function contactDetail(id) {
     const c=state.contacts.find(c=>c.id===id);const list=state.documents.filter(d=>d.contactId===id);
-    modal(esc(c.name),`<p>${esc(c.phone)} · ${esc(c.address)}</p><p class="field-hint">IFU / NIF : ${esc(c.taxId||'Non renseigné')}</p>${prices()?`<div class="contact-balance"><span>${c.type==='customer'?'Créance client':'Dette fournisseur'}</span><strong>${money(list.reduce((s,d)=>s+d.total-d.paid,0))}</strong></div>`:''}<div class="table-wrapper"><table><thead><tr><th>Document</th><th>Date</th>${prices()?'<th>Total</th><th>Restant</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td>${esc(d.number)}</td><td>${date(d.date)}</td>${prices()?`<td>${money(d.total)}</td><td>${money(d.total-d.paid)}</td>`:''}<td><button class="icon-btn" data-contact-document="${d.id}" aria-label="Voir le document">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucun document','Les achats ou ventes associés apparaîtront ici.','arrows'):''}</div>`,admin()?btn('Modifier le contact','edit-contact','edit','secondary'):'',true);
+    modal(esc(c.name),`<p>${esc(c.phone)} · ${esc(c.address)}</p><p class="field-hint">IFU / NIF : ${esc(c.taxId||'Non renseigné')}</p>${prices()?`<div class="contact-balance"><span>${c.type==='customer'?'Créance client':'Dette fournisseur'}</span><strong>${money(list.reduce((s,d)=>s+remaining(d),0))}</strong></div>`:''}<div class="table-wrapper"><table><thead><tr><th>Document</th><th>Date</th>${prices()?'<th>Total</th><th>Restant</th>':''}<th></th></tr></thead><tbody>${list.map(d=>`<tr><td>${esc(d.number)}</td><td>${date(d.date)}</td>${prices()?`<td>${money(d.total)}</td><td>${money(remaining(d))}</td>`:''}<td><button class="icon-btn" data-contact-document="${d.id}" aria-label="Voir le document">${icon('chevron')}</button></td></tr>`).join('')}</tbody></table>${!list.length?empty('Aucun document','Les achats ou ventes associés apparaîtront ici.','arrows'):''}</div>`,admin()?btn('Modifier le contact','edit-contact','edit','secondary'):'',true);
     $$('[data-contact-document]').forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.contactDocument)));
     $('[data-action="edit-contact"]',modalRoot)?.addEventListener('click',()=>contactForm(c));
   }
@@ -1579,9 +1982,24 @@ const local = {
   }
   function receipt(id) {
     const d=state.documents.find(d=>d.id===id);if(!d)return;
-    modal(`${typeNames[d.type]} · ${esc(d.number)}`,`<article class="print-document"><div class="receipt-header"><div><h2>${esc(state.settings.businessName)}</h2><p>${esc(storeName(d.storeId))}${d.toStoreId?' → '+esc(storeName(d.toStoreId)):''}</p></div><div><strong>${esc(d.number)}</strong><p>${date(d.date||d.createdAt)}</p></div></div><div class="receipt-party"><span>${d.type==='purchase'?'Fournisseur':'Client'}</span><strong>${esc(contactName(d.contactId))}</strong></div><div class="table-wrapper"><table><thead><tr><th>Article</th><th>Quantité</th>${prices()&&['sale','purchase'].includes(d.type)?'<th>Prix unitaire</th><th>Total</th>':''}</tr></thead><tbody>${d.lines.map(l=>`<tr><td>${esc(l.name||product(l.productId).name)}<small class="cell-secondary">${esc(l.sku||product(l.productId).sku)}</small></td><td>${num(l.quantity)} ${esc(l.unit||product(l.productId).unit)}</td>${prices()&&['sale','purchase'].includes(d.type)?`<td>${money(l.unitPrice)}</td><td>${money(Math.round(l.quantity*l.unitPrice))}</td>`:''}</tr>`).join('')}</tbody></table></div>${prices()&&['sale','purchase'].includes(d.type)?`<div class="receipt-totals"><p><span>Total</span><strong>${money(d.total)}</strong></p><p><span>Payé</span><strong>${money(d.paid)}</strong></p><p class="balance"><span>Solde restant</span><strong>${money(d.total-d.paid)}</strong></p></div>`:''}${d.note?`<p class="receipt-note">Note : ${esc(d.note)}</p>`:''}<p class="field-hint">Document interne · Montants hors taxes · Ne constitue pas une facture fiscale certifiée.</p></article>`,`${btn('Imprimer / PDF','print','print','secondary')}${prices()&&d.total>d.paid&&['sale','purchase'].includes(d.type)?btn('Ajouter un paiement','payment','wallet'):''}`,true);
+    const financial=prices()&&['sale','purchase'].includes(d.type)&&!d.reversalOf;
+    const counterpart=state.documents.find(item=>item.id===(d.reversalDocumentId||d.reversalOf));
+    const cancellation=d.status==='cancelled'?`<div class="document-cancellation"><strong>${icon('close')}Document annulé</strong><p>${esc(d.cancellationReason||'')}</p><small>Annulation enregistrée${d.cancelledAt?' le '+date(d.cancelledAt):''}. Le document reste dans l’historique.</small>${counterpart?`<button class="text-btn no-print" data-linked-document="${counterpart.id}">Voir le mouvement d’annulation ${esc(counterpart.number)} ${icon('chevron')}</button>`:''}</div>`:d.reversalOf?`<div class="callout info"><strong>Mouvement d’annulation</strong><p>Ce document inverse les quantités du document d’origine.</p>${counterpart?`<button class="text-btn no-print" data-linked-document="${counterpart.id}">Voir le document d’origine ${esc(counterpart.number)} ${icon('chevron')}</button>`:''}</div>`:'';
+    const canCancel=admin()&&activeDocument(d)&&!d.inventoryId&&!(d.paid>0);
+    const footer=btn('Imprimer / PDF','print','print','secondary')+(financial&&activeDocument(d)&&d.total>d.paid?btn('Ajouter un paiement','payment','wallet'):'')+(canCancel?btn('Annuler le document','cancel-document','close','danger'):'');
+    modal(`${documentLabel(d)} · ${esc(d.number)}`,`<article class="print-document">${cancellation}<div class="receipt-header"><div><h2>${esc(state.settings.businessName)}</h2><p>${esc(storeName(d.storeId))}${d.toStoreId?' → '+esc(storeName(d.toStoreId)):''}</p></div><div><strong>${esc(d.number)}</strong><p>${date(d.date||d.createdAt)}</p></div></div><div class="receipt-party"><span>${d.type==='purchase'?'Fournisseur':'Client'}</span><strong>${esc(contactName(d.contactId))}</strong></div><div class="table-wrapper"><table><thead><tr><th>Article</th><th>Quantité</th>${financial?'<th>Prix unitaire</th><th>Total</th>':''}</tr></thead><tbody>${d.lines.map(l=>`<tr><td>${esc(l.name||product(l.productId).name)}<small class="cell-secondary">${esc(l.sku||product(l.productId).sku)}</small></td><td>${num(l.quantity)} ${esc(l.unit||product(l.productId).unit)}</td>${financial?`<td>${money(l.unitPrice)}</td><td>${money(Math.round(l.quantity*l.unitPrice))}</td>`:''}</tr>`).join('')}</tbody></table></div>${financial?`<div class="receipt-totals"><p><span>${d.status==='cancelled'?'Montant d’origine':'Total'}</span><strong>${money(d.total)}</strong></p><p><span>Payé</span><strong>${money(d.paid)}</strong></p><p class="balance"><span>Solde restant</span><strong>${money(remaining(d))}</strong></p></div>`:''}${d.note?`<p class="receipt-note">Note : ${esc(d.note)}</p>`:''}${admin()&&d.paid>0&&activeDocument(d)?'<p class="field-hint">Ce document comporte un paiement. Un remboursement doit être traité avant toute annulation ; ce parcours n’est pas encore disponible.</p>':''}<p class="field-hint">Document interne · Montants hors taxes · Ne constitue pas une facture fiscale certifiée.</p></article>`,footer,true);
     $('[data-action=print]',modalRoot)?.addEventListener('click',()=>window.print());
     $('[data-action=payment]',modalRoot)?.addEventListener('click',()=>paymentForm(d));
+    $('[data-action=cancel-document]',modalRoot)?.addEventListener('click',()=>cancelDocumentForm(d));
+    $$('[data-linked-document]',modalRoot).forEach(el=>el.addEventListener('click',()=>receipt(el.dataset.linkedDocument)));
+  }
+  function cancelDocumentForm(d) {
+    formModal('Annuler le document',`<div class="callout full">${esc(d.number)} · Les quantités seront inversées et le document sera conservé avec son motif d’annulation. Cette action annule toutes les lignes.</div>`+field('Motif d’annulation','reason','',{area:true,full:true,required:true})+`<div class="field full"><label class="checkbox-label"><input type="checkbox" name="confirmed" required>Je confirme l’annulation de ce document.</label></div>`,async data=>{
+      if(data.get('confirmed')!=='on')throw new Error('Confirmez l’annulation pour continuer.');
+      if(!String(data.get('reason')||'').trim())throw new Error('Indiquez le motif de cette annulation.');
+      const result=await perform('document.cancel',{documentId:d.id,reason:data.get('reason')},'Document annulé. Le mouvement inverse a été enregistré.');
+      if(!result.queued)receipt(d.id);
+    },false,'Confirmer l’annulation');
   }
   function paymentForm(d) {
     formModal('Enregistrer un paiement',`<div class="callout full">${esc(d.number)} · Restant à régler : ${money(d.total-d.paid)}</div>`+field('Montant (FCFA)','amount',d.total-d.paid,{type:'number',min:1,max:d.total-d.paid,step:1,required:true})+field('Date','date',today(),{type:'date',required:true}),async data=>{await perform('payment.create',{documentId:d.id,amount:Number(data.get('amount')),date:data.get('date')},'Paiement enregistré.');});
@@ -1629,7 +2047,7 @@ const local = {
     exportCSV('catalogue',headers,filteredProducts().map(p=>[p.name,p.sku,p.category,p.unit,p.brand,p.location,p.minStock,qty(p.id),...(prices()?[p.sellingPrice]:[]),...(prices()&&admin()?[p.purchasePrice]:[]),p.tags.join(',')]));
   }
   function exportDocuments(list=docs()) {
-    exportCSV('mouvements',['Numéro','Type','Date','Magasin','Utilisateur','SKU','Produit','Quantité',...(prices()?['Prix unitaire','Total document','Payé','Restant']:[])],list.flatMap(d=>d.lines.map(l=>[d.number,typeNames[d.type],d.date,storeName(d.storeId),d.createdBy,product(l.productId).sku,product(l.productId).name,l.quantity,...(prices()?[l.unitPrice,d.total,d.paid,d.total-d.paid]:[])])));
+    exportCSV('mouvements',['Numéro','Type','Statut','Document lié','Date','Magasin','Utilisateur','SKU','Produit','Quantité',...(prices()?['Prix unitaire','Total document','Payé','Restant']:[])],list.flatMap(d=>d.lines.map(l=>[d.number,documentLabel(d),d.status==='cancelled'?'Annulé':d.reversalOf?'Annulation':'Actif',d.reversalDocumentId||d.reversalOf||'',d.date,storeName(d.storeId),d.createdBy,l.sku||product(l.productId).sku,l.name||product(l.productId).name,l.quantity,...(prices()?[l.unitPrice,d.total,d.paid,remaining(d)]:[])])));
   }
   function parseCSV(text) {
     text=text.replace(/^\uFEFF/,'');
@@ -1668,8 +2086,34 @@ const local = {
       toast(`${done} article(s) importé(s).`);
     },true,'Importer');
   }
+  async function backupData() {
+    try {
+      const backup=localDemo?await api('/api/demo/backup'):{...state,exportedAt:new Date().toISOString()};
+      download((localDemo?'comptoir-sauvegarde-':'comptoir-donnees-')+today()+'.json',JSON.stringify(backup,null,2),'application/json');
+      toast(localDemo?'Sauvegarde téléchargée, photos et profils de démonstration inclus.':'Instantané des données métier téléchargé.');
+    } catch(error){toast(error.message,true);}
+  }
+  function restoreBackupForm() {
+    if(!localDemo)return;
+    formModal('Choisir une sauvegarde',`<div class="field full"><label for="restore-file">Sauvegarde Comptoir (.json)</label><input class="input" type="file" name="backupFile" id="restore-file" accept=".json,application/json" required><small class="field-hint">Sauvegarde de la version autonome · 25 Mo maximum.</small></div>`,async data=>{
+      const file=data.get('backupFile');
+      if(!file?.size||file.size>25*1024*1024)throw new Error('Sélectionnez une sauvegarde JSON de 25 Mo maximum.');
+      let backup;
+      try{backup=JSON.parse(await file.text());}catch{throw new Error('Le fichier ne contient pas un JSON valide.');}
+      if(backup?.format!=='comptoir-demo-backup'||backup.version!==1||!backup.state||!Array.isArray(backup.profiles))throw new Error('Ce fichier n’est pas une sauvegarde de la démonstration Comptoir.');
+      confirmRestore(backup,file.name);
+    },false,'Continuer');
+  }
+  function confirmRestore(backup,filename) {
+    formModal('Restaurer cette sauvegarde ?',`<div class="callout full"><strong>${esc(filename)}</strong><p>Vos produits, mouvements, photos, profils et saisies en attente seront remplacés par cette sauvegarde. Vous devrez ensuite choisir un profil pour rouvrir le comptoir.</p></div><div class="field full"><label class="checkbox-label"><input type="checkbox" name="confirmed" required>Je confirme le remplacement des données actuelles.</label></div>`,async data=>{
+      if(data.get('confirmed')!=='on')throw new Error('Confirmez le remplacement pour restaurer la sauvegarde.');
+      await api('/api/demo/restore',{backup});
+      state=null;user=null;adminUsers=[];usersStatus='idle';pending=[];storeId='';view='dashboard';
+      closeModal();renderLogin('Sauvegarde restaurée. Choisissez un profil pour continuer.');
+    },false,'Restaurer les données');
+  }
   function pendingDialog() {
-    modal('Saisies en attente',`<p class="subtitle">Les stocks affichés correspondent au dernier état confirmé. Ces saisies seront validées par le moteur de démonstration, sans double enregistrement.</p>${pending.length?`<div class="pending-list">${pending.map(item=>`<div class="pending-item"><div><strong>${esc({'document.create':'Mouvement de stock','product.save':'Produit','inventory.count':'Comptage','inventory.create':'Session d’inventaire','contact.save':'Contact','payment.create':'Paiement','expense.create':'Dépense','settings.update':'Préférences'}[item.type]||item.type)}</strong><small>${date(new Date(item.queuedAt))}</small>${item.error?`<p class="form-error">${esc(item.error)}</p>`:'<p class="field-hint">En attente de connexion ou d’envoi.</p>'}</div><button class="btn ${item.error?'danger':'secondary'} small" data-discard="${item.id}">Abandonner</button></div>`).join('')}</div>`:empty('Toutes vos saisies sont enregistrées localement','Aucune opération en attente sur cet appareil.','check')}`,btn('Vérifier les enregistrements','sync-now','refresh','primary'),true);
+    modal('Saisies en attente',`<p class="subtitle">Les stocks affichés correspondent au dernier état confirmé. Ces saisies seront validées par le moteur de démonstration, sans double enregistrement.</p>${pending.length?`<div class="pending-list">${pending.map(item=>`<div class="pending-item"><div><strong>${esc({'document.create':'Mouvement de stock','product.save':'Produit','inventory.count':'Comptage','inventory.create':'Session d’inventaire','contact.save':'Contact','payment.create':'Paiement','expense.create':'Dépense','settings.update':'Préférences','store.save':'Magasin','document.cancel':'Annulation de document'}[item.type]||item.type)}</strong><small>${date(new Date(item.queuedAt))}</small>${item.error?`<p class="form-error">${esc(item.error)}</p>`:'<p class="field-hint">En attente de connexion ou d’envoi.</p>'}</div><button class="btn ${item.error?'danger':'secondary'} small" data-discard="${item.id}">Abandonner</button></div>`).join('')}</div>`:empty('Toutes vos saisies sont enregistrées localement','Aucune opération en attente sur cet appareil.','check')}`,btn('Vérifier les enregistrements','sync-now','refresh','primary'),true);
     $$('[data-discard]',modalRoot).forEach(el=>el.addEventListener('click',()=>{
       modal('Abandonner cette saisie ?',`<p>Cette opération n’a pas été confirmée localement. Un envoi interrompu peut avoir été accepté par le serveur : synchronisez d’abord pour vérifier. L’abandon retire uniquement la copie locale.</p>`,btn('Confirmer l’abandon','confirm-discard','close','danger')+'<button class="btn secondary" data-close>Annuler</button>');
       $('[data-action=confirm-discard]').addEventListener('click',async()=>{await local.removeCommand(el.dataset.discard);pending=await local.pending(user.id);render();pendingDialog();});
@@ -1687,27 +2131,160 @@ const local = {
       case 'new-purchase':documentForm('purchase');break;
       case 'new-inventory':inventoryForm();break;
       case 'new-expense':expenseForm();break;
+      case 'new-store':storeForm();break;
+      case 'new-user':userForm();break;
+      case 'refresh-users':usersStatus='idle';await loadAdminUsers();break;
       case 'show-low':view='products';stockFilter='low';render();break;
       case 'filter-documents':documentFilter=data.filter;render();break;
       case 'export-products':exportProducts();break;
       case 'export-documents':exportDocuments();break;
       case 'export-report':exportDocuments(reportDocuments());break;
       case 'export-reorder':exportCSV('reapprovisionnement',['SKU','Produit','Stock','Seuil','À commander'],state.products.filter(p=>qty(p.id)<=p.minStock).map(p=>[p.sku,p.name,qty(p.id),p.minStock,Math.max(0,p.minStock*2-qty(p.id))]));break;
-      case 'backup':download('comptoir-donnees-'+today()+'.json',JSON.stringify({...state,exportedAt:new Date().toISOString()},null,2),'application/json');toast('Instantané JSON téléchargé, photos incluses, sans comptes.');break;
+      case 'backup':await backupData();break;
+      case 'restore-backup':restoreBackupForm();break;
       case 'import-products':importProducts();break;
       case 'sync':await sync();pendingDialog();break;
       case 'logout':
         if(!true){toast('La déconnexion sécurisée nécessite une connexion au serveur.',true);break;}
-        try{await api('/api/logout',{});await local.remove('lastUser');await local.remove('state:'+user.id);user=null;state=null;view='dashboard';closeModal();renderLogin();}
+        try{await api('/api/logout',{});await local.remove('lastUser');await local.remove('state:'+user.id);user=null;state=null;adminUsers=[];usersStatus='idle';view='dashboard';closeModal();renderLogin();}
         catch(error){toast(error.message,true);}
         break;
     }
   }
+  const authArt = () => `<section class="login-art"><a class="brand" href="#"><span class="brand-icon">${icon('box')}</span>comptoir<span class="brand-dot">.</span></a><div class="login-art-copy"><div class="eyebrow">LE BON STOCK. AU BON MOMENT.</div><h1>Votre commerce,<br>l’esprit tranquille.</h1><p>Du premier article au dernier inventaire, retrouvez l’essentiel de votre activité dans un seul espace.</p><div class="login-feature">${icon('box')}Un catalogue toujours à portée de main</div><div class="login-feature">${icon('arrows')}Chaque mouvement, suivi et enregistré</div><div class="login-feature">${icon('clipboard')}Des inventaires simples et précis</div></div><div class="login-art-footer">Pensé pour les commerces qui avancent.</div><div class="login-decoration">${icon('box')}</div></section>`;
+  function stopRegistrationTimer() {
+    if (registrationTimer) clearInterval(registrationTimer);
+    registrationTimer=null;
+  }
+  function resetRegistration() {
+    stopRegistrationTimer();
+    registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
+  }
+  function showLogin(message='') {
+    resetRegistration();
+    authMode='login';
+    renderLogin(message);
+  }
+  function startRegistration() {
+    if (!registrationEnabled || localDemo) return renderLogin('L’inscription par e-mail sera disponible sur la plateforme hébergée.');
+    resetRegistration();
+    authMode='register';
+    renderRegistration();
+  }
   function renderLogin(message='') {
+    stopRegistrationTimer();
+    authMode='login';
     document.body.classList.remove('nav-open');
-    root.innerHTML=`<div class="login-shell"><section class="login-art"><a class="brand" href="#"><span class="brand-icon">${icon('box')}</span>comptoir<span class="brand-dot">.</span></a><div class="login-art-copy"><div class="eyebrow">LE BON STOCK. AU BON MOMENT.</div><h1>Votre commerce,<br>l’esprit tranquille.</h1><p>Du premier article au dernier inventaire, retrouvez l’essentiel de votre activité dans un seul espace.</p><div class="login-feature">${icon('box')}Un catalogue toujours à portée de main</div><div class="login-feature">${icon('arrows')}Chaque mouvement, suivi et enregistré</div><div class="login-feature">${icon('clipboard')}Des inventaires simples et précis</div></div><div class="login-art-footer">Pensé pour les commerces qui avancent.</div><div class="login-decoration">${icon('box')}</div></section><section class="login-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">BIENVENUE DANS VOTRE ESPACE</div><h2>Ouvrons votre comptoir.</h2><p class="subtitle">Choisissez un compte pour explorer cette démonstration.</p><form id="login-form">${field('Adresse e-mail','email','',{type:'email',required:true,placeholder:'vous@votre-commerce.fr'})}${field('Mot de passe','password','',{type:'password',required:true})}<div class="form-error" role="alert">${esc(message)}</div><button type="submit" class="btn primary login-submit">Se connecter${icon('chevron')}</button></form>${demoMode?`<div class="demo-accounts"><div class="demo-heading"><span class="badge purple">DÉMONSTRATION LOCALE</span><p>Explorez l’application avec des données fictives.</p></div>${[['admin','Administrateur','Toutes les fonctionnalités','settings'],['cashier','Caissier','Ventes et catalogue sans coûts d’achat','cart'],['inventory','Agent d’inventaire','Comptage sans données financières','clipboard']].map(([role,title,detail,name])=>`<button class="demo-account" data-demo="${role}">${icon(name)}<span><strong>${title}</strong><small>${detail}</small></span>${icon('chevron')}</button>`).join('')}</div>`:''}<p class="login-security">${icon('check')}Comptes et rôles simulés · Données stockées sur cet appareil</p></section></div>`;
+    root.innerHTML=`<div class="login-shell">${authArt()}<section class="login-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">BIENVENUE DANS VOTRE ESPACE</div><h2>Ouvrons votre comptoir.</h2><p class="subtitle">Choisissez un compte pour explorer cette démonstration.</p><form id="login-form">${field('Adresse e-mail','email',loginPrefill,{type:'email',required:true,placeholder:'vous@votre-commerce.fr',autocomplete:'email'})}${field('Mot de passe','password','',{type:'password',required:true,autocomplete:'current-password'})}<div class="form-error" role="alert">${esc(message)}</div><button type="submit" class="btn primary login-submit">Se connecter${icon('chevron')}</button></form><p class="auth-links">Vous n’avez pas encore de compte ? <button type="button" class="auth-link" data-auth-action="register">Créer un compte</button></p>${demoMode?`<div class="demo-accounts"><div class="demo-heading"><span class="badge purple">DÉMONSTRATION LOCALE</span><p>Explorez l’application avec des données fictives.</p></div>${[['admin','Administrateur','Toutes les fonctionnalités','settings'],['cashier','Caissier','Ventes et catalogue sans coûts d’achat','cart'],['inventory','Agent d’inventaire','Comptage sans données financières','clipboard']].map(([role,title,detail,name])=>`<button class="demo-account" data-demo="${role}">${icon(name)}<span><strong>${title}</strong><small>${detail}</small></span>${icon('chevron')}</button>`).join('')}</div>`:''}<p class="login-security">${icon('check')}Comptes et rôles simulés · Données stockées sur cet appareil</p></section></div>`;
     $('#login-form').addEventListener('submit',async e=>{e.preventDefault();await login($('#field-email').value,$('#field-password').value);});
+    $('[data-auth-action="register"]')?.addEventListener('click',startRegistration);
+    if (!registrationEnabled) $('[data-auth-action="register"]')?.closest('.auth-links')?.remove();
     $$('[data-demo]').forEach(el=>el.addEventListener('click',()=>login(el.dataset.demo+'@stock.local','Demo2026!')));
+  }
+  function registrationFeedback(message,success=false) {
+    return message?`<div class="${success?'auth-message success':'form-error'}" role="${success?'status':'alert'}">${esc(message)}</div>`:'';
+  }
+  function registrationForm() {
+    return `<form id="registration-form"><div class="register-section"><span class="register-section-title">Vos accès</span><p>Ils serviront à vous connecter à votre espace.</p></div>${field('Nom complet','name',registration.name,{required:true,maxLength:160,autocomplete:'name',placeholder:'Ex. Awa Adom'})}${field('Adresse e-mail','email',registration.email,{type:'email',required:true,maxLength:254,autocomplete:'email',placeholder:'vous@votre-commerce.fr'})}${field('Mot de passe','password','',{type:'password',required:true,minLength:12,maxLength:200,autocomplete:'new-password',hint:'12 caractères minimum.'})}${field('Confirmer le mot de passe','passwordConfirmation','',{type:'password',required:true,minLength:12,maxLength:200,autocomplete:'new-password'})}<div class="register-section full"><span class="register-section-title">Votre boutique</span><p>Vous pourrez ajouter d’autres magasins après votre inscription.</p></div>${field('Nom de la boutique','shopName',registration.shopName,{required:true,maxLength:120,full:true,placeholder:'Ex. Épicerie La Grâce',autocomplete:'organization'})}${field('Ville / commune','shopCity',registration.shopCity,{required:true,maxLength:100,full:true,placeholder:'Ex. Cotonou',autocomplete:'address-level2'})}<div id="registration-error">${registrationFeedback('')}</div><button type="submit" class="btn primary login-submit">Créer mon espace${icon('chevron')}</button></form>`;
+  }
+  function verificationForm() {
+    const remainingSeconds=Math.max(0,Math.ceil((registration.cooldownUntil-Date.now())/1000));
+    return `<div class="verification-summary">${icon('check')}<div><strong>Un code a été envoyé</strong><p>à <b>${esc(registration.email)}</b>. Consultez votre boîte de réception et vos courriers indésirables.</p></div></div><form id="registration-code-form"><div class="field verification-code-field"><label for="registration-code">Code de vérification <span class="required">*</span></label><input class="input" id="registration-code" name="code" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" minlength="6" required placeholder="000000" aria-describedby="registration-code-hint"><small id="registration-code-hint" class="field-hint">Saisissez les 6 chiffres reçus par e-mail.</small></div><div id="registration-error">${registrationFeedback('')}</div><button type="submit" class="btn primary login-submit">Vérifier et ouvrir mon espace${icon('chevron')}</button></form><div class="verification-actions"><button type="button" class="auth-link" id="registration-resend" ${remainingSeconds?'disabled':''}>Renvoyer le code<span id="resend-countdown">${remainingSeconds?` dans ${remainingSeconds} s`:''}</span></button><button type="button" class="auth-link muted" data-auth-action="change-registration">Modifier mes informations</button></div>`;
+  }
+  function scheduleRegistrationTimer() {
+    stopRegistrationTimer();
+    const tick=()=>{
+      const button=$('#registration-resend'),counter=$('#resend-countdown');
+      if(!button||!counter){stopRegistrationTimer();return;}
+      const seconds=Math.max(0,Math.ceil((registration.cooldownUntil-Date.now())/1000));
+      button.disabled=seconds>0;
+      counter.textContent=seconds?` dans ${seconds} s`:'';
+      if(!seconds)stopRegistrationTimer();
+    };
+    tick();
+    if(registration.cooldownUntil>Date.now())registrationTimer=setInterval(tick,1000);
+  }
+  function renderRegistration(message='',success=false) {
+    authMode='register';
+    document.body.classList.remove('nav-open');
+    const verify=registration.step==='verify';
+    root.innerHTML=`<div class="login-shell">${authArt()}<section class="login-card register-card"><span class="login-mobile-brand">comptoir.</span><div class="eyebrow">${verify?'DERNIÈRE ÉTAPE':'CRÉEZ VOTRE ESPACE'}</div><h2>${verify?'Vérifions votre adresse.':'Votre commerce commence ici.'}</h2><p class="subtitle">${verify?'Confirmez votre adresse pour ouvrir votre tableau de bord.':'Inscrivez-vous en quelques secondes et commencez à suivre votre boutique.'}</p>${verify?verificationForm():registrationForm()}${registrationFeedback(message,success)}<p class="auth-links">${verify?'Vous avez utilisé la mauvaise adresse ?':'Vous avez déjà un compte ?'} <button type="button" class="auth-link" data-auth-action="${verify?'change-registration':'login'}">${verify?'Modifier mes informations':'Se connecter'}</button></p><p class="login-security">${icon('check')}Vos informations restent protégées · Aucun mot de passe n’est conservé hors du serveur</p></section></div>`;
+    if(verify){
+      const code=$('#registration-code');
+      code?.addEventListener('input',event=>{event.target.value=event.target.value.replace(/\D/g,'').slice(0,6);});
+      $('#registration-code-form')?.addEventListener('submit',verifyRegistration);
+      $('#registration-resend')?.addEventListener('click',resendRegistrationCode);
+      $('[data-auth-action="change-registration"]')?.addEventListener('click',()=>{registration.step='form';registration.cooldownUntil=0;renderRegistration();});
+      scheduleRegistrationTimer();
+    } else {
+      $('#registration-form')?.addEventListener('submit',submitRegistration);
+      $('[data-auth-action="login"]')?.addEventListener('click',showLogin);
+    }
+  }
+  async function submitRegistration(event) {
+    event.preventDefault();
+    const form=event.currentTarget, button=$('[type=submit]',form), data=new FormData(form);
+    const email=String(data.get('email')||'').trim().toLowerCase(), name=String(data.get('name')||'').trim(), shopName=String(data.get('shopName')||'').trim(), shopCity=String(data.get('shopCity')||'').trim();
+    const password=String(data.get('password')||''), passwordConfirmation=String(data.get('passwordConfirmation')||'');
+    const invalid=message=>{registration={...registration,step:'form',email,name,shopName,shopCity};renderRegistration(message);};
+    if(password!==passwordConfirmation)return invalid('Les deux mots de passe ne correspondent pas.');
+    if(password.length<12)return invalid('Le mot de passe doit contenir au moins 12 caractères.');
+    if(!name||!shopName||!shopCity)return invalid('Renseignez votre nom, votre boutique et votre ville.');
+    button.disabled=true;
+    registration={...registration,step:'form',email,name,shopName,shopCity};
+    try {
+      if(!true)throw new Error('La création d’un compte nécessite une connexion internet.');
+      // The password exists only in this local variable for this request. It
+      // is never copied into registration, local storage, or the outbox.
+      const result=await api('/api/register',{email,name,password,shop:{name:shopName,city:shopCity}});
+      registration={step:'verify',email,name,shopName,shopCity,registrationId:String(result.registrationId||result.pendingId||result.id||''),cooldownUntil:Date.now()+60_000};
+      if(result.verified===true||result.verificationRequired===false){await finishRegistration(result);return;}
+      renderRegistration('Le code de vérification vient d’être envoyé à votre adresse e-mail.','success');
+    } catch(error) {
+      renderRegistration(error.message||'Impossible de créer le compte. Réessayez.');
+    }
+  }
+  async function resendRegistrationCode() {
+    if(registration.cooldownUntil>Date.now())return;
+    const button=$('#registration-resend');if(button)button.disabled=true;
+    try {
+      if(!true)throw new Error('Le renvoi du code nécessite une connexion internet.');
+      const result=await api('/api/register/resend',{email:registration.email,registrationId:registration.registrationId||undefined});
+      registration.cooldownUntil=Date.now()+60_000;
+      renderRegistration(result.message||'Un nouveau code vient d’être envoyé.','success');
+    } catch(error) { renderRegistration(error.message||'Impossible de renvoyer le code.'); }
+  }
+  async function verifyRegistration(event) {
+    event.preventDefault();
+    const form=event.currentTarget,button=$('[type=submit]',form),code=String(new FormData(form).get('code')||'').trim();
+    if(!/^\d{6}$/.test(code)){renderRegistration('Saisissez les 6 chiffres reçus par e-mail.');return;}
+    button.disabled=true;
+    try {
+      if(!true)throw new Error('La vérification nécessite une connexion internet.');
+      const result=await api('/api/register/verify',{email:registration.email,registrationId:registration.registrationId||undefined,code});
+      await finishRegistration(result);
+    } catch(error) { renderRegistration(error.message||'Code invalide ou expiré.'); }
+  }
+  async function finishRegistration(result={}) {
+    const verifiedEmail=registration.email;
+    stopRegistrationTimer();
+    try {
+      // Verification is expected to create the session cookie server-side.
+      // Refreshing the real state also makes the newly created boutique the
+      // first selected store without touching the offline command queue.
+      await refresh();
+      registration={step:'form',email:'',name:'',shopName:'',shopCity:'',registrationId:'',cooldownUntil:0};
+      authMode='login';view='dashboard';render();await sync();
+    } catch(error) {
+      if(error.status===401){
+        loginPrefill=verifiedEmail;
+        resetRegistration();
+        renderLogin('Adresse vérifiée. Connectez-vous pour ouvrir votre nouvel espace.');
+      } else {
+        registration.step='verify';
+        renderRegistration('Votre adresse est vérifiée, mais le tableau de bord est momentanément indisponible. Réessayez dans un instant.',true);
+      }
+    }
   }
   async function login(email,password) {
     $$('button',root).forEach(b=>b.disabled=true);
@@ -1716,7 +2293,7 @@ const local = {
   }
   async function init() {
     try{
-      const config=await api('/api/config');demoMode=config.demoMode;
+      const config=await api('/api/config');demoMode=config.demoMode;localDemo=!!config.localDemo;registrationEnabled=!!config.registrationEnabled&&!localDemo;
       await refresh();render();await sync();
     }catch(error){
       if(!error.status){

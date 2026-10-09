@@ -1,13 +1,34 @@
-# Comptoir — démonstration autonome
+# Comptoir 0.2.0
 
-Ouvrir index.html ou télécharger Comptoir-demo.html puis l’ouvrir dans le navigateur. Choisir Administrateur pour commencer.
+## Ouvrir la démonstration sur Windows
 
-Les données restent dans ce navigateur. Comptes et rôles simulés ; utiliser des données fictives. Aucune synchronisation entre appareils ni authentification serveur.
+Télécharger `Comptoir-Windows.zip`, choisir **Extraire tout**, puis ouvrir
+`Ouvrir-Comptoir.html` avec Microsoft Edge ou Chrome et choisir **Administrateur**.
+La démonstration fonctionne sans serveur ni connexion. Les profils sont simulés
+et les données fictives restent dans le navigateur de cet appareil.
 
-Source complète : branche codex/comptoir-cloud-deploy, dossier demo.
+Les paramètres permettent d'ajouter des magasins et des profils de démonstration,
+de télécharger une sauvegarde JSON complète et de la restaurer. Les annulations
+de documents impayés conservent l'historique et compensent le stock.
 
-Aperçu public tiers (disponibilité non vérifiée depuis l’environnement cloud) : https://htmlpreview.github.io/?https://github.com/ospicefrejuste-byte/portfolio-site/blob/comptoir-demo/index.html
+## Plateforme avec inscription réelle
 
-GitHub Pages : Settings → Pages → Deploy from a branch → comptoir-demo → /(root) → Save. Attendre l’adresse réellement indiquée par GitHub.
+`Comptoir-Plateforme.zip` contient les sources et les guides de déploiement de la
+version serveur. Chaque commerçant peut s'inscrire avec son adresse e-mail et un
+mot de passe, vérifier son code à six chiffres, puis accéder à sa propre boutique.
+La plateforme sépare les produits, stocks, utilisateurs et photos des commerces.
 
-Windows : télécharger Comptoir-Windows.zip, clic droit → Extraire tout → Extraire, puis ouvrir Ouvrir-Comptoir.html dans Edge ou Chrome. Choisir Administrateur.
+Ce parcours exige un serveur Node.js 24/Docker, un disque persistant, HTTPS et
+un relais SMTP configuré. Le fichier HTML autonome n'envoie pas d'e-mails.
+Aucune URL de serveur de production n'est créée par cette branche statique.
+
+Transmettre `MESSAGE-HEBERGEUR.txt` à un prestataire Node.js/Docker : il précise
+la demande de mise en ligne, d'e-mail, de sauvegarde et de réception du service.
+
+Sources vérifiées :
+https://github.com/ospicefrejuste-byte/portfolio-site/tree/comptoir-v0.2.0
+
+GitHub Pages peut publier cette démonstration : **Settings → Pages → Deploy from
+a branch → comptoir-demo → /(root)**. Utiliser l'adresse réellement attribuée
+après déploiement. Pages héberge la démonstration ; la plateforme serveur doit
+être déployée séparément.
