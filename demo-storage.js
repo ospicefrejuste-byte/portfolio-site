@@ -1,0 +1,10 @@
+(function(){
+const memory=Object.create(null);let volatileStorage=false;
+window.createDemoID=function(){if(window.crypto&&typeof window.crypto.randomUUID==='function')return window.crypto.randomUUID();const bytes=new Uint8Array(16);if(window.crypto&&typeof window.crypto.getRandomValues==='function')window.crypto.getRandomValues(bytes);else for(let i=0;i<bytes.length;i++)bytes[i]=Math.floor(Math.random()*256);bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const h=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20)};
+window.demoStorage={get persistent(){return !volatileStorage},getItem(k){if(Object.prototype.hasOwnProperty.call(memory,k))return memory[k];try{return localStorage.getItem(k)}catch{volatileStorage=true;return null}},setItem(k,v){memory[k]=String(v);try{localStorage.setItem(k,String(v))}catch{volatileStorage=true}},removeItem(k){memory[k]=null;try{localStorage.removeItem(k)}catch{volatileStorage=true}}};
+// Preserve old data; import only a valid full database, never overwrite a malformed legacy file.
+try{if(!window.demoStorage.getItem('crs-demo-migrated-v2')){
+const saved=window.demoStorage.getItem('crs-demo-v1');if(saved&&!window.demoStorage.getItem('crs-demo-v2')){const data=JSON.parse(saved);if(['students','teachers','courses','attendance','payments','grades'].every(k=>Array.isArray(data[k])))window.demoStorage.setItem('crs-demo-v2',saved)}
+const pending=window.demoStorage.getItem('crs-preinscriptions-v1');if(pending&&!window.demoStorage.getItem('crs-preinscriptions-v2')&&Array.isArray(JSON.parse(pending)))window.demoStorage.setItem('crs-preinscriptions-v2',pending);
+window.demoStorage.setItem('crs-demo-migrated-v2','1');}}catch{window.demoStorage.setItem('crs-demo-migrated-v2','1')}
+})();
