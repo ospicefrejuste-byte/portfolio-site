@@ -60,3 +60,7 @@ La version serveur a été testée localement contre PostgreSQL 17 : authentific
 Le projet Supabase réel et le déploiement Netlify de cette version ne sont pas encore configurés. Les tests KKiaPay utilisent un vérificateur simulé ; la connexion au prestataire et les certificats du fournisseur seront à vérifier avec les services réels. Il n'y a pas de migration automatique des exemples locaux de la démo vers la base réelle : commencer les inscriptions réelles sur la version serveur uniquement.
 
 L'export des dossiers est disponible dans l'administration. Prévoir également les sauvegardes de la base proposées par Supabase ou un export PostgreSQL privé. Les comptes et mots de passe ne sont pas inclus dans l'export public des dossiers.
+
+### Mot de passe séparé (facultatif)
+
+Pour éviter d’encoder les symboles manuellement, ajoutez `DATABASE_PASSWORD` comme variable secrète dans Netlify, disponible pour les Functions en Production. Sa valeur est le mot de passe actuel de la base Supabase, saisi tel quel. Il remplace le mot de passe inclus dans `DATABASE_URL`, dont le serveur, le port et l’utilisateur restent nécessaires. Redéployez après modification. Ne partagez aucune de ces valeurs.
