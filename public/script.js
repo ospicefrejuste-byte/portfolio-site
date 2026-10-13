@@ -55,6 +55,7 @@ const date = (d) =>
   });
 const sections = {
   dashboard: ["◈", "Tableau de bord"],
+  cashier: ["▣", "Caisse en présentiel"],
   students: ["♙", "Élèves"],
   teachers: ["♧", "Enseignants"],
   courses: ["▦", "Cours & planning"],
@@ -1069,6 +1070,8 @@ $("logout").onclick = async () => {
     role = user.role;
     if (!["admin", "cashier", "teacher", "student"].includes(role)) throw new Error("Ce compte n’a pas d’espace autorisé.");
     if (role === "cashier") page = "cashier";
+    const requestedPage = new URLSearchParams(location.search).get("section");
+    if (accessibleSections().includes(requestedPage)) page = requestedPage;
     identity = user.entityId || "";
     $("account-name").textContent =
       user.username +
