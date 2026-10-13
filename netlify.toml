@@ -8,7 +8,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["pg", "pdfkit"]
+  external_node_modules = ["pg", "pdfkit", "qrcode"]
   included_files = ["public/gestion.html", "lib/assets/DejaVuSans.ttf"]
 
 [[redirects]]

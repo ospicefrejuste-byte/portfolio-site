@@ -64,6 +64,10 @@ Pour un règlement effectivement reçu en espèces :
 4. Saisissez la somme remise. Un règlement partiel est possible. Vérifiez le récapitulatif et cliquez sur **Confirmer l’encaissement** après réception de l’argent.
 5. Téléchargez le **reçu PDF** pour l’imprimer. Il indique l’élève, le mois, le montant, le caissier et une référence unique.
 
+Chaque reçu téléchargé après cette mise à jour possède **son propre QR code**, lié à sa référence. Deux reçus distincts ont deux codes distincts ; un nouveau téléchargement du même reçu conserve son code et ses informations. Pour ajouter un QR à un ancien PDF, téléchargez de nouveau le reçu depuis l’historique après publication de la mise à jour.
+
+Scannez le QR avec l’appareil photo du téléphone, ou utilisez le lien **Ouvrir la vérification du reçu** dans le PDF. La page du site officiel affiche les informations enregistrées : référence, élève, classe, école, date, mensualité, montant et mode de règlement. Comparez-les avec le document présenté. Un QR copié sur un autre document renvoie toujours au reçu d’origine ; il ne prouve pas que le texte imprimé est identique. La vérification nécessite Internet. Un code non reconnu est signalé comme non vérifiable ; une panne réseau est signalée séparément. Une transaction de test porte un avertissement et ne constitue aucun règlement réel. Aucun compte n’est nécessaire pour vérifier, et les coordonnées du parent ne sont pas affichées.
+
 Le dossier affiche **Partiellement payé** s’il reste une somme due, puis **Payé** quand la mensualité est entièrement réglée. Les paiements en ligne confirmés réduisent également ce reste ; les transactions de test sont exclues. Le tarif actuel du dossier est utilisé pour le mois choisi. Le paiement d’une préinscription ne valide pas automatiquement l’inscription : le responsable reste chargé de vérifier son dossier.
 
 Le serveur enregistre le paiement dans la même base que l’administration. Une nouvelle tentative du même formulaire après une erreur réseau retrouve le même reçu sans ajouter un second encaissement. Un paiement en ligne réel déjà en attente doit être vérifié par le responsable avant de recevoir des espèces pour le même mois. Dans **Paiements → Échéances en ligne**, le responsable utilise **Vérifier la transaction** si le parent possède sa référence. Si la tentative a été abandonnée et qu’aucun paiement n’a été effectué, **Autoriser la caisse** lui permet de confirmer cette vérification et de débloquer l’encaissement en présentiel. Cette autorisation est tracée et ne compte pas comme un paiement. Une confirmation en ligne tardive reste enregistrée : vérifiez toute avance ou double règlement avec la famille.
@@ -71,6 +75,8 @@ Le serveur enregistre le paiement dans la même base que l’administration. Une
 **Partager le PDF** propose le partage du fichier sur les appareils compatibles. À défaut, le fichier est téléchargé pour être joint à un message. **Préparer WhatsApp** demande le numéro complet du parent avec l’indicatif du pays et prépare un message modifiable. Joignez le PDF téléchargé dans WhatsApp avant d’envoyer. Le site n’envoie aucun message automatiquement.
 
 Les reçus de caisse restent disponibles dans l’historique avec le nom du caissier. Ils ne peuvent pas être modifiés ou supprimés. Vérifiez élève, mois et somme avant confirmation ; si une erreur est constatée, signalez-la au responsable technique avant toute nouvelle saisie.
+
+Un ancien paiement saisi administrativement devient également non modifiable et non supprimable dès la première délivrance de son reçu avec QR. Les informations de ce reçu restent celles de sa délivrance, même si le dossier de l’élève est ensuite actualisé.
 
 Dans **Paiements**, l’administration voit deux parties : **Paiements en ligne** et **Encaissements en présentiel**. Le filtre **Type d’encaissement** distingue en ligne, présentiel et tests. Les anciennes saisies administratives sont conservées et classées en présentiel. La saisie administrative historique reste réservée au responsable ; utilisez la nouvelle caisse pour les encaissements du jour.
 
@@ -106,6 +112,8 @@ La base Supabase peut rester sur le compte du développeur si cela est convenu a
 Dans **Comptes & accès**, **Exporter les dossiers (JSON)** télécharge les dossiers scolaires et les paiements. Conservez ce fichier dans un emplacement privé, accessible aux seules personnes autorisées.
 
 Cet export ne constitue pas une sauvegarde complète de PostgreSQL : il ne contient pas les comptes, les mots de passe ni l’ensemble des données techniques. Il n’existe pas de bouton d’import de cet export dans la plateforme. Le responsable technique doit prévoir une sauvegarde PostgreSQL privée et vérifier la procédure de restauration. Ne présumez pas que l’offre gratuite Supabase fournit une sauvegarde automatique téléchargeable : vérifiez ses possibilités actuelles.
+
+La sauvegarde complète doit aussi conserver les données techniques privées de vérification des reçus, stockées dans la table `settings`. Les supprimer ou les recréer rend les anciens QR non vérifiables. Elles ne figurent pas dans l’export des dossiers JSON.
 
 ## 8. Vérifications avant la remise
 

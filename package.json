@@ -18,12 +18,14 @@
     "test:browser:platform": "node tests/browser-platform.cjs",
     "test:browser:cashier": "node tests/browser-cashier.cjs",
     "test:browser:cashier-attendance": "node tests/browser-cashier-attendance.cjs",
-    "test:browser:updates": "node tests/browser-updates.cjs"
+    "test:browser:updates": "node tests/browser-updates.cjs",
+    "test:browser:receipts": "node tests/browser-receipt-verification.cjs"
   },
   "dependencies": {
     "express": "5.1.0",
     "pdfkit": "0.17.2",
     "pg": "^8.23.1",
+    "qrcode": "1.5.4",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
@@ -31,6 +33,8 @@
     "@babel/parser": "^7.29.9",
     "@babel/traverse": "^7.29.10",
     "@babel/types": "^7.29.8",
-    "playwright": "1.62.1"
+    "jsqr": "1.4.0",
+    "playwright": "1.62.1",
+    "pngjs": "7.0.0"
   }
 }

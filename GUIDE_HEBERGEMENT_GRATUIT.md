@@ -63,6 +63,8 @@ Le projet Supabase et le déploiement Netlify sont configurés. La création du 
 
 L'export des dossiers est disponible dans l'administration. Prévoir également les sauvegardes de la base proposées par Supabase ou un export PostgreSQL privé. Les comptes et mots de passe ne sont pas inclus dans l'export public des dossiers.
 
+Les reçus PDF ont chacun un QR signé, dont le lien utilise l’origine HTTPS `PUBLIC_ORIGIN`. La clé de signature et les archives de délivrance sont créées automatiquement dans les paramètres privés de la base ; aucun secret supplémentaire n’est à saisir dans Netlify. Les préserver dans une sauvegarde complète, sans les publier ni les modifier : les anciens codes en dépendent. La page de vérification est publique, mais seules les informations du reçu scanné sont affichées, sans coordonnées des parents. Les codes des reçus déjà délivrés restent identiques lors d’un nouveau téléchargement.
+
 ### Mot de passe séparé (facultatif)
 
 Pour éviter d’encoder les symboles manuellement, ajoutez `DATABASE_PASSWORD` comme variable secrète dans Netlify, disponible pour les Functions en Production. Sa valeur est le mot de passe actuel de la base Supabase, saisi tel quel. Il remplace le mot de passe inclus dans `DATABASE_URL`, dont le serveur, le port et l’utilisateur restent nécessaires. Redéployez après modification. Ne partagez aucune de ces valeurs.

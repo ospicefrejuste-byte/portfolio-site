@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta name="crs-version" content="56e59065acc5616575a9ac11b0f535bbdf757360e38d9a6f0f5ed44a630d15a4">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Vérification d’un reçu</title>
+    <link rel="stylesheet" href="verification-recu.css?v=56e59065acc5616575a9ac11b0f535bbdf757360e38d9a6f0f5ed44a630d15a4" />
+    <script src="verification-recu.js?v=56e59065acc5616575a9ac11b0f535bbdf757360e38d9a6f0f5ed44a630d15a4" defer></script>
+  </head>
+  <body>
+    <main id="receipt-verification" class="verification-card" data-state="loading" aria-busy="true">
+      <a class="verification-home" href="/">← Accueil</a>
+      <header class="verification-header">
+        <div class="verification-logo" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"></path><path d="M9 8h6M9 12h3"></path></svg>
+        </div>
+        <p class="verification-eyebrow">VÉRIFICATION DU REÇU</p>
+        <h1 id="verification-title">Vérification en cours…</h1>
+        <div class="verification-status" role="status" aria-live="polite" aria-atomic="true">
+          <span class="verification-status-dot" aria-hidden="true"></span>
+          <p id="verification-message">Nous consultons l’enregistrement de ce reçu.</p>
+        </div>
+      </header>
+
+      <section id="verified-receipt" aria-label="Informations enregistrées pour ce reçu" hidden>
+        <div class="verification-amount"><span>Montant enregistré</span><strong id="receipt-amount"></strong></div>
+        <dl class="verification-details">
+          <div><dt>Référence du reçu</dt><dd id="receipt-reference"></dd></div>
+          <div><dt>Établissement</dt><dd id="receipt-school"></dd></div>
+          <div><dt>Élève</dt><dd id="receipt-student"></dd></div>
+          <div><dt>Classe</dt><dd id="receipt-class"></dd></div>
+          <div><dt>École / centre</dt><dd id="receipt-centre"></dd></div>
+          <div><dt>Mois concerné</dt><dd id="receipt-period"></dd></div>
+          <div><dt>Date du paiement</dt><dd id="receipt-date"></dd></div>
+          <div><dt>Type d’encaissement</dt><dd id="receipt-channel"></dd></div>
+        </dl>
+        <p id="receipt-comparison" class="verification-comparison">Comparez ces informations avec le reçu papier ou PDF. Un QR copié sur un autre document ne garantit pas son contenu.</p>
+      </section>
+
+      <button id="verification-retry" type="button" class="verification-retry" hidden>Réessayer la vérification</button>
+      <p id="verification-help" class="verification-help" hidden></p>
+      <footer>Cette page est accessible sans compte. Elle affiche uniquement les informations du reçu scanné.</footer>
+      <noscript><p class="verification-no-script">Activez JavaScript pour consulter les informations enregistrées du reçu. Sans vérification, cette page ne confirme pas le paiement.</p></noscript>
+    </main>
+  </body>
+</html>

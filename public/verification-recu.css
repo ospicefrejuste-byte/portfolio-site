@@ -1,0 +1,43 @@
+:root { font-family: Arial, Helvetica, sans-serif; color: #16365e; background: #eef3f9; font-synthesis: none; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { margin: 0; padding: 32px 18px; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; }
+.verification-card { width: 100%; max-width: 610px; background: #fff; border: 1px solid #dce5f0; border-radius: 20px; padding: 30px; box-shadow: 0 18px 70px #1838580a; overflow-wrap: anywhere; }
+.verification-home { display: inline-flex; min-height: 32px; align-items: center; color: #315d94; font-size: .83rem; text-decoration: none; }
+.verification-home:hover { text-decoration: underline; }
+.verification-header { margin-top: 20px; }
+.verification-logo { width: 55px; height: 55px; display: grid; place-items: center; background: #173860; color: #ffe470; border-radius: 14px; }
+.verification-logo svg { width: 29px; height: 29px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.verification-eyebrow { font-size: .68rem; letter-spacing: .14em; color: #6b7e97; margin: 20px 0 10px; }
+h1 { margin: 0 0 18px; font-size: 1.9rem; line-height: 1.2; letter-spacing: -.025em; }
+.verification-status { display: flex; align-items: flex-start; gap: 10px; background: #edf3fb; border: 1px solid #d7e3f5; border-radius: 10px; padding: 15px; color: #345987; }
+.verification-status p { margin: 0; line-height: 1.6; font-size: .9rem; }
+.verification-status-dot { width: 9px; height: 9px; flex: 0 0 9px; margin-top: 6px; background: currentColor; border-radius: 50%; }
+[data-state="verified"] .verification-status { background: #eaf7ef; color: #246c47; border-color: #c2e2cf; }
+[data-state="verified"] .verification-logo { color: #fff; background: #2c8458; }
+[data-state="test"] .verification-status, [data-state="unavailable"] .verification-status { background: #fff7e2; color: #856111; border-color: #efda9e; }
+[data-state="test"] .verification-logo, [data-state="unavailable"] .verification-logo { color: #735417; background: #ffebac; }
+[data-state="invalid"] .verification-status { background: #fff0ee; color: #9d3833; border-color: #edcac7; }
+[data-state="invalid"] .verification-logo { color: #b04641; background: #ffe8e4; }
+.verification-amount { margin: 24px 0 18px; background: #f3f6fb; border: 1px solid #e0e8f2; border-radius: 12px; padding: 18px; display: grid; gap: 7px; }
+.verification-amount span { font-size: .8rem; color: #677a92; }
+.verification-amount strong { font-size: 1.95rem; color: #173860; line-height: 1.2; }
+.verification-details { margin: 0; }
+.verification-details > div { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 15px; padding: 13px 2px; border-bottom: 1px solid #e6ecf4; align-items: baseline; }
+.verification-details dt { font-size: .83rem; line-height: 1.5; color: #697b90; }
+.verification-details dd { margin: 0; font-size: .9rem; line-height: 1.5; font-weight: 600; color: #173860; min-width: 0; }
+.verification-comparison { margin: 20px 0 0; background: #fff8e5; border: 1px solid #f0e0b3; border-radius: 10px; padding: 15px; color: #775818; font-size: .84rem; line-height: 1.65; }
+.verification-retry { margin-top: 20px; width: 100%; min-height: 46px; padding: 13px 16px; border: 0; border-radius: 9px; color: #fff; background: #205cc0; font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
+.verification-retry:hover { background: #184d9f; }
+.verification-retry:disabled { opacity: .65; cursor: wait; }
+.verification-help { margin: 18px 0 0; color: #60738a; font-size: .84rem; line-height: 1.65; }
+footer { margin-top: 24px; border-top: 1px solid #e5ecf4; padding-top: 18px; font-size: .75rem; line-height: 1.65; color: #7889a0; }
+.verification-no-script { padding: 12px; background: #fff5dc; color: #765718; font-size: .85rem; line-height: 1.6; border-radius: 8px; }
+a:focus-visible, button:focus-visible { outline: 3px solid #8db7f5; outline-offset: 4px; }
+@media (max-width: 480px) {
+  body { padding: 18px 12px; }
+  .verification-card { padding: 22px 18px; border-radius: 16px; }
+  h1 { font-size: 1.55rem; }
+  .verification-amount strong { font-size: 1.65rem; }
+  .verification-details > div { grid-template-columns: minmax(0, 1fr); gap: 5px; }
+}

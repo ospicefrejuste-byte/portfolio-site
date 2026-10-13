@@ -123,6 +123,54 @@ test("Le reçu de caisse identifie le parent et le caissier avec une référence
   assert.match(legacy, /Non renseigné \(ancien enregistrement\)/);
 });
 
+test("Le reçu contient un QR local et un lien cliquable vers le site officiel de vérification", async () => {
+  const url = "https://cours-renforcement-scolaire.netlify.app/verification-recu.html#verification-token-123";
+  const payment = { id: "reference-qr", student: "pupil", amount: 4500, period: "2026-10", date: "2026-10-13", source: "Caisse", channel: "cash", collectedByName: "Caissière Élodie" };
+  for (const mode of ["live", "sandbox"]) {
+    const buffer = await createPaymentReceipt({ payment: { ...payment, mode }, student: { name: "Élève Grâce", class: "6e" }, verification: { url } });
+    assertPdf(buffer);
+    const raw = buffer.toString("latin1");
+    assert.match(raw, /\/Subtype \/Image/);
+    assert.ok(raw.includes(`/URI (${url})`), "Le lien PDF doit ouvrir exactement la page de vérification encodée dans le QR.");
+    if (canExtract) {
+      const output = extract(buffer);
+      assert.match(output, /Scanner pour vérifier/);
+      assert.match(output, /Site de vérification : cours-renforcement-scolaire\.netlify\.app/);
+      assert.match(output, /Ouvrir la vérification du reçu/);
+      assert.match(output, /Caissière Élodie/);
+      if (mode === "sandbox") assert.match(output, /TRANSACTION DE TEST — AUCUN RÈGLEMENT RÉEL/);
+      else assert.doesNotMatch(output, /TRANSACTION DE TEST/);
+    }
+  }
+  const legacy = await createPaymentReceipt({ payment });
+  assert.doesNotMatch(legacy.toString("latin1"), /\/URI /);
+  if (canExtract) assert.doesNotMatch(extract(legacy), /Scanner pour vérifier/);
+});
+
+test("Le QR reste exportable sur les reçus longs et les liens de vérification invalides sont refusés", async () => {
+  const url = "https://cours-renforcement-scolaire.netlify.app/verification-recu.html#long-receipt-token";
+  const long = "Informations d’établissement avec accents — ".repeat(150);
+  const buffer = await createPaymentReceipt({
+    payment: { id: "reference-long-receipt", amount: 3500, period: "2026-10", date: "2026-10-13", collectedByName: "Caissière Grâce" },
+    student: { name: long, class: "6e", centre: long, group: long, guardian: long },
+    school: { name: "École des Érables" }, verification: { url },
+  });
+  assertPdf(buffer);
+  assert.ok((buffer.toString("latin1").match(/\/Type \/Page\b/g) || []).length >= 2);
+  assert.ok(buffer.toString("latin1").includes(`/URI (${url})`));
+  if (canExtract) {
+    const output = extract(buffer);
+    assert.match(output, /École des Érables/);
+    assert.match(output, /reference-long-receipt/);
+    assert.match(output, /Scanner pour vérifier/);
+    assert.match(output, /Site de vérification : cours-renforcement-scolaire\.netlify\.app/);
+    assert.ok(output.length < long.length * 4, "Les champs très longs restent bornés dans le PDF.");
+  }
+  for (const invalid of ["javascript:alert(1)", "https://user:password@example.com/verification-recu.html#token", "https://example.com/another-page#token", "https://example.com/verification-recu.html", "https://example.com/verification-recu.html?token=visible#token", "http://example.com/verification-recu.html#token", " https://example.com/verification-recu.html#token", "x".repeat(2049)])
+    await assert.rejects(createPaymentReceipt({ verification: { url: invalid } }), /lien de vérification du reçu est invalide/);
+  assertPdf(await createPaymentReceipt({ verification: { url: "http://127.0.0.1:3000/verification-recu.html#local-test-token" } }));
+});
+
 test("Les bilans longs sont paginés et les dossiers avec références manquantes restent exportables", async () => {
   const student = { id: "pupil", name: "Élève très long ".repeat(12) + "\u0000", class: "6e" };
   const grades = Array.from({ length: 150 }, (_, i) => ({ student: "pupil", course: "missing", score: i % 21, label: `Évaluation ${i} — vérification de pagination` }));
