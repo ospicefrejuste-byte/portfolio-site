@@ -12,6 +12,9 @@ const start=application.indexOf('  fs.mkdirSync(dataDir');const end=application.
 let schema=application.slice(application.indexOf('db.exec(`',start)+9,application.indexOf('`);',start));
 schema=schema.replace(/PRAGMA[^;]+;\s*/g,'').replace('username TEXT UNIQUE COLLATE NOCASE NOT NULL','username TEXT NOT NULL').replace(/expires INTEGER/g,'expires BIGINT');
 schema+='\nCREATE UNIQUE INDEX IF NOT EXISTS users_username_lower ON users(lower(username));\nCREATE TABLE IF NOT EXISTS request_limits (key TEXT PRIMARY KEY, count INTEGER NOT NULL, expires BIGINT NOT NULL);';
+// Run under the shared advisory transaction so parallel function starts cannot
+// race when upgrading an existing PostgreSQL role constraint.
+schema+="\nALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check;\nALTER TABLE users ADD CONSTRAINT users_role_check CHECK(role IN ('admin','teacher','student','cashier'));";
 application=application.slice(0,start)+'  const db = options.database || createPostgres();\n  try {\n  await db.transaction(async () => { await db.exec('+JSON.stringify(schema)+'); });\n  const publicDir = options.publicDir || path.join(__dirname, "..", "public");\n'+application.slice(end);
 const tokenStart=application.indexOf('  const tokenFile =');const tokenEnd=application.indexOf('  const dummyHash',tokenStart);
 application=application.slice(0,tokenStart)+'  const tokenFile = "";\n  let setupToken = options.setupToken || process.env.CRS_SETUP_TOKEN;\n  if (!setupToken && !(await initialized())) throw Error("Configurez le code privé CRS_SETUP_TOKEN avant la première installation.");\n'+application.slice(tokenEnd);

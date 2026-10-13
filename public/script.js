@@ -15,6 +15,7 @@ let role = "",
   search = "",
   user = null,
   users = [],
+  paymentChannel = "all",
   paymentConfig = { configured: false, sandbox: true },
   paymentOrders = [];
 const catalogue = {
@@ -87,6 +88,7 @@ async function refresh() {
   Object.assign(catalogue, await schoolAPI.request("/api/catalogue"));
   db = await schoolAPI.request("/api/data");
   if (typeof invalidateMonthlyBalances === "function") invalidateMonthlyBalances();
+  if (typeof invalidateCashier === "function") invalidateCashier();
   const brand = document.querySelector(".brand");
   if (brand) {
     brand.querySelector("span:last-child").textContent = catalogue.name;
@@ -100,7 +102,7 @@ async function refresh() {
   const footer = document.querySelector("main > footer");
   if (footer) footer.firstChild.textContent = catalogue.name + " ";
   if (role === "admin") users = await schoolAPI.request("/api/admin/users");
-  if (role !== "teacher") {
+  if (["admin", "student"].includes(role)) {
     paymentConfig = await schoolAPI.request("/api/payments/config");
     paymentOrders = await schoolAPI.request("/api/payments/orders");
   }
@@ -112,13 +114,16 @@ function handleError(err) {
   }
   toast(err.message || "Serveur indisponible. Réessayez.");
 }
+function accessibleSections() {
+  return Object.keys(sections).filter((x) =>
+    role === "admin" ||
+    (role === "cashier" && x === "cashier") ||
+    (["teacher", "student"].includes(role) &&
+      (["dashboard", "courses", "calendar", "attendance", "grades"].includes(x) ||
+        (role === "student" && x === "payments"))));
+}
 function navigation() {
-  let entries = Object.keys(sections).filter(
-    (x) =>
-      role === "admin" ||
-      ["dashboard", "courses", "calendar", "attendance", "grades"].includes(x) ||
-      (role === "student" && x === "payments"),
-  );
+  const entries = accessibleSections();
   $("nav").innerHTML = entries
     .map(
       (x) =>
@@ -261,6 +266,7 @@ function rowsForPage() {
     rows = db.payments
       .filter(
         (p) =>
+          (paymentChannel === "all" || (paymentChannel === "test" ? p.mode === "sandbox" : p.mode !== "sandbox" && (paymentChannel === "online" ? p.source === "KKiaPay" : p.source !== "KKiaPay"))) &&
           visibleStudents().some((s) => s.id === p.student) &&
           (student(p.student)?.name + " " + p.period)
             .toLowerCase()
@@ -268,7 +274,7 @@ function rowsForPage() {
       )
       .map(
         (p) =>
-          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(p.period)}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : "Saisie manuelle"}</span></td><td><button class="secondary" data-receipt="${p.id}">Reçu</button><a class="secondary" href="/api/payments/${encodeURIComponent(p.id)}/receipt.pdf" download>Télécharger PDF</a>${role === "admin" && p.source !== "KKiaPay" ? actions(p.id) : ""}</td></tr>`,
+          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(p.period)}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : p.source === "Caisse" ? "Caisse en présentiel" : "Saisie administrative"}</span></td><td><button class="secondary" data-receipt="${esc(p.id)}">Reçu</button><a class="secondary" href="/api/payments/${encodeURIComponent(p.id)}/receipt.pdf" download>Télécharger PDF</a>${role === "admin" && p.source !== "KKiaPay" && p.source !== "Caisse" ? actions(p.id) : ""}</td></tr>`,
       );
   if (page === "grades")
     rows = db.grades
@@ -309,7 +315,7 @@ function list() {
     (page === "grades" && role !== "student")
   )
     headers.push("Actions");
-  return `<div class="panel"><div class="toolbar"><input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher" value="${esc(search)}">${canAdd() ? `<button class="primary" id="add">+ ${addLabels[page]}</button>` : ""}</div><div id="table">${table(headers, rowsForPage())}</div>${page === "payments" ? '<p class="helper">Les paiements de test sont identifiés et exclus des encaissements réels du tableau de bord.</p>' : ""}</div>`;
+  return `<div class="panel"><div class="toolbar"><input id="search" type="search" placeholder="Rechercher…" aria-label="Rechercher" value="${esc(search)}">${page === "payments" && role === "admin" ? `<label>Type d’encaissement<select id="payment-channel">${[["all", "Tous les paiements"], ["online", "En ligne · KKiaPay"], ["cash", "En présentiel · caisse"], ["test", "Transactions de test"]].map(([value, label]) => `<option value="${value}" ${paymentChannel === value ? "selected" : ""}>${label}</option>`).join("")}</select></label>` : ""}${canAdd() ? `<button class="primary" id="add">+ ${addLabels[page]}</button>` : ""}</div><div id="table">${table(headers, rowsForPage())}</div>${page === "payments" ? '<p class="helper">Les paiements de test sont identifiés et exclus des encaissements réels du tableau de bord.</p>' : ""}</div>`;
 }
 let selectedCourse = "";
 function attendance() {
@@ -329,6 +335,7 @@ function attendance() {
   )}<p class="helper">Chaque statut est enregistré dès sa sélection.</p></div>`;
 }
 function render() {
+  if (!accessibleSections().includes(page)) page = role === "cashier" ? "cashier" : "dashboard";
   navigation();
   $("title").textContent = sections[page][1];
   $("content").innerHTML =
@@ -338,6 +345,7 @@ function render() {
         ? attendance()
         : page === "users"
           ? accountsPage()
+          : page === "cashier" ? cashierPage()
           : page === "payments"
             ? paymentPage()
             : page === "students" && role === "admin" ? enrollmentPage()
@@ -349,6 +357,7 @@ function render() {
   if (page === "calendar") bindCalendar();
   if (page === "settings" && role === "admin") bindSettings();
   if (page === "balances" && role === "admin") bindMonthlyBalances();
+  if (page === "cashier" && ["admin", "cashier"].includes(role)) bindCashier();
   if ($("add"))
     $("add").onclick = () => (page === "users" ? openUserForm() : openForm());
   if ($("export")) $("export").onclick = exportRecords;
@@ -356,6 +365,9 @@ function render() {
   document
     .querySelectorAll("[data-verify-order]")
     .forEach((b) => (b.onclick = () => verifyOrderForm(b.dataset.verifyOrder)));
+  document.querySelectorAll("[data-authorize-cash]").forEach((button) => {
+    button.onclick = () => authorizeCashForm(button.dataset.authorizeCash);
+  });
   document
     .querySelectorAll("[data-receipt]")
     .forEach((b) => (b.onclick = () => showReceipt(b.dataset.receipt)));
@@ -368,6 +380,8 @@ function render() {
       if (pos !== null && $("search").type !== "search")
         $("search").setSelectionRange(pos, pos);
     };
+  if ($("payment-channel")) $("payment-channel").onchange = (e) => { paymentChannel = e.target.value; render(); };
+  document.querySelectorAll("[data-payment-channel]").forEach((button) => { button.onclick = () => { paymentChannel = button.dataset.paymentChannel; render(); }; });
   document
     .querySelectorAll("[data-edit]")
     .forEach((b) => (b.onclick = () => openForm(b.dataset.edit)));
@@ -678,8 +692,13 @@ async function remove(id) {
     handleError(err);
   }
 }
+function collectionSummary() {
+  const real = db.payments.filter((p) => p.mode !== "sandbox");
+  const sum = (online) => real.filter((p) => (p.source === "KKiaPay") === online).reduce((total, p) => total + Number(p.amount || 0), 0);
+  return `<div class="analytics-grid">${panel("Paiements en ligne", "KKiaPay confirmés · totalité des encaissements réels", `<div class="mini-summary"><strong>${money(sum(true))}</strong></div><button class="secondary" data-payment-channel="online">Voir les paiements en ligne</button>`)}${panel("Encaissements en présentiel", "Caisse et anciennes saisies administratives · hors tests", `<div class="mini-summary"><strong>${money(sum(false))}</strong></div><div class="quick-actions"><button class="secondary" data-payment-channel="cash">Voir les paiements en présentiel</button><button class="primary" data-go="cashier">Ouvrir la caisse</button></div>`)}</div>`;
+}
 function paymentPage() {
-  return `<div class="panel payment-intro"><div class="panel-head"><div><h2>Régler les frais mensuels</h2><p>${paymentConfig.sandbox ? "KKiaPay · Mode test : aucune somme réelle n’est encaissée." : "KKiaPay · Paiement en ligne"}</p></div><button class="primary" id="pay-online" ${paymentConfig.configured ? "" : "disabled"}>Payer en ligne</button></div>${!paymentConfig.configured ? '<p class="helper">Le paiement en ligne attend la configuration des trois clés KKiaPay dans les paramètres sécurisés du serveur.</p>' : ""}<p class="helper">Le montant est calculé à partir du tarif de l’élève et des paiements déjà enregistrés pour le mois. La confirmation est vérifiée auprès de KKiaPay.</p></div>${list()}${
+  return (role === "admin" ? collectionSummary() : "") + `<div class="panel payment-intro"><div class="panel-head"><div><h2>Régler les frais mensuels</h2><p>${paymentConfig.sandbox ? "KKiaPay · Mode test : aucune somme réelle n’est encaissée." : "KKiaPay · Paiement en ligne"}</p></div><button class="primary" id="pay-online" ${paymentConfig.configured ? "" : "disabled"}>Payer en ligne</button></div>${!paymentConfig.configured ? '<p class="helper">Le paiement en ligne attend la configuration des trois clés KKiaPay dans les paramètres sécurisés du serveur.</p>' : ""}<p class="helper">Le montant est calculé à partir du tarif de l’élève et des paiements déjà enregistrés pour le mois. La confirmation est vérifiée auprès de KKiaPay.</p></div>${list()}${
     paymentOrders.length
       ? panel(
           "Échéances en ligne",
@@ -688,7 +707,7 @@ function paymentPage() {
             ["Élève", "Mois", "Montant", "Mode", "Statut", "Action"],
             paymentOrders.map(
               (o) =>
-                `<tr><td>${esc(student(o.student)?.name || "—")}</td><td>${esc(o.period)}</td><td>${money(o.amount)}</td><td>${o.mode === "sandbox" ? "Test" : "Réel"}</td><td>${o.status === "paid" ? "Confirmé" : "En attente"}</td><td>${o.status === "pending" ? `<button class="secondary" data-verify-order="${o.id}">Vérifier la transaction</button>` : "—"}</td></tr>`,
+                `<tr><td>${esc(student(o.student)?.name || "—")}</td><td>${esc(o.period)}</td><td>${money(o.amount)}</td><td>${o.mode === "sandbox" ? "Test" : "Réel"}</td><td>${o.status === "paid" ? "Confirmé" : o.status === "cash_authorized" ? "Présentiel autorisé · en ligne non confirmé" : "En attente"}</td><td><div class="row-actions">${["pending", "cash_authorized"].includes(o.status) ? `<button class="secondary" data-verify-order="${esc(o.id)}">Vérifier la transaction</button>` : ""}${role === "admin" && o.mode === "live" && o.status === "pending" ? `<button class="secondary" data-authorize-cash="${esc(o.id)}">Autoriser la caisse</button>` : ""}</div></td></tr>`,
             ),
           ),
         )
@@ -804,6 +823,30 @@ function verifyOrderForm(id) {
   };
   $("modal").showModal();
 }
+function authorizeCashForm(id) {
+  if (role !== "admin") return;
+  const order = paymentOrders.find((candidate) => candidate.id === id && candidate.mode === "live" && candidate.status === "pending");
+  if (!order) return toast("Cette échéance a changé. Actualisez les paiements.");
+  $("modal-title").textContent = "Autoriser le paiement en présentiel";
+  $("fields").innerHTML = `<p><strong>${esc(student(order.student)?.name || "Élève")}</strong> · ${esc(order.period)} · ${money(order.amount)}</p><p class="helper">Cette tentative de paiement en ligne n’a pas été confirmée. Si le parent dispose d’une référence de transaction, vérifiez-la d’abord avec « Vérifier la transaction ».</p><p class="helper">Après vérification avec le parent, vous pouvez autoriser le caissier à recevoir des espèces. Cette action n’enregistre aucun paiement. Si un paiement en ligne est confirmé plus tard, les deux sommes resteront visibles dans les comptes.</p><label style="display:flex;align-items:flex-start;gap:12px"><input id="f-confirmedUnpaid" type="checkbox" required style="width:auto;margin-top:3px"><span>J’ai vérifié avec le parent que ce paiement en ligne n’a pas été effectué.</span></label>`;
+  $("error").textContent = "";
+  const submit = $("form").querySelector('button[type="submit"]');
+  submit.textContent = "Autoriser la caisse";
+  $("modal").onclose = () => { submit.textContent = "Enregistrer"; };
+  $("form").onsubmit = async (event) => {
+    event.preventDefault();
+    if (!$("f-confirmedUnpaid").checked) return;
+    submit.disabled = true;
+    try {
+      await schoolAPI.request("/api/admin/payment-orders/" + encodeURIComponent(id) + "/authorize-cash", "POST", { confirmedUnpaid: true });
+      $("modal").close();
+      await refresh(); render();
+      toast("La caisse est autorisée pour cet élève et ce mois.");
+    } catch (error) { if (error.status === 401) handleError(error); else $("error").textContent = error.message; }
+    finally { submit.disabled = false; }
+  };
+  $("modal").showModal();
+}
 function showReceipt(id) {
   const p = db.payments.find((p) => p.id === id);
   if (!p) return;
@@ -812,7 +855,7 @@ function showReceipt(id) {
       ? "Reçu de test — sans valeur de paiement"
       : "Reçu de paiement";
   $("fields").innerHTML =
-    `<div class="receipt"><h3>${esc(catalogue.name)}</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois : ${esc(p.period)}</p><p>Montant : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
+    `<div class="receipt"><h3>${esc(catalogue.name)}</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois : ${esc(p.period)}</p><p>Montant : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : p.source === "Caisse" ? "Caisse en présentiel · espèces" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
   $("error").textContent = "";
   $("form").querySelector('button[type="submit"]').textContent =
     "Imprimer le reçu";
@@ -831,7 +874,7 @@ function accountsPage() {
     ["Identifiant", "Rôle", "Dossier lié", "Statut", "Actions"],
     users.map(
       (u) =>
-        `<tr><td>${esc(u.username)}</td><td>${esc({ admin: "Administrateur", teacher: "Enseignant", student: "Élève" }[u.role])}</td><td>${esc(u.role === "teacher" ? teacher(u.entityId)?.name : u.role === "student" ? student(u.entityId)?.name : "Administration")}</td><td><span class="badge ${u.enabled ? "" : "orange"}">${u.enabled ? "Actif" : "Désactivé"}</span></td><td>${u.id === user.id ? "Votre compte" : `<div class="row-actions"><button class="secondary" data-toggle-user="${u.id}">${u.enabled ? "Désactiver" : "Activer"}</button><button class="secondary" data-reset-user="${u.id}">Réinitialiser le mot de passe</button></div>`}</td></tr>`,
+        `<tr><td>${esc(u.username)}</td><td>${esc({ admin: "Responsable / administrateur", cashier: "Caissier", teacher: "Enseignant", student: "Élève" }[u.role])}</td><td>${esc(u.role === "teacher" ? teacher(u.entityId)?.name : u.role === "student" ? student(u.entityId)?.name : u.role === "cashier" ? "Caisse en présentiel" : "Administration")}</td><td><span class="badge ${u.enabled ? "" : "orange"}">${u.enabled ? "Actif" : "Désactivé"}</span></td><td>${u.id === user.id ? "Votre compte" : `<div class="row-actions"><button class="secondary" data-toggle-user="${u.id}">${u.enabled ? "Désactiver" : "Activer"}</button><button class="secondary" data-reset-user="${u.id}">Réinitialiser le mot de passe</button></div>`}</td></tr>`,
     ),
   )}<p class="helper">Les autorisations sont contrôlées côté serveur. Désactiver un compte ou réinitialiser son mot de passe ferme ses sessions.</p><button class="secondary" id="export">Exporter les dossiers (JSON)</button></div>`;
 }
@@ -842,6 +885,7 @@ function openUserForm() {
     field("role", "Rôle", "text", [
       ["student", "Élève"],
       ["teacher", "Enseignant"],
+      ["cashier", "Caissier"],
       ["admin", "Administrateur"],
     ]) +
     field("entityId", "Dossier lié", "text", []) +
@@ -860,9 +904,11 @@ function openUserForm() {
     $("f-entityId").innerHTML = available
       .map((x) => `<option value="${esc(x.id)}">${esc(x.name)}</option>`)
       .join("");
-    $("f-entityId").hidden = r === "admin";
-    $("f-entityId").previousElementSibling.hidden = r === "admin";
-    $("f-entityId").required = r !== "admin";
+    const linked = ["teacher", "student"].includes(r);
+    $("f-entityId").hidden = !linked;
+    $("f-entityId").previousElementSibling.hidden = !linked;
+    $("f-entityId").required = linked;
+    $("f-entityId").disabled = !linked;
   };
   $("f-role").onchange = sync;
   sync();
@@ -1021,11 +1067,13 @@ $("logout").onclick = async () => {
     const result = await schoolAPI.request("/api/auth/me");
     user = result.user;
     role = user.role;
+    if (!["admin", "cashier", "teacher", "student"].includes(role)) throw new Error("Ce compte n’a pas d’espace autorisé.");
+    if (role === "cashier") page = "cashier";
     identity = user.entityId || "";
     $("account-name").textContent =
       user.username +
       " · " +
-      { admin: "Administration", teacher: "Enseignant", student: "Élève" }[
+      { admin: "Administration", cashier: "Caisse", teacher: "Enseignant", student: "Élève" }[
         role
       ];
     $("connection-status").textContent =

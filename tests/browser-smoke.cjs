@@ -162,7 +162,7 @@ const { createApplication } = require("../lib/application");
     await p.locator("#f-period").fill("2026-11");
     await p.locator('#form button[type="submit"]').click();
     await p
-      .getByRole("cell", { name: "Saisie manuelle", exact: true })
+      .getByRole("cell", { name: "Saisie administrative", exact: true })
       .waitFor();
     await p.evaluate(() => {
       window.print = () => {

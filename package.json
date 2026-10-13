@@ -15,7 +15,8 @@
     "build:cloud": "node scripts/build-cloud.js",
     "test:cloud": "node --test tests/cloud.integration.cjs tests/cloud-concurrency.cjs",
     "test:cloud:browser": "node scripts/test-cloud-browser.js",
-    "test:browser:platform": "node tests/browser-platform.cjs"
+    "test:browser:platform": "node tests/browser-platform.cjs",
+    "test:browser:cashier": "node tests/browser-cashier.cjs"
   },
   "dependencies": {
     "express": "5.1.0",

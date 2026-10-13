@@ -1,0 +1,112 @@
+.cashier-intro { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin:4px 0 24px; }
+.cashier-eyebrow { color:#7790ad; font-size:10px; letter-spacing:1.8px; text-transform:uppercase; }
+.cashier-intro h2 { color:#173965; font-size:25px; margin:10px 0; }
+.cashier-intro p { max-width:680px; margin:0; color:#607594; font-size:14px; line-height:1.7; }
+.cashier-access { display:block; border:1px solid #d6e4dd; background:#edf8f1; color:#277153; border-radius:20px; font-size:11px; padding:9px 14px; white-space:nowrap; }
+.cashier-filters { display:flex; align-items:flex-end; flex-wrap:wrap; gap:12px; background:#fff; border:1px solid #e3e9f3; border-radius:16px; padding:18px; margin-bottom:22px; }
+.cashier-filters label { display:grid; gap:7px; font-size:12px; color:#607594; font-weight:600; flex:1; min-width:140px; }
+.cashier-filters input,.cashier-filters select { min-width:0; width:100%; box-sizing:border-box; }
+.cashier-filters .cashier-search-label { flex:2; min-width:210px; }
+.cashier-filters button { min-height:42px; }
+.cashier-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:22px; }
+.cashier-metric { border-top:3px solid #dce5f3; min-width:0; }
+.cashier-metric.cash { border-top-color:#339472; }
+.cashier-metric.online { border-top-color:#467ce1; }
+.cashier-metric.due { border-top-color:#e5b448; }
+.cashier-metric strong { font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.cashier-students,.cashier-history { padding:22px; margin-bottom:22px; min-width:0; }
+.cashier-students .panel-head,.cashier-history .panel-head { align-items:flex-start; gap:12px; margin-bottom:16px; }
+.cashier-note { color:#607594; font-size:12px; line-height:1.7; margin:12px 0 18px; }
+.cashier-student-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.cashier-student-card { border:1px solid #e1e8f2; border-radius:13px; padding:20px; background:#fff; min-width:0; }
+.cashier-student-heading { display:flex; align-items:flex-start; justify-content:space-between; gap:10px; }
+.cashier-student-heading > div { min-width:0; }
+.cashier-student-card h3 { color:#173965; margin:0 0 7px; font-size:16px; overflow-wrap:anywhere; }
+.cashier-student-heading p { color:#607594; font-size:12px; line-height:1.6; margin:0; overflow-wrap:anywhere; }
+.cashier-status { font-size:10px; font-weight:600; padding:7px 9px; border-radius:7px; flex:none; text-align:center; max-width:130px; }
+.cashier-status.settled { color:#277153; background:#e7f6ee; }
+.cashier-status.partial { color:#8a651d; background:#fff5d7; }
+.cashier-status.due { color:#a45627; background:#fff0e3; }
+.cashier-status.suspended { color:#68768c; background:#eff2f7; }
+.cashier-parent { color:#607594; font-size:12px; line-height:1.6; margin:12px 0; overflow-wrap:anywhere; }
+.cashier-enrollment { color:#8a651d; font-size:11px; line-height:1.6; display:block; margin-bottom:12px; }
+.cashier-amounts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; margin:18px 0 12px; border-top:1px solid #edf1f7; padding-top:16px; }
+.cashier-amounts div { min-width:0; }
+.cashier-amounts dt { color:#7890ac; font-size:10px; line-height:1.5; }
+.cashier-amounts dd { color:#173965; margin:6px 0 0; font-size:13px; font-weight:650; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.cashier-amounts .cashier-balance dd { color:#a45627; }
+.cashier-channel-detail { font-size:10px; line-height:1.8; color:#607594; margin:0 0 15px; }
+.cashier-collect { width:100%; box-sizing:border-box; }
+.cashier-blocked { color:#996227; background:#fff8e6; padding:10px 12px; border-radius:8px; font-size:11px; line-height:1.6; }
+.cashier-history-count { color:#607594; background:#f2f5fa; border-radius:20px; padding:7px 11px; font-size:11px; white-space:nowrap; }
+.cashier-receipt-row { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(140px,.8fr); gap:18px; border-top:1px solid #e8edf5; padding:18px 0; align-items:start; }
+.cashier-receipt-person,.cashier-receipt-details { min-width:0; display:grid; gap:5px; }
+.cashier-receipt-row strong { color:#173965; font-size:13px; }
+.cashier-receipt-row span { color:#607594; font-size:11px; line-height:1.6; }
+.cashier-receipt-row small { color:#8496ae; font-size:10px; line-height:1.6; overflow-wrap:anywhere; }
+.cashier-receipt-actions { display:grid; gap:7px; }
+.cashier-receipt-actions button { font-size:11px; padding:9px 12px; white-space:normal; line-height:1.5; }
+.cashier-loading { padding:30px; color:#607594; }
+.cashier-error { padding:24px; }
+.cashier-error p,.cashier-dialog-error { color:#a74242; line-height:1.6; font-size:12px; }
+.cashier-dialog { width:570px; max-width:calc(100vw - 28px); box-sizing:border-box; color:#173965; max-height:calc(100dvh - 32px); overflow:auto; }
+.cashier-dialog .dialog-head { gap:14px; margin-bottom:18px; }
+.cashier-dialog .dialog-head h2 { font-size:21px; line-height:1.35; }
+.cashier-dialog .icon-button { flex:none; }
+.cashier-dialog-student { display:grid; gap:5px; padding:16px; border:1px solid #dce5f2; background:#f7f9fd; border-radius:10px; }
+.cashier-dialog-student strong { font-size:16px; overflow-wrap:anywhere; }
+.cashier-dialog-student span { color:#607594; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
+.cashier-dialog-summary { display:grid; gap:10px; font-size:12px; margin:22px 0; }
+.cashier-dialog-summary > div { display:flex; justify-content:space-between; gap:15px; }
+.cashier-dialog-summary dt { color:#607594; }
+.cashier-dialog-summary dd { margin:0; text-align:right; font-weight:600; }
+.cashier-dialog-summary > div:last-child { border-top:1px solid #e6edf5; padding-top:13px; }
+.cashier-dialog input { box-sizing:border-box; font-variant-numeric:tabular-nums; }
+.cashier-dialog label { color:#607594; }
+.cashier-dialog-buttons { display:flex; gap:10px; margin-top:20px; }
+.cashier-dialog-buttons button { flex:1; min-width:0; margin-top:0; width:auto; line-height:1.5; }
+.cashier-dialog-buttons .primary { flex:1.7; }
+.cashier-confirm-amount { text-align:center; padding:24px 12px 12px; }
+.cashier-confirm-amount > span { color:#607594; font-size:12px; }
+.cashier-confirm-amount strong { display:block; font-size:32px; margin:12px 0; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+.cashier-confirm-amount p { color:#607594; font-size:13px; margin:0; }
+.cashier-confirm-note { font-size:12px; color:#277153; line-height:1.7; background:#edf8f1; padding:12px; border-radius:8px; }
+.cashier-success { display:flex; align-items:center; gap:16px; background:#e7f6ee; padding:22px 18px; border-radius:10px; margin:20px 0 15px; }
+.cashier-success > span { color:#277153; width:40px; height:40px; border:1px solid #b2dac5; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px; flex:none; }
+.cashier-success > div { min-width:0; }
+.cashier-success strong { font-size:23px; color:#277153; overflow-wrap:anywhere; }
+.cashier-success p { font-size:12px; color:#39775e; line-height:1.6; margin:7px 0 0; }
+.cashier-receipt-reference { color:#607594; font-size:11px; line-height:1.6; overflow-wrap:anywhere; }
+.cashier-dialog-receipt-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.cashier-dialog-receipt-actions .primary { grid-column:1/-1; }
+.cashier-dialog-done { width:100%; margin-top:15px; }
+.cashier-filters input:focus-visible,.cashier-filters select:focus-visible,.cashier-dialog input:focus-visible { outline:3px solid #7399ef; outline-offset:2px; }
+@media (max-width:1100px) {
+  .cashier-student-grid { grid-template-columns:1fr; }
+  .cashier-metric strong { font-size:22px; }
+}
+@media (max-width:700px) {
+  .cashier-intro { flex-direction:column; gap:12px; }
+  .cashier-intro h2 { font-size:22px; }
+  .cashier-filters { padding:14px; }
+  .cashier-filters label,.cashier-filters .cashier-search-label { flex-basis:100%; min-width:0; }
+  .cashier-filters button { width:100%; }
+  .cashier-metrics { grid-template-columns:1fr; gap:10px; }
+  .cashier-metric { padding:16px 20px; }
+  .cashier-students,.cashier-history { padding:16px; }
+  .cashier-students .panel-head { flex-wrap:wrap; }
+  .cashier-student-card { padding:16px; }
+  .cashier-student-heading { flex-wrap:wrap; }
+  .cashier-student-heading .cashier-status { max-width:none; }
+  .cashier-amounts { gap:8px; }
+  .cashier-amounts dd { font-size:12px; }
+  .cashier-receipt-row { grid-template-columns:1fr; gap:12px; }
+  .cashier-receipt-actions { display:flex; flex-wrap:wrap; gap:8px; }
+  .cashier-receipt-actions button { flex:1; }
+  .cashier-dialog { padding:20px; }
+  .cashier-dialog-buttons { flex-direction:column-reverse; }
+  .cashier-dialog-buttons button { width:100%; }
+  .cashier-dialog-summary > div { gap:10px; }
+  .cashier-confirm-amount strong { font-size:28px; }
+  .cashier-dialog-receipt-actions { grid-template-columns:1fr; }
+}

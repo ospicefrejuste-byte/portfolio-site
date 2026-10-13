@@ -41,21 +41,29 @@ Dans **Élèves**, **Bulletin PDF** télécharge le bilan de l’élève avec se
 
 Après une saisie importante, actualisez la page pour vérifier qu’elle reste enregistrée. Si une erreur apparaît, corrigez la saisie ou la connexion avant de continuer.
 
-## 4. Paiements reçus sur place
+## 4. Caisse en présentiel et reçus
 
-Le paiement en ligne est reporté jusqu’à la configuration du compte KKiaPay du client. Une préinscription reste reçue même si le site affiche que ce paiement n’est pas activé.
+Le paiement en ligne est reporté jusqu’à la configuration du compte KKiaPay du client. Une préinscription reste reçue même si ce paiement n’est pas activé. La caisse fonctionne indépendamment de cette activation.
 
-Pour un règlement effectivement reçu par l’établissement :
+Le responsable crée le compte personnel du caissier dans **Comptes & accès → Créer un compte**, avec le rôle **Caissier**. Aucun dossier élève ou enseignant n’est à relier. Le caissier se connecte sur la même page de connexion, change son mot de passe initial et arrive directement dans **Caisse en présentiel**. Seuls les caissiers et responsables peuvent utiliser cette partie. Le caissier ne voit ni notes, ni planning, ni gestion des comptes, ni transactions en ligne détaillées.
 
-1. Ouvrez **Paiements**, puis ajoutez un paiement.
-2. Choisissez l’élève et saisissez le **Montant reçu (FCFA)**.
-3. Renseignez le **Mois concerné**, c’est-à-dire le mois de cours payé.
-4. Renseignez la **Date du paiement**, c’est-à-dire le jour où l’argent a été reçu, puis enregistrez.
-5. Cliquez sur **Reçu** pour consulter le justificatif et l’imprimer si nécessaire, ou sur **Télécharger PDF** pour obtenir le fichier.
+Pour un règlement effectivement reçu en espèces :
 
-Une saisie manuelle enregistre votre déclaration ; elle ne déclenche aucun transfert d’argent. N’enregistrez pas de paiement fictif pour tester la caisse : ces montants entreraient dans les statistiques réelles. Évitez les doublons et vérifiez montant, élève et mois avant de remettre le reçu.
+1. Ouvrez **Caisse en présentiel** et choisissez le **Mois concerné**, c’est-à-dire le mois de cours payé.
+2. Recherchez l’élève par son nom, le parent ou le téléphone. Vous pouvez filtrer par classe et centre.
+3. Vérifiez la mensualité, les sommes déjà réglées et le reste à payer, puis cliquez sur **Encaisser en espèces**.
+4. Saisissez la somme remise. Un règlement partiel est possible. Vérifiez le récapitulatif et cliquez sur **Confirmer l’encaissement** après réception de l’argent.
+5. Téléchargez le **reçu PDF** pour l’imprimer. Il indique l’élève, le mois, le montant, le caissier et une référence unique.
 
-Les paiements confirmés par KKiaPay sont distingués des saisies manuelles. Ils ne peuvent pas être modifiés comme un reçu manuel. Les transactions **Test confirmé** correspondent au mode sandbox et sont exclues des encaissements réels.
+Le dossier affiche **Partiellement payé** s’il reste une somme due, puis **Payé** quand la mensualité est entièrement réglée. Les paiements en ligne confirmés réduisent également ce reste ; les transactions de test sont exclues. Le tarif actuel du dossier est utilisé pour le mois choisi. Le paiement d’une préinscription ne valide pas automatiquement l’inscription : le responsable reste chargé de vérifier son dossier.
+
+Le serveur enregistre le paiement dans la même base que l’administration. Une nouvelle tentative du même formulaire après une erreur réseau retrouve le même reçu sans ajouter un second encaissement. Un paiement en ligne réel déjà en attente doit être vérifié par le responsable avant de recevoir des espèces pour le même mois. Dans **Paiements → Échéances en ligne**, le responsable utilise **Vérifier la transaction** si le parent possède sa référence. Si la tentative a été abandonnée et qu’aucun paiement n’a été effectué, **Autoriser la caisse** lui permet de confirmer cette vérification et de débloquer l’encaissement en présentiel. Cette autorisation est tracée et ne compte pas comme un paiement. Une confirmation en ligne tardive reste enregistrée : vérifiez toute avance ou double règlement avec la famille.
+
+**Partager le PDF** propose le partage du fichier sur les appareils compatibles. À défaut, le fichier est téléchargé pour être joint à un message. **Préparer WhatsApp** demande le numéro complet du parent avec l’indicatif du pays et prépare un message modifiable. Joignez le PDF téléchargé dans WhatsApp avant d’envoyer. Le site n’envoie aucun message automatiquement.
+
+Les reçus de caisse restent disponibles dans l’historique avec le nom du caissier. Ils ne peuvent pas être modifiés ou supprimés. Vérifiez élève, mois et somme avant confirmation ; si une erreur est constatée, signalez-la au responsable technique avant toute nouvelle saisie.
+
+Dans **Paiements**, l’administration voit deux parties : **Paiements en ligne** et **Encaissements en présentiel**. Le filtre **Type d’encaissement** distingue en ligne, présentiel et tests. Les anciennes saisies administratives sont conservées et classées en présentiel. La saisie administrative historique reste réservée au responsable ; utilisez la nouvelle caisse pour les encaissements du jour.
 
 ## 5. Mensualités, tableau de bord et statistiques
 
@@ -66,7 +74,7 @@ Dans **Mensualités**, choisissez le mois : le site distingue attendu, reçu, re
 Les filtres **Classe**, **Centre** et **Mois des paiements** permettent de consulter un périmètre. **Réinitialiser** rétablit les filtres par défaut.
 
 - **Dossiers élèves** comprend les préinscriptions et les autres dossiers ; **Inscriptions validées** compte le statut Inscrit.
-- **Encaissements réels** et leur évolution utilisent la date à laquelle l’argent a été reçu, hors transactions de test.
+- **Encaissements réels** et leur évolution utilisent la date à laquelle l’argent a été reçu, hors transactions de test. **En ligne** et **En présentiel** affichent séparément ces deux sources de recettes.
 - Le suivi du mois de cours payé utilise le **Mois concerné**. Un règlement reçu en un mois pour les cours du mois suivant est donc compté dans deux périodes différentes selon l’indicateur consulté.
 - Les enseignants affectés et les séances proviennent du planning. Le classement des enseignants mesure leur charge, par élèves accompagnés puis séances, et ne mesure pas leur qualité pédagogique.
 - Le taux de présence compte présents et retards parmi les statuts renseignés, hors excusés. La moyenne rassemble les notes du périmètre ; ce n’est pas un bulletin scolaire pondéré.
@@ -77,7 +85,7 @@ Les indicateurs dépendent des saisies : vérifiez les dossiers, le planning et 
 
 Dans **Comptes & accès**, utilisez un identifiant individuel et un mot de passe initial d’au moins 12 caractères. Le titulaire doit choisir son mot de passe personnel à sa première connexion. Transmettez les accès par un moyen privé convenu avec lui, jamais dans une conversation de projet ou une capture.
 
-Pour remettre l’administration au client : créez un compte au rôle **Administrateur**, faites-lui effectuer sa première connexion et son changement de mot de passe, puis vérifiez son accès. Conservez au moins un administrateur actif. Un second compte de secours peut être réservé à une personne de confiance ; il doit rester individuel et conservé en privé.
+Pour remettre l’administration au client : créez un compte au rôle **Responsable / administrateur**, faites-lui effectuer sa première connexion et son changement de mot de passe, puis vérifiez son accès. Conservez au moins un administrateur actif. Un second compte de secours peut être réservé à une personne de confiance ; il doit rester individuel et conservé en privé.
 
 **Mon mot de passe** change votre propre mot de passe. **Réinitialiser le mot de passe** d’un autre compte impose un nouveau changement à son titulaire et ferme ses anciennes sessions. **Désactiver** ferme également les sessions du compte. Déconnectez-vous après utilisation sur un appareil partagé.
 

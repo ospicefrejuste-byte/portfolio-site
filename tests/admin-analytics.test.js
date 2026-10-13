@@ -55,6 +55,21 @@ test("Les paiements de test restent exclus et les filtres limitent les élèves 
   assert.match(trend, /oct\. 26<\/span><strong>1000 FCFA/);
 });
 
+test("Les recettes en ligne et en présentiel sont séparées sans inclure les tests", () => {
+  const { run } = analytics({ students: [pupil("payer")], payments: [
+    { student: "payer", amount: 1000, source: "Caisse", period: "2026-09", date: "2026-10-13" },
+    { student: "payer", amount: 500, period: "2026-10", date: "2026-10-13" },
+    { student: "payer", amount: 2000, source: "KKiaPay", mode: "live", period: "2026-10", date: "2026-10-13" },
+    { student: "payer", amount: 3000, source: "KKiaPay", mode: "sandbox", period: "2026-10", date: "2026-10-13" },
+    { student: "payer", amount: 9000, source: "Caisse", period: "2026-10", date: "2026-09-13" },
+  ] });
+  run("scopeMonth='2026-10'");
+  const html = run("counters()");
+  assert.equal(metric(html, "En ligne"), "2000 FCFA");
+  assert.equal(metric(html, "En présentiel"), "1500 FCFA");
+  assert.equal(metric(html, "Encaissements réels"), "3500 FCFA");
+});
+
 test("Le planning exclut les séances terminées et conserve celles en cours ou à venir", () => {
   const student = pupil("s");
   const session = (id, date, time, duration = 60, group = student.group) => ({ id, subject: id, group, date, time, duration });

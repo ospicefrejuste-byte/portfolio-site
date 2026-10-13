@@ -62,9 +62,32 @@ test("Le reçu distingue les paiements réels et les essais et garde les référ
   assert.match(realText, /receipt-123/);
   assert.match(realText, /transaction-456/);
   assert.match(realText, /13\/10\/2026/);
+  assert.match(realText, /En ligne — KKiaPay — transaction confirmée/);
   assert.doesNotMatch(realText, /TRANSACTION DE TEST/);
   const trial = await createPaymentReceipt({ student, payment: { ...payment, mode: "sandbox" } });
   assert.match(extract(trial), /TRANSACTION DE TEST — AUCUN RÈGLEMENT RÉEL/);
+});
+
+test("Le reçu de caisse identifie le parent et le caissier avec une référence complète", { skip: !canExtract }, async () => {
+  const student = { id: "internal-pupil-id", name: "Élève Camille", class: "5e", centre: "Centre École", guardian: "Parent Camille" };
+  const payment = {
+    id: "642111d7-b523-48dd-8332-9dcb3e037014", student: student.id,
+    amount: 4500, period: "2026-10", date: "2026-10-13", source: "Caisse", channel: "cash",
+    collectedByName: "caissière-école", collectedBy: "internal-user-id", idempotencyKey: "secret-operation-key",
+  };
+  const buffer = await createPaymentReceipt({ student, payment, school: { name: "Établissement de test" } });
+  assertPdf(buffer);
+  const output = extract(buffer);
+  assert.match(output, /En présentiel — espèces/);
+  assert.match(output, /4 500 FCFA/);
+  assert.match(output, /Mensualité : 2026-10/);
+  assert.match(output, /Responsable de l’élève : Parent Camille/);
+  assert.match(output, /Encaissé par : caissière-école/);
+  assert.match(output, /642111d7-b523-48dd-8332-9dcb3e037014/);
+  assert.doesNotMatch(output, /internal-pupil-id|internal-user-id|secret-operation-key|TRANSACTION DE TEST|KKiaPay/);
+  const legacy = extract(await createPaymentReceipt({ student, payment: { id: "old-receipt", amount: 1000, period: "2026-10", date: "2026-10-13" } }));
+  assert.match(legacy, /En présentiel — saisie administrative/);
+  assert.match(legacy, /Non renseigné \(ancien enregistrement\)/);
 });
 
 test("Les bilans longs sont paginés et les dossiers avec références manquantes restent exportables", async () => {
