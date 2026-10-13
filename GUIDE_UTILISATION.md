@@ -1,6 +1,6 @@
 # Utiliser la plateforme de cours de renforcement
 
-Ce guide accompagne le superviseur et la remise du site à l’établissement. Les inscriptions sont enregistrées dans la base commune : elles sont visibles depuis un autre appareil après connexion. L’accès à l’administration exige un compte autorisé. Le lien Administration depuis l’accueil redemande les identifiants et ferme la session précédente avant la nouvelle connexion.
+Ce guide accompagne le superviseur et la remise du site à l’établissement. Les inscriptions sont enregistrées dans la base commune : elles sont visibles depuis un autre appareil après connexion. Sur l’accueil, **Administration** ouvre la connexion du responsable et **Caisse** ouvre celle du caissier ou du responsable. Ces deux accès redemandent les identifiants et ferment la session précédente avant la nouvelle connexion. Le compte caissier ne donne pas accès à l’administration.
 
 ## 1. Accueil des familles et validation des dossiers
 
@@ -31,9 +31,18 @@ Le site refuse les chevauchements pour un même enseignant, un même groupe ou u
 
 Créer une fiche enseignant ne crée pas son accès personnel. Si l’établissement veut lui donner accès, créez séparément son compte dans **Comptes & accès**, avec le rôle **Enseignant** et le dossier correspondant. Il verra ses séances et les élèves concernés, pourra saisir les présences et les notes, mais n’aura pas accès à la gestion financière.
 
-## 3. Présences et notes
+## 3. Présences du jour, présences par cours et notes
 
-Dans **Présences**, choisissez la séance, puis sélectionnez **Présent**, **Absent**, **Retard** ou **Excusé** pour chaque élève. Chaque changement s’enregistre immédiatement : attendez le message de confirmation. Pour corriger une saisie, changez le statut ; **Non renseigné** retire la présence enregistrée pour cette séance.
+Le caissier et le responsable utilisent **Présences du jour** pour faire le pointage de la classe, même si aucune séance n’a été créée dans le planning :
+
+1. Vérifiez le **Jour du cours**, proposé à la date du jour.
+2. Choisissez l’**École**, puis la **Classe**. La liste des élèves s’affiche sans saisir de nom.
+3. Cochez **Présent** ou **Absent** devant chaque élève. Le menu **Élève** permet de sélectionner un seul dossier ; **Toute la classe** réaffiche la liste complète.
+4. Cliquez sur **Enregistrer les présences** et attendez la confirmation. Les choix ne sont pas enregistrés avant ce clic. **Non renseigné** permet de retirer un statut ; aucun élève n’est marqué absent automatiquement.
+
+Les présences enregistrées sont partagées avec le responsable dans la même rubrique, dans les statistiques et dans le bulletin de l’élève. Les préinscriptions sont identifiées dans la liste. Le pointage retient une présence par élève et par jour. Avant de changer de date, d’école ou de classe, enregistrez les modifications ou utilisez **Abandonner les modifications**. Si un autre compte a modifié le pointage, les choix en cours sont conservés : abandonnez-les puis actualisez la liste pour vérifier les dernières présences avant de recommencer. Une sauvegarde peut porter sur 200 élèves au maximum ; enregistrez ce premier lot avant de poursuivre.
+
+Dans **Présences par cours**, le responsable ou l’enseignant choisit une séance, puis sélectionne **Présent**, **Absent**, **Retard** ou **Excusé** pour chaque élève. Chaque changement s’enregistre immédiatement : attendez le message de confirmation. Pour corriger une saisie, changez le statut ; **Non renseigné** retire la présence enregistrée pour cette séance. Ce suivi par séance reste distinct du pointage quotidien : renseigner l’un ne remplit pas automatiquement l’autre. Le caissier utilise uniquement **Présences du jour**.
 
 Dans **Notes & résultats**, ajoutez une évaluation en choisissant d’abord le cours. La liste des élèves est limitée au groupe de ce cours. Indiquez le nom de l’évaluation et une note entre 0 et 20. Utilisez la recherche pour retrouver un élève ou une évaluation ; **Modifier** permet de corriger une note.
 
@@ -45,12 +54,12 @@ Après une saisie importante, actualisez la page pour vérifier qu’elle reste 
 
 Le paiement en ligne est reporté jusqu’à la configuration du compte KKiaPay du client. Une préinscription reste reçue même si ce paiement n’est pas activé. La caisse fonctionne indépendamment de cette activation.
 
-Le responsable crée le compte personnel du caissier dans **Comptes & accès → Créer un compte**, avec le rôle **Caissier**. Aucun dossier élève ou enseignant n’est à relier. Le caissier se connecte sur la même page de connexion, change son mot de passe initial et arrive directement dans **Caisse en présentiel**. Seuls les caissiers et responsables peuvent utiliser cette partie. Le caissier ne voit ni notes, ni planning, ni gestion des comptes, ni transactions en ligne détaillées.
+Le responsable crée le compte personnel du caissier dans **Administration → Comptes & accès → Créer un compte**, avec le rôle **Caissier**, un identifiant individuel et un mot de passe initial d’au moins 12 caractères. Aucun dossier élève ou enseignant n’est à relier. Il remet ces accès au caissier par un moyen privé. Depuis l’accueil, le caissier clique sur **Caisse**, saisit les accès reçus, change son mot de passe initial et arrive dans **Caisse en présentiel**. Il dispose également de **Présences du jour**. Seuls les caissiers et responsables peuvent utiliser ces deux rubriques. Le caissier ne voit ni notes, ni planning, ni gestion des comptes, ni transactions en ligne détaillées ; le bouton **Administration** refuse son compte.
 
 Pour un règlement effectivement reçu en espèces :
 
 1. Ouvrez **Caisse en présentiel** et choisissez le **Mois concerné**, c’est-à-dire le mois de cours payé.
-2. Recherchez l’élève par son nom, le parent ou le téléphone. Vous pouvez filtrer par classe et centre.
+2. Choisissez l’**École / centre**, puis la **Classe** et l’**Élève de la classe** dans les menus déroulants. Il n’est pas nécessaire d’écrire le nom. Une recherche par élève, parent ou téléphone reste disponible si besoin.
 3. Vérifiez la mensualité, les sommes déjà réglées et le reste à payer, puis cliquez sur **Encaisser en espèces**.
 4. Saisissez la somme remise. Un règlement partiel est possible. Vérifiez le récapitulatif et cliquez sur **Confirmer l’encaissement** après réception de l’argent.
 5. Téléchargez le **reçu PDF** pour l’imprimer. Il indique l’élève, le mois, le montant, le caissier et une référence unique.
@@ -71,13 +80,14 @@ Dans **Mensualités**, choisissez le mois : le site distingue attendu, reçu, re
 
 **Préparer un rappel** ouvre un brouillon modifiable pour la famille. La plateforme ne l’envoie pas : relisez-le, copiez-le et transmettez-le vous-même. **Enregistrer un règlement** ouvre la saisie du paiement pour l’élève et le mois choisis.
 
-Les filtres **Classe**, **Centre** et **Mois des paiements** permettent de consulter un périmètre. **Réinitialiser** rétablit les filtres par défaut.
+Les filtres **Classe**, **Centre** et **Mois des encaissements et présences du jour** permettent de consulter un périmètre. **Réinitialiser** rétablit les filtres par défaut.
 
 - **Dossiers élèves** comprend les préinscriptions et les autres dossiers ; **Inscriptions validées** compte le statut Inscrit.
 - **Encaissements réels** et leur évolution utilisent la date à laquelle l’argent a été reçu, hors transactions de test. **En ligne** et **En présentiel** affichent séparément ces deux sources de recettes.
 - Le suivi du mois de cours payé utilise le **Mois concerné**. Un règlement reçu en un mois pour les cours du mois suivant est donc compté dans deux périodes différentes selon l’indicateur consulté.
 - Les enseignants affectés et les séances proviennent du planning. Le classement des enseignants mesure leur charge, par élèves accompagnés puis séances, et ne mesure pas leur qualité pédagogique.
-- Le taux de présence compte présents et retards parmi les statuts renseignés, hors excusés. La moyenne rassemble les notes du périmètre ; ce n’est pas un bulletin scolaire pondéré.
+- **Présences du jour** compte les pointages quotidiens présents et absents du mois sélectionné, séparément des présences par séance. Les jours non renseignés ne sont pas comptés dans le taux.
+- Le taux de présence par cours compte présents et retards parmi les statuts renseignés, hors excusés. La moyenne rassemble les notes du périmètre ; ce n’est pas un bulletin scolaire pondéré.
 
 Les indicateurs dépendent des saisies : vérifiez les dossiers, le planning et les paiements avant de tirer une conclusion.
 
@@ -99,7 +109,7 @@ Cet export ne constitue pas une sauvegarde complète de PostgreSQL : il ne conti
 
 ## 8. Vérifications avant la remise
 
-Vérifiez la connexion et la déconnexion, une inscription depuis un autre navigateur, sa validation, un enseignant, une séance, une présence, une note et l’export. Utilisez des dossiers clairement fictifs pour les essais pédagogiques et conservez les vrais dossiers. Les dossiers utilisés par des comptes, cours ou résultats ne se suppriment pas sans traiter leurs liens.
+Vérifiez la connexion et la déconnexion, une inscription depuis un autre navigateur, sa validation, un enseignant, une séance, une présence par cours, une note et l’export. Testez également l’accès **Caisse** avec un compte caissier : sélection école / classe / élève, encaissement effectivement reçu, reçu PDF et pointage **Présences du jour** visible par le responsable. Vérifiez que ce compte n’accède pas à l’administration. Utilisez des dossiers clairement fictifs pour les essais pédagogiques et conservez les vrais dossiers. Les dossiers utilisés par des comptes, cours ou résultats ne se suppriment pas sans traiter leurs liens.
 
 Plus tard, le client ajoutera ses clés KKiaPay publique, privée et secrète directement dans les variables Netlify, en privé. Gardez le mode sandbox pour tester le parcours complet et la vérification serveur avant toute activation réelle. Aucun paiement réel KKiaPay n’est présenté comme vérifié à ce stade. La configuration technique est décrite dans [le guide d’hébergement](GUIDE_HEBERGEMENT_GRATUIT.md).
 
@@ -109,6 +119,6 @@ Les modifications envoyées sur la branche de publication sont déployées autom
 
 Chaque publication versionne les scripts et les styles. Les nouvelles visites chargent les fichiers à jour. Une page déjà ouverte vérifie la version publiée environ toutes les minutes et au retour sur l’onglet. Sans saisie active, elle recharge automatiquement après un court avis. L’administration conserve sa rubrique courante lors de cette actualisation.
 
-Une saisie, un dialogue ou une inscription avec sa confirmation de paiement empêchent l’actualisation automatique. Le bandeau **Actualiser / Plus tard** laisse alors choisir le moment ; terminez l’opération et récupérez le reçu avant d’actualiser. Aucune saisie n’est envoyée automatiquement par ce mécanisme. Un problème de connexion lors de la vérification de version ne bloque pas les autres fonctions.
+Une saisie, un dialogue, des présences du jour non enregistrées ou une inscription avec sa confirmation de paiement empêchent l’actualisation automatique. Le bandeau **Actualiser / Plus tard** laisse alors choisir le moment ; enregistrez les présences, terminez l’opération et récupérez le reçu avant d’actualiser. Aucune saisie n’est envoyée automatiquement par ce mécanisme. Un problème de connexion lors de la vérification de version ne bloque pas les autres fonctions.
 
 Pour installer ce mécanisme dans un onglet qui était déjà ouvert avant sa première publication, chargez une fois la nouvelle version du site. Il pourra ensuite détecter les publications suivantes. KKiaPay reste reporté.

@@ -30,6 +30,18 @@
   force = true
 
 [[redirects]]
+  from = "/caisse"
+  to = "/.netlify/functions/api/caisse"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/caisse/"
+  to = "/.netlify/functions/api/caisse/"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/gestion.html"
   to = "/.netlify/functions/api/gestion.html"
   status = 200

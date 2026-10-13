@@ -3,6 +3,16 @@
   const form = document.getElementById("auth-form"),
     result = document.getElementById("auth-result");
   const setup = form.dataset.setup === "true";
+  const portal = !setup && new URLSearchParams(location.search).get("espace");
+  const cashierPortal = portal === "caisse";
+  if (cashierPortal) {
+    document.querySelector("h1").textContent = "Connexion à la caisse.";
+    document.querySelector(".intro").textContent = "Le responsable vous remet votre identifiant et votre mot de passe. Cet espace permet les encaissements et les présences du jour.";
+    document.title = "Connexion Caisse · Cours de renforcement scolaire";
+  } else if (portal === "administration") {
+    document.querySelector("h1").textContent = "Connexion à l’administration.";
+    document.querySelector(".intro").textContent = "Cet accès est réservé au responsable de l’établissement.";
+  }
   window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0;
   const submit = form.querySelector('button[type="submit"]');
   const retry = document.createElement("button");
@@ -53,6 +63,8 @@
       return;
     }
     delete data.confirmation;
+    if (cashierPortal) data.space = "cashier";
+    else if (portal === "administration") data.space = "administration";
     const button = form.querySelector("button");
     button.disabled = true;
     try {
@@ -61,7 +73,7 @@
         "POST",
         data,
       );
-      location.assign("/gestion.html");
+      location.assign(cashierPortal ? "/gestion.html?section=cashier" : "/gestion.html");
     } catch (err) {
       result.textContent = err.message;
     } finally {

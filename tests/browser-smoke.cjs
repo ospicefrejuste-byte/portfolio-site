@@ -76,7 +76,7 @@ const { createApplication } = require("../lib/application");
     await p.goto(base + "/");
     assert.equal(await p.locator(".steps").count(), 0);
     await p.getByRole("link", { name: "Administration" }).click();
-    await p.waitForURL("**/connexion.html");
+    await p.waitForURL("**/connexion.html?espace=administration");
     await p.getByRole("button", { name: "Réessayer la connexion" }).waitFor({ state: "visible" });
     assert.equal(await p.getByRole("button", { name: "Se connecter" }).isDisabled(), true);
     const sessionRevoked = p.waitForResponse((response) => response.url().endsWith("/api/auth/logout") && response.request().method() === "POST" && response.status() === 200);

@@ -6,6 +6,7 @@ const cashierState = {
   period: cashierCurrentPeriod(),
   class: "",
   centre: "",
+  student: "",
   status: "",
   query: "",
   revision: 0,
@@ -67,18 +68,31 @@ function cashierSituation(row) {
   return { label: "À payer", tone: "due" };
 }
 
+function cashierCanCollect(row) {
+  return !!row && row.registrationStatus !== "Suspendu" && cashierAmount(row.balance) > 0 && !row.blockedReason;
+}
+
+function cashierCollectLabel(row) {
+  if (!row) return "Choisir un élève";
+  if (cashierCanCollect(row)) return "Encaisser en espèces";
+  if (row.registrationStatus === "Suspendu") return "Dossier suspendu";
+  if (row.blockedReason) return "Vérification nécessaire";
+  if (cashierAmount(row.balance) === 0 && cashierAmount(row.fee) > 0) return "Mensualité payée ✓";
+  return "Aucun montant à encaisser";
+}
+
 function cashierPage() {
   if (!cashierAllowed()) return '<div class="empty-note">Cet espace est réservé au caissier et au responsable.</div>';
   const rows = cashierState.cache.get(cashierState.period)?.students || [];
   const classes = [...catalogue.levels.map(([name]) => name), ...rows.map(row => row.class)];
   const centres = [...catalogue.centres, ...rows.map(row => row.centre)];
-  return `<section class="cashier-intro"><div><span class="cashier-eyebrow">Encaissement au centre</span><h2>Un paiement reçu, un reçu remis.</h2><p>Retrouvez l’élève, vérifiez sa mensualité et enregistrez l’argent effectivement reçu en espèces.</p></div><span class="cashier-access">Caissier · Responsable</span></section>
+  return `<section class="cashier-intro"><div><span class="cashier-eyebrow">Encaissement au centre</span><h2>Un paiement reçu, un reçu remis.</h2><p>Choisissez l’école, la classe puis l’élève dans la liste. Vérifiez sa mensualité et enregistrez l’argent effectivement reçu en espèces.</p></div><span class="cashier-access">Caissier · Responsable</span></section>
     <div class="cashier-filters">
-      <label>Mois concerné<input id="cashier-period" type="month" value="${esc(cashierState.period)}" required></label>
+      <label>École / centre<select id="cashier-centre">${cashierOptions(centres, cashierState.centre, "Toutes les écoles / centres")}</select></label>
       <label>Classe<select id="cashier-class">${cashierOptions(classes, cashierState.class, "Toutes les classes")}</select></label>
-      <label>Centre<select id="cashier-centre">${cashierOptions(centres, cashierState.centre, "Tous les centres")}</select></label>
+      <label>Mois concerné<input id="cashier-period" type="month" value="${esc(cashierState.period)}" required></label>
       <label>Situation<select id="cashier-status"><option value="">Toutes les situations</option>${["À payer", "Partiellement payé", "Payé", "Sans frais", "Suspendu"].map(value => `<option${cashierState.status === value ? " selected" : ""}>${esc(value)}</option>`).join("")}</select></label>
-      <label class="cashier-search-label">Élève ou parent<input id="cashier-search" type="search" value="${esc(cashierState.query)}" placeholder="Nom, parent ou téléphone…"></label>
+      <label class="cashier-search-label">Recherche facultative<input id="cashier-search" type="search" value="${esc(cashierState.query)}" placeholder="Élève, parent ou téléphone…"></label>
       <button id="cashier-reset" class="secondary" type="button">Effacer les filtres</button>
     </div>
     <div id="cashier-results" aria-live="polite">${cashierResults()}</div>`;
@@ -94,11 +108,26 @@ function cashierFilteredRows(rows) {
   ).sort((a, b) => String(a.name).localeCompare(String(b.name), "fr", { numeric: true }));
 }
 
+function cashierStudentSelection(rows, selected) {
+  const ready = !!cashierState.centre && !!cashierState.class;
+  const situation = selected ? cashierSituation(selected) : null;
+  return `<section class="panel cashier-selection" aria-labelledby="cashier-selection-title"><div><h2 id="cashier-selection-title">Encaisser un élève</h2><p class="cashier-note">${ready ? "Sélectionnez l’élève dans la liste de cette classe." : "Choisissez d’abord une école / centre et une classe dans les menus ci-dessus."}</p></div>
+    <div class="cashier-selection-controls"><label for="cashier-student">Élève de la classe<select id="cashier-student"${ready ? "" : " disabled"}><option value="">${ready && !rows.length ? "Aucun élève pour ces filtres" : "Choisir un élève"}</option>${ready ? rows.map(row => `<option value="${esc(row.id)}"${row.id === selected?.id ? " selected" : ""}>${esc(row.name)} · ${esc(row.registrationStatus === "Préinscription" ? "Préinscription · " : "")}${esc(cashierSituation(row).label)}</option>`).join("") : ""}</select></label>
+      <button id="cashier-selected-collect" class="${cashierCanCollect(selected) ? "primary" : "secondary"}" type="button"${cashierCanCollect(selected) ? "" : " disabled"}>${esc(cashierCollectLabel(selected))}</button></div>
+    ${selected ? `<div class="cashier-selection-summary"><strong>${esc(selected.name)}</strong><span class="cashier-status ${situation.tone}">${esc(situation.label)}</span><span>Reste à payer : <strong>${esc(money(cashierAmount(selected.balance)))}</strong></span>${selected.blockedReason ? `<p class="cashier-blocked" role="status">${esc(selected.blockedReason)}</p>` : ""}</div>` : ""}
+  </section>`;
+}
+
 function cashierResults() {
   const entry = cashierState.cache.get(cashierState.period);
   if (!entry || entry.loading) return '<div class="panel cashier-loading" role="status">Chargement de la caisse…</div>';
   if (entry.error) return `<div class="panel cashier-error"><p role="alert">${esc(entry.error)}</p><button id="cashier-retry" class="secondary" type="button">Réessayer</button></div>`;
   const rows = cashierFilteredRows(entry.students);
+  let selected = rows.find(row => row.id === cashierState.student);
+  if (cashierState.student && (!selected || !cashierState.centre || !cashierState.class)) {
+    cashierState.student = "";
+    selected = undefined;
+  }
   const remaining = entry.students.reduce((sum, row) => sum + cashierAmount(row.balance), 0);
   const counts = entry.students.filter(row => cashierAmount(row.balance) > 0 && row.registrationStatus !== "Suspendu").length;
   const metrics = [
@@ -106,15 +135,15 @@ function cashierResults() {
     ["Reçu en ligne", money(cashierAmount(entry.totals.online)), "Paiements confirmés · hors tests", "online"],
     ["Reste à régler", money(remaining), `${counts} dossier(s) sur le mois`, "due"],
   ];
-  const visibleIds = new Set(rows.map(row => row.id));
+  const visibleIds = new Set(selected ? [selected.id] : rows.map(row => row.id));
   const payments = entry.payments.filter(payment => visibleIds.has(payment.student))
     .sort((a, b) => String(b.createdAt || b.date).localeCompare(String(a.createdAt || a.date)) || String(b.id).localeCompare(String(a.id)));
-  return `<div class="cashier-metrics">${metrics.map(([label, amount, detail, tone]) => `<div class="stat cashier-metric ${tone}"><span class="stat-label">${esc(label)}</span><strong>${esc(amount)}</strong><small>${esc(detail)}</small></div>`).join("")}</div>
+  return `${cashierStudentSelection(rows, selected)}<div class="cashier-metrics">${metrics.map(([label, amount, detail, tone]) => `<div class="stat cashier-metric ${tone}"><span class="stat-label">${esc(label)}</span><strong>${esc(amount)}</strong><small>${esc(detail)}</small></div>`).join("")}</div>
     <section class="panel cashier-students" aria-labelledby="cashier-students-title"><div class="panel-head"><div><h2 id="cashier-students-title">Élèves · ${esc(cashierPeriodLabel(cashierState.period))}</h2><p>${rows.length} dossier(s) affiché(s)</p></div><button id="cashier-reload" class="secondary" type="button">Actualiser</button></div>
       <p class="cashier-note">Le solde tient compte des paiements en présentiel et des paiements en ligne confirmés. Le tarif actuel du dossier est utilisé pour le mois choisi. Les tests en ligne ne règlent pas la mensualité.</p>
       ${rows.length ? `<div class="cashier-student-grid">${rows.map(cashierStudentCard).join("")}</div>` : '<div class="empty-note">Aucun élève ne correspond à ces filtres.</div>'}
     </section>
-    <section class="panel cashier-history" aria-labelledby="cashier-history-title"><div class="panel-head"><div><h2 id="cashier-history-title">Reçus de la caisse</h2><p>Encaissements en présentiel · ${esc(cashierPeriodLabel(cashierState.period))}${cashierState.query || cashierState.class || cashierState.centre || cashierState.status ? " · avec les filtres" : ""}</p></div><span class="cashier-history-count">${payments.length} reçu(s)</span></div>
+    <section class="panel cashier-history" aria-labelledby="cashier-history-title"><div class="panel-head"><div><h2 id="cashier-history-title">Reçus de la caisse</h2><p>Encaissements en présentiel · ${esc(cashierPeriodLabel(cashierState.period))}${selected ? " · " + esc(selected.name) : cashierState.query || cashierState.class || cashierState.centre || cashierState.status ? " · avec les filtres" : ""}</p></div><span class="cashier-history-count">${payments.length} reçu(s)</span></div>
       ${payments.length ? `<div class="cashier-receipt-list">${payments.map(payment => cashierReceiptRow(payment, entry.students)).join("")}</div>` : '<div class="empty-note">Aucun encaissement en présentiel pour ces dossiers et ce mois.</div>'}
       <p class="cashier-note">Téléchargez le PDF pour l’imprimer ou le remettre à la famille. Le bouton Partager propose les applications disponibles sur votre appareil.</p>
     </section>`;
@@ -123,14 +152,14 @@ function cashierResults() {
 function cashierStudentCard(row) {
   const situation = cashierSituation(row);
   const balance = cashierAmount(row.balance);
-  const eligible = row.registrationStatus !== "Suspendu" && balance > 0 && !row.blockedReason;
-  return `<article class="cashier-student-card"><div class="cashier-student-heading"><div><h3>${esc(row.name)}</h3><p>${esc(row.class)} · ${esc(row.centre || "Centre non renseigné")}</p></div><span class="cashier-status ${situation.tone}">${esc(situation.label)}</span></div>
+  const eligible = cashierCanCollect(row);
+  return `<article class="cashier-student-card${row.id === cashierState.student ? " cashier-student-selected" : ""}"><div class="cashier-student-heading"><div><h3>${esc(row.name)}</h3><p>${esc(row.class)} · ${esc(row.centre || "Centre non renseigné")}</p></div><span class="cashier-status ${situation.tone}">${esc(situation.label)}</span></div>
     <p class="cashier-parent">${esc(row.guardian || "Parent non renseigné")}${row.phone ? ` · ${esc(row.phone)}` : ""}</p>
     ${row.registrationStatus === "Préinscription" ? '<span class="cashier-enrollment">Préinscription · validation du dossier par le responsable</span>' : ""}
     <dl class="cashier-amounts"><div><dt>Mensualité</dt><dd>${esc(money(cashierAmount(row.fee)))}</dd></div><div><dt>Déjà reçu</dt><dd>${esc(money(cashierAmount(row.paid)))}</dd></div><div class="cashier-balance"><dt>Reste à payer</dt><dd>${esc(money(balance))}</dd></div></dl>
     <p class="cashier-channel-detail">Présentiel : ${esc(money(cashierAmount(row.cashPaid)))}<br>En ligne : ${esc(money(cashierAmount(row.onlinePaid)))}</p>
     ${row.blockedReason ? `<p class="cashier-blocked" role="status">${esc(row.blockedReason)}</p>` : ""}
-    <button class="${eligible ? "primary" : "secondary"} cashier-collect" type="button" data-cashier-collect="${esc(row.id)}"${eligible ? "" : " disabled"}>${eligible ? "Encaisser en espèces" : row.registrationStatus === "Suspendu" ? "Dossier suspendu" : row.blockedReason ? "Vérification nécessaire" : balance === 0 && cashierAmount(row.fee) > 0 ? "Mensualité payée ✓" : "Aucun montant à encaisser"}</button>
+    <button class="${eligible ? "primary" : "secondary"} cashier-collect" type="button" data-cashier-collect="${esc(row.id)}"${eligible ? "" : " disabled"}>${esc(cashierCollectLabel(row))}</button>
   </article>`;
 }
 
@@ -166,7 +195,7 @@ function cashierUpdateResults() {
   $("cashier-results").innerHTML = cashierResults();
   const rows = cashierState.cache.get(cashierState.period)?.students || [];
   if ($("cashier-class")) $("cashier-class").innerHTML = cashierOptions([...catalogue.levels.map(([name]) => name), ...rows.map(row => row.class)], cashierState.class, "Toutes les classes");
-  if ($("cashier-centre")) $("cashier-centre").innerHTML = cashierOptions([...catalogue.centres, ...rows.map(row => row.centre)], cashierState.centre, "Tous les centres");
+  if ($("cashier-centre")) $("cashier-centre").innerHTML = cashierOptions([...catalogue.centres, ...rows.map(row => row.centre)], cashierState.centre, "Toutes les écoles / centres");
   bindCashierActions();
 }
 
@@ -196,7 +225,7 @@ function bindCashier() {
     cashierUpdateResults();
   };
   $("cashier-reset").onclick = () => {
-    Object.assign(cashierState, { class: "", centre: "", status: "", query: "" });
+    Object.assign(cashierState, { class: "", centre: "", student: "", status: "", query: "" });
     render();
   };
   bindCashierActions();
@@ -206,9 +235,18 @@ function bindCashier() {
 function bindCashierActions() {
   if ($("cashier-reload")) $("cashier-reload").onclick = cashierReload;
   if ($("cashier-retry")) $("cashier-retry").onclick = cashierReload;
+  if ($("cashier-student")) $("cashier-student").onchange = event => {
+    cashierState.student = event.target.value;
+    cashierUpdateResults();
+    $("cashier-student")?.focus();
+  };
+  if ($("cashier-selected-collect")) $("cashier-selected-collect").onclick = () => {
+    const row = cashierState.cache.get(cashierState.period)?.students.find(student => student.id === cashierState.student);
+    if (cashierState.centre && cashierState.class && cashierCanCollect(row) && row.centre === cashierState.centre && row.class === cashierState.class) cashierCollectDialog(row, cashierState.period);
+  };
   document.querySelectorAll("[data-cashier-collect]").forEach(button => button.onclick = () => {
     const row = cashierState.cache.get(cashierState.period)?.students.find(student => student.id === button.dataset.cashierCollect);
-    if (row && row.registrationStatus !== "Suspendu" && !row.blockedReason && cashierAmount(row.balance) > 0) cashierCollectDialog(row, cashierState.period);
+    if (cashierCanCollect(row)) cashierCollectDialog(row, cashierState.period);
   });
   for (const action of ["pdf", "share", "whatsapp"]) document.querySelectorAll(`[data-cashier-${action}]`).forEach(button => {
     const getPayment = () => cashierState.cache.get(cashierState.period)?.payments.find(receipt => receipt.id === button.dataset[{ pdf: "cashierPdf", share: "cashierShare", whatsapp: "cashierWhatsapp" }[action]]);

@@ -7,7 +7,7 @@ const vm = require("node:vm");
 
 const source = fs.readFileSync(path.join(__dirname, "../public/admin-analytics.js"), "utf8");
 function analytics(data = {}) {
-  const db = { students: [], teachers: [], courses: [], payments: [], attendance: [], grades: [], ...data };
+  const db = { students: [], teachers: [], courses: [], payments: [], attendance: [], dailyAttendance: [], grades: [], ...data };
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
   const context = vm.createContext({
     db, sections: {}, role: "admin", esc,
@@ -87,14 +87,58 @@ test("Le planning exclut les séances terminées et conserve celles en cours ou 
   assert.deepEqual(ids, ["ongoing", "future", "tomorrow"]);
 });
 
+test("Les présences quotidiennes gardent leurs classes et écoles historiques et leur taux reste séparé des cours", () => {
+  const group = "6e · École des Érables";
+  const { run } = analytics({
+    students: [pupil("current", "6e", "École des Érables"), pupil("moved", "4e", "Centre actuel"), pupil("fallback", "6e", "École des Érables")],
+    courses: [{ id: "course", group }],
+    attendance: [
+      { student: "current", course: "course", status: "Présent" },
+      { student: "current", course: "course", status: "Retard" },
+      { student: "fallback", course: "course", status: "Absent" },
+      { student: "fallback", course: "course", status: "Excusé" },
+    ],
+    dailyAttendance: [
+      { id: "historical-present", student: "moved", date: "2026-10-10", class: "6e", centre: "École des Érables", status: "Présent" },
+      { id: "current-absent", student: "current", date: "2026-10-10", class: "6e", centre: "École des Érables", status: "Absent" },
+      { id: "fallback-absent", student: "fallback", date: "2026-10-11", status: "Absent" },
+      { id: "different-class", student: "current", date: "2026-10-11", class: "5e", centre: "École des Érables", status: "Absent" },
+      { id: "different-school", student: "current", date: "2026-10-12", class: "6e", centre: "Autre école", status: "Absent" },
+      { id: "cleared", student: "current", date: "2026-10-13", class: "6e", centre: "École des Érables", status: null },
+      { id: "previous-month", student: "current", date: "2026-09-30", class: "6e", centre: "École des Érables", status: "Absent" },
+      { id: "removed-pupil", student: "removed", date: "2026-10-10", class: "Classe retirée", centre: "École retirée", status: "Absent" },
+    ],
+  });
+  run("scopeMonth='2026-10';scopeClass='6e';scopeCentre='École des Érables'");
+  assert.deepEqual(JSON.parse(run("JSON.stringify(scopedDailyAttendance().map(entry=>entry.id))")), ["historical-present", "current-absent", "fallback-absent"]);
+  const html = run("academicStats()");
+  assert.match(html, /Présences par cours &amp; résultats/);
+  assert.match(html, /Présence par cours : <strong>67 %/);
+  assert.match(html, /Présences du jour/);
+  assert.match(html, /Présence par jour : <strong>33 %/);
+  assert.match(html, /Pointages renseignés : <strong>3/);
+  assert.match(html, /Jours présents<\/span><strong>1/);
+  assert.match(html, /Jours absents<\/span><strong>2/);
+  const filters = run("analyticsFilters()");
+  assert.match(filters, /<option >5e<\/option>/);
+  assert.match(filters, /<option >Autre école<\/option>/);
+  assert.doesNotMatch(filters, /Classe retirée|École retirée/);
+  run("scopeMonth='2026-11'");
+  const empty = run("dailyAttendanceStats()");
+  assert.match(empty, /Présence par jour : <strong>Non disponible/);
+  assert.match(empty, /Pointages renseignés : <strong>0/);
+  assert.match(run("academicStats()"), /Présence par cours : <strong>67 %/);
+});
+
 test("Le guide présente les actions disponibles et réserve son contenu à l’administration", () => {
   const { run, context } = analytics();
   assert.equal(context.sections.help[1], "Guide d’utilisation");
   const html = run("helpPage()");
-  for (const destination of ["students", "teachers", "courses", "assignments", "attendance", "grades", "payments", "users", "statistics"])
+  for (const destination of ["students", "teachers", "courses", "assignments", "attendance", "dailyAttendance", "grades", "payments", "users", "statistics"])
     assert.ok(html.includes(`data-go="${destination}"`), destination);
   assert.match(html, /sommes effectivement reçues/);
   assert.match(html, /matières demandées/);
+  assert.match(html, /encaissements et présences du jour/);
   context.role = "teacher";
   assert.equal(run("helpPage()").includes('data-go="users"'), false);
 });

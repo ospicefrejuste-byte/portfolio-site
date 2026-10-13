@@ -51,6 +51,39 @@ test("Le bilan PDF conserve les accents, filtre les dates et sépare les paiemen
   assert.doesNotMatch(output, /ANCIENNE NOTE|AUTRE ÉLÈVE|ANCIEN COURS|8 000 FCFA|7 777 FCFA/);
 });
 
+test("Le bilan sépare les présences du jour des cours et conserve l’école et la classe du pointage", { skip: !canExtract }, async () => {
+  const student = { id: "pupil", name: "Grâce Élève", class: "4e", centre: "Centre actuel" };
+  const buffer = await createStudentReport({
+    student,
+    courses: [{ id: "course", date: "2026-10-10", subject: "Mathématiques" }],
+    attendance: [{ student: "pupil", course: "course", status: "Absent" }],
+    dailyAttendance: [
+      { id: "private-row-id", student: "pupil", date: "2026-10-05", class: "6e", centre: "École des Érables", status: "Présent", revision: 4, markedByName: "private-cashier-name" },
+      { student: "pupil", date: "2026-10-12", class: "6e", centre: "École des Érables", status: "Absent" },
+      { student: "pupil", date: "2026-10-22", class: "5e", centre: "École de Grâce", status: "Présent" },
+      { student: "pupil", date: "2026-10-23", class: "POINTAGE EFFACÉ", centre: "ÉCOLE EFFACÉE", status: null },
+      { student: "pupil", date: "2026-09-30", class: "ANCIEN POINTAGE", centre: "ANCIEN CENTRE", status: "Absent" },
+      { student: "pupil", date: "2026-11-01", class: "POINTAGE FUTUR", centre: "CENTRE FUTUR", status: "Absent" },
+      { student: "other", date: "2026-10-13", class: "AUTRE ÉLÈVE", centre: "AUTRE CENTRE", status: "Absent" },
+    ],
+    from: "2026-10-01", to: "2026-10-31",
+  });
+  assertPdf(buffer);
+  const output = extract(buffer);
+  assert.match(output, /Présences par cours/);
+  assert.match(output, /Taux de présence : 0 %/);
+  assert.match(output, /Présences du jour/);
+  assert.match(output, /Taux de présence par jour : 67 %/);
+  assert.match(output, /Jours présents : 2 · Jours absents : 1/);
+  assert.match(output, /École \/ centre/);
+  assert.match(output, /05\/10\/2026 6e École des Érables Présent/);
+  assert.match(output, /22\/10\/2026 5e École de Grâce Présent/);
+  assert.doesNotMatch(output, /POINTAGE EFFACÉ|ÉCOLE EFFACÉE|ANCIEN POINTAGE|ANCIEN CENTRE|POINTAGE FUTUR|CENTRE FUTUR|AUTRE ÉLÈVE|AUTRE CENTRE|private-row-id|private-cashier-name/);
+  const clearedOnly = extract(await createStudentReport({ student, dailyAttendance: [{ student: "pupil", date: "2026-10-10", status: null }] }));
+  assert.match(clearedOnly, /Taux de présence par jour : non disponible/);
+  assert.match(clearedOnly, /Jours présents : 0 · Jours absents : 0/);
+});
+
 test("Le reçu distingue les paiements réels et les essais et garde les références", { skip: !canExtract }, async () => {
   const student = { id: "pupil", name: "Élève Grâce", class: "6e" };
   const payment = { id: "receipt-123", student: "pupil", amount: 3500, period: "2026-10", date: "2026-10-13", source: "KKiaPay", transactionId: "transaction-456", mode: "live" };

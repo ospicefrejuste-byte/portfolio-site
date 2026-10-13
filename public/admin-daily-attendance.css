@@ -1,0 +1,70 @@
+.daily-attendance-intro { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.3rem; margin-bottom: 1.4rem; }
+.daily-attendance-eyebrow { color: var(--muted, #64748b); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; }
+.daily-attendance-intro h2 { margin: .4rem 0 .5rem; color: var(--navy, #173860); font-size: 1.65rem; line-height: 1.25; }
+.daily-attendance-intro p { max-width: 44rem; margin: 0; line-height: 1.6; color: #526478; }
+.daily-attendance-access { flex-shrink: 0; font-size: .78rem; padding: .55rem .75rem; background: #e9f2fc; border-radius: 1rem; color: #24538a; }
+.daily-attendance-filters { display: grid; grid-template-columns: minmax(160px, .65fr) minmax(0, 1.5fr) minmax(0, 1fr); gap: 1rem; padding: 1.15rem; margin-bottom: 1.2rem; border: 1px solid #dce6f2; border-radius: 15px; background: #fff; }
+.daily-attendance-filters label, .daily-attendance-pupil-picker { display: grid; gap: .5rem; color: #345172; font-size: .85rem; font-weight: 600; min-width: 0; }
+.daily-attendance-filters select, .daily-attendance-filters input, .daily-attendance-pupil-picker select { width: 100%; min-width: 0; min-height: 44px; font: inherit; font-weight: 400; color: #173860; border: 1px solid #cfdceb; border-radius: 8px; padding: .65rem .7rem; background: #fff; box-sizing: border-box; }
+.daily-attendance-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
+.daily-attendance-metric { display: grid; gap: .3rem; border-radius: 12px; border: 1px solid #dce6f2; padding: 1rem; background: #fff; min-width: 0; }
+.daily-attendance-metric span { color: #49617a; font-size: .84rem; }
+.daily-attendance-metric strong { color: #16355c; font-size: 1.8rem; line-height: 1.2; }
+.daily-attendance-metric.present { border-bottom: 3px solid #339367; }
+.daily-attendance-metric.absent { border-bottom: 3px solid #cb534e; }
+.daily-attendance-metric.unmarked { border-bottom: 3px solid #c7a236; }
+.daily-attendance-summary { font-size: .82rem; line-height: 1.6; color: #596f87; margin: .75rem .2rem 1.1rem; }
+.daily-attendance-roster { overflow: hidden; padding: 0; }
+.daily-attendance-list-head { display: flex; gap: 1rem; justify-content: space-between; align-items: center; padding: 1.1rem 1.2rem; border-bottom: 1px solid #e5edf6; }
+.daily-attendance-list-head h2 { font-size: 1.2rem; margin: 0 0 .35rem; color: #173860; }
+.daily-attendance-list-head p { margin: 0; font-size: .85rem; color: #5d7187; line-height: 1.5; overflow-wrap: anywhere; }
+.daily-attendance-pupil-picker { padding: 1rem 1.2rem; border-bottom: 1px solid #e5edf6; }
+.daily-attendance-pupil { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 1rem; align-items: center; padding: 1rem 1.2rem; border-bottom: 1px solid #e8eef6; }
+.daily-attendance-pupil:last-child { border-bottom: 0; }
+.daily-attendance-pupil.daily-attendance-edited { background: #fffdf3; }
+.daily-attendance-pupil-name { display: grid; gap: .3rem; min-width: 0; color: #173860; overflow-wrap: anywhere; }
+.daily-attendance-pupil-name small { color: #65758b; font-size: .76rem; }
+.daily-attendance-pupil-name .daily-attendance-pending { color: #866108; }
+.daily-attendance-statuses { display: flex; gap: .5rem; border: 0; margin: 0; padding: 0; min-width: 0; }
+.daily-attendance-status { display: flex; align-items: center; gap: .45rem; min-height: 42px; border: 1px solid #d5deeb; border-radius: 8px; padding: .4rem .6rem; box-sizing: border-box; cursor: pointer; color: #526980; font-size: .82rem; }
+.daily-attendance-status input { width: 17px; height: 17px; flex: 0 0 17px; margin: 0; }
+.daily-attendance-status.present input { accent-color: #247f51; }
+.daily-attendance-status.absent input { accent-color: #b4423e; }
+.daily-attendance-status.selected.present { background: #eaf7ef; border-color: #89c5a0; color: #206a44; }
+.daily-attendance-status.selected.absent { background: #fff0ef; border-color: #d8a09d; color: #aa3b39; }
+.daily-attendance-status.selected.unmarked { background: #f0f4fa; border-color: #aebed2; color: #345172; }
+.daily-attendance-status:has(input:focus-visible) { outline: 3px solid #91b5ec; outline-offset: 2px; }
+.daily-attendance-savebar { display: flex; justify-content: space-between; gap: 1rem; align-items: center; border: 1px solid #dce6f2; border-radius: 12px; background: #fff; padding: 1rem 1.2rem; margin-top: 1rem; }
+.daily-attendance-savebar strong { color: #173860; font-size: .9rem; }
+.daily-attendance-savebar p { margin: .3rem 0 0; color: #5c7086; font-size: .8rem; line-height: 1.5; }
+.daily-attendance-save-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: flex-end; }
+.daily-attendance-save-actions button { white-space: normal; min-height: 44px; }
+.daily-attendance-error { margin-top: .8rem; padding: .9rem 1rem; border-radius: 10px; color: #a12d2a; background: #fff0ee; border: 1px solid #ecc7c4; font-size: .86rem; line-height: 1.6; }
+.daily-attendance-error p { margin: 0; }
+.daily-attendance-error p + p { margin-top: .5rem; }
+.daily-attendance-feedback { padding: .85rem 1rem; margin: .8rem 0; background: #e9f6ee; border: 1px solid #c0ddcb; border-radius: 10px; color: #246844; font-size: .86rem; line-height: 1.6; }
+.daily-attendance-empty { color: #526980; line-height: 1.6; padding: 1.3rem; }
+.daily-attendance-sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+@media (max-width: 1050px) {
+  .daily-attendance-pupil { grid-template-columns: minmax(0, 1fr); gap: .7rem; }
+  .daily-attendance-savebar { align-items: flex-start; flex-direction: column; }
+  .daily-attendance-save-actions { justify-content: flex-start; }
+}
+@media (max-width: 640px) {
+  .daily-attendance-intro { flex-direction: column; gap: .75rem; }
+  .daily-attendance-intro h2 { font-size: 1.4rem; }
+  .daily-attendance-filters { grid-template-columns: minmax(0, 1fr); padding: 1rem; gap: .85rem; }
+  .daily-attendance-metrics { gap: .5rem; }
+  .daily-attendance-metric { padding: .8rem .55rem; }
+  .daily-attendance-metric span { font-size: .74rem; }
+  .daily-attendance-metric strong { font-size: 1.6rem; }
+  .daily-attendance-list-head { align-items: flex-start; flex-direction: column; padding: 1rem; }
+  .daily-attendance-pupil-picker, .daily-attendance-pupil { padding: 1rem; }
+  .daily-attendance-statuses { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .daily-attendance-status { justify-content: center; }
+  .daily-attendance-status.unmarked { grid-column: 1 / -1; }
+  .daily-attendance-savebar { padding: 1rem; }
+  .daily-attendance-save-actions { width: 100%; }
+  .daily-attendance-save-actions button { width: 100%; }
+  .daily-attendance-save-actions .primary { order: -1; }
+}

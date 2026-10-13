@@ -8,6 +8,18 @@
 .cashier-filters input,.cashier-filters select { min-width:0; width:100%; box-sizing:border-box; }
 .cashier-filters .cashier-search-label { flex:2; min-width:210px; }
 .cashier-filters button { min-height:42px; }
+.cashier-selection { padding:22px; margin-bottom:22px; border-top:3px solid #e5b448; min-width:0; }
+.cashier-selection h2 { margin:0; color:#173965; font-size:18px; }
+.cashier-selection .cashier-note { margin:8px 0 16px; }
+.cashier-selection-controls { display:flex; align-items:flex-end; gap:14px; }
+.cashier-selection-controls label { display:grid; gap:7px; flex:1; min-width:0; color:#607594; font-size:12px; font-weight:600; }
+.cashier-selection-controls select { width:100%; min-width:0; box-sizing:border-box; }
+.cashier-selection-controls button { min-height:42px; max-width:240px; line-height:1.4; }
+.cashier-selection-summary { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:16px; color:#607594; font-size:12px; }
+.cashier-selection-summary > strong { color:#173965; overflow-wrap:anywhere; }
+.cashier-selection-summary .cashier-blocked { flex-basis:100%; margin:0; }
+.cashier-student-card.cashier-student-selected { border-color:#467ce1; box-shadow:0 0 0 2px #e9effc; }
+.cashier-selection select:focus-visible { outline:3px solid #7399ef; outline-offset:2px; }
 .cashier-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; margin-bottom:22px; }
 .cashier-metric { border-top:3px solid #dce5f3; min-width:0; }
 .cashier-metric.cash { border-top-color:#339472; }
@@ -91,6 +103,9 @@
   .cashier-filters { padding:14px; }
   .cashier-filters label,.cashier-filters .cashier-search-label { flex-basis:100%; min-width:0; }
   .cashier-filters button { width:100%; }
+  .cashier-selection { padding:16px; }
+  .cashier-selection-controls { flex-direction:column; align-items:stretch; }
+  .cashier-selection-controls button { width:100%; max-width:none; }
   .cashier-metrics { grid-template-columns:1fr; gap:10px; }
   .cashier-metric { padding:16px 20px; }
   .cashier-students,.cashier-history { padding:16px; }

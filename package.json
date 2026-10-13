@@ -17,6 +17,7 @@
     "test:cloud:browser": "node scripts/test-cloud-browser.js",
     "test:browser:platform": "node tests/browser-platform.cjs",
     "test:browser:cashier": "node tests/browser-cashier.cjs",
+    "test:browser:cashier-attendance": "node tests/browser-cashier-attendance.cjs",
     "test:browser:updates": "node tests/browser-updates.cjs"
   },
   "dependencies": {

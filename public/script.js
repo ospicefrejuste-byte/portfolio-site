@@ -56,15 +56,16 @@ const date = (d) =>
 const sections = {
   dashboard: ["◈", "Tableau de bord"],
   cashier: ["▣", "Caisse en présentiel"],
+  dailyAttendance: ["✓", "Présences du jour"],
   students: ["♙", "Élèves"],
   teachers: ["♧", "Enseignants"],
   courses: ["▦", "Cours & planning"],
-  attendance: ["✓", "Présences"],
+  attendance: ["✓", "Présences par cours"],
   payments: ["◇", "Paiements"],
   grades: ["▤", "Notes & résultats"],
   users: ["♧", "Comptes & accès"],
 };
-window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0 || currentOrder !== null;
+window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0 || currentOrder !== null || (typeof window.hasDailyDrafts === "function" && window.hasDailyDrafts());
 window.crsPrepareReload = () => {
   if (!accessibleSections().includes(page)) return;
   const url = new URL(location.href);
@@ -97,6 +98,7 @@ async function refresh() {
   db = await schoolAPI.request("/api/data");
   if (typeof invalidateMonthlyBalances === "function") invalidateMonthlyBalances();
   if (typeof invalidateCashier === "function") invalidateCashier();
+  if (typeof invalidateDailyAttendance === "function") invalidateDailyAttendance();
   const brand = document.querySelector(".brand");
   if (brand) {
     brand.querySelector("span:last-child").textContent = catalogue.name;
@@ -117,7 +119,7 @@ async function refresh() {
 }
 function handleError(err) {
   if (err.status === 401) {
-    location.assign("/connexion.html");
+    location.assign(role === "cashier" ? "/connexion.html?espace=caisse" : "/connexion.html");
     return;
   }
   toast(err.message || "Serveur indisponible. Réessayez.");
@@ -125,7 +127,7 @@ function handleError(err) {
 function accessibleSections() {
   return Object.keys(sections).filter((x) =>
     role === "admin" ||
-    (role === "cashier" && x === "cashier") ||
+    (role === "cashier" && ["cashier", "dailyAttendance"].includes(x)) ||
     (["teacher", "student"].includes(role) &&
       (["dashboard", "courses", "calendar", "attendance", "grades"].includes(x) ||
         (role === "student" && x === "payments"))));
@@ -145,6 +147,7 @@ function navigation() {
         (b.onclick = () => {
           page = b.dataset.page;
           search = "";
+          window.crsPrepareReload();
           render();
         }),
     );
@@ -354,6 +357,7 @@ function render() {
         : page === "users"
           ? accountsPage()
           : page === "cashier" ? cashierPage()
+          : page === "dailyAttendance" ? dailyAttendancePage()
           : page === "payments"
             ? paymentPage()
             : page === "students" && role === "admin" ? enrollmentPage()
@@ -366,6 +370,7 @@ function render() {
   if (page === "settings" && role === "admin") bindSettings();
   if (page === "balances" && role === "admin") bindMonthlyBalances();
   if (page === "cashier" && ["admin", "cashier"].includes(role)) bindCashier();
+  if (page === "dailyAttendance" && ["admin", "cashier"].includes(role)) bindDailyAttendance();
   if ($("add"))
     $("add").onclick = () => (page === "users" ? openUserForm() : openForm());
   if ($("export")) $("export").onclick = exportRecords;
@@ -1064,7 +1069,7 @@ $("change-password").onclick = () => passwordForm();
 $("logout").onclick = async () => {
   try {
     await schoolAPI.request("/api/auth/logout", "POST", {});
-    location.assign("/connexion.html");
+    location.assign(role === "cashier" ? "/connexion.html?espace=caisse" : "/connexion.html");
   } catch (err) {
     handleError(err);
   }

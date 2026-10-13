@@ -54,7 +54,7 @@ const { createApplication } = require("../lib/application");
     const cashierTab = admin.locator("nav [data-page=cashier]");
     const cashierBox = await cashierTab.boundingBox();
     assert.ok(cashierBox && cashierBox.y >= 0 && cashierBox.y + cashierBox.height <= 689, "Caisse visible sans faire défiler le menu");
-    assert.deepEqual(await admin.locator("nav [data-page]").evaluateAll(links => links.slice(0, 3).map(link => link.dataset.page)), ["dashboard", "cashier", "students"]);
+    assert.deepEqual(await admin.locator("nav [data-page]").evaluateAll(links => links.slice(0, 3).map(link => link.dataset.page)), ["dashboard", "cashier", "dailyAttendance"]);
     await admin.setViewportSize({ width: 390, height: 844 });
     const mobileCashierBox = await cashierTab.boundingBox();
     assert.ok(mobileCashierBox && mobileCashierBox.x >= 0 && mobileCashierBox.x + mobileCashierBox.width <= 390, "Caisse visible sans faire défiler le menu mobile");
@@ -113,7 +113,7 @@ const { createApplication } = require("../lib/application");
     await cash.locator("#form button[type=submit]").click();
     await cash.locator("#modal").waitFor({ state: "hidden" });
     await cash.locator(".cashier-student-card").first().waitFor();
-    assert.deepEqual(await cash.locator("nav [data-page]").evaluateAll(links => links.map(link => link.dataset.page)), ["cashier"]);
+    assert.deepEqual(await cash.locator("nav [data-page]").evaluateAll(links => links.map(link => link.dataset.page)), ["cashier", "dailyAttendance"]);
     for (const route of ["/api/admin/users", "/api/admin/export", "/api/admin/settings", "/api/payments/config", "/api/payments/" + online.id + "/receipt.pdf"])
       assert.equal((await cash.request.get(base + route)).status(), 403, route);
     assert.ok(Object.values(await api(cash, "/api/data")).every(records => records.length === 0));

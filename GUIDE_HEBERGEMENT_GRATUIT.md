@@ -41,7 +41,7 @@ Dans **Build & deploy**, sélectionner :
 - Publish directory : `public`.
 - Functions directory : `netlify/functions`.
 
-Le fichier `netlify.toml` fournit les règles de routage et les réglages de construction. Il force le passage de `/administration` et `/gestion.html` par le serveur : même leur URL directe nécessite une session valide. Ne pas remplacer ces règles par une redirection générale vers un fichier statique.
+Le fichier `netlify.toml` fournit les règles de routage et les réglages de construction. Il fait passer `/administration`, `/caisse` et `/gestion.html` par le serveur. Les deux premières routes ouvrent leurs pages de connexion respectives ; `/gestion.html` exige une session valide, puis les API contrôlent le rôle. Un compte caissier ne peut pas accéder aux opérations administratives. Ne pas remplacer ces règles par une redirection générale vers un fichier statique.
 
 Déclencher un déploiement et attendre le statut **Published**. La génération n'utilise pas la base de données et ne nécessite aucun secret dans le périmètre Build. Les tables sont créées lors de la première requête serveur.
 
@@ -51,7 +51,9 @@ Déclencher un déploiement et attendre le statut **Published**. La génération
 2. Cliquer sur **Configurer le premier administrateur**.
 3. Entrer le code `CRS_SETUP_TOKEN` défini dans Netlify, puis choisir son identifiant et un mot de passe d'au moins 12 caractères et le confirmer.
 4. Se connecter et vérifier les listes, affectations et statistiques. Aucun compte ni mot de passe par défaut n'est fourni. Un visiteur sans code privé ne peut pas créer le compte superviseur.
-5. Tester l'inscription depuis un autre navigateur : elle doit apparaître dans l'administration sur l'autre appareil. Tester ensuite le paiement KKiaPay en mode test avant toute activation réelle.
+5. Tester l'inscription depuis un autre navigateur : elle doit apparaître dans l'administration sur l'autre appareil. Le test du paiement KKiaPay sera réalisé plus tard avec la configuration du client, en mode test avant toute activation réelle.
+
+Après l’installation, le responsable crée un compte au rôle **Caissier** dans **Comptes & accès**, choisit son identifiant et son mot de passe initial et les transmet en privé. Ce compte se connecte depuis **Caisse** sur l’accueil. Il peut encaisser un élève sélectionné par école et classe, produire son reçu PDF et enregistrer les **Présences du jour**. Le responsable retrouve ces informations dans la base commune. Le pointage quotidien est indépendant des présences par séance ; les étapes sont détaillées dans [GUIDE_UTILISATION.md](GUIDE_UTILISATION.md). L’utilisation de la caisse et des présences n’exige pas l’activation de KKiaPay, qui reste reportée.
 
 ## Contrôles et limites
 
