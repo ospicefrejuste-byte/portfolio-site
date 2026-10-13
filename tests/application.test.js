@@ -6,6 +6,56 @@ const os = require("node:os");
 const path = require("node:path");
 const { createApplication } = require("../lib/application");
 const password = "Test-only-password-123!";
+test("Gestion des matières, coordonnées et salles distinctes par centre", async (t) => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "crs-management-test-"));
+  const instance = createApplication({ dataDir, setupToken: "management-test-only" });
+  const server = instance.app.listen(0, "127.0.0.1");
+  await new Promise((resolve) => server.once("listening", resolve));
+  t.after(async () => {
+    await new Promise((resolve) => server.close(resolve));
+    instance.db.close();
+    fs.rmSync(dataDir, { recursive: true, force: true });
+  });
+  const base = `http://127.0.0.1:${server.address().port}`;
+  let session;
+  async function call(route, body, method = "POST", authenticated = true) {
+    const response = await fetch(base + route, {
+      method,
+      headers: { "Content-Type": "application/json", ...(session && authenticated ? { Cookie: session.cookie, "X-CSRF-Token": session.csrf } : {}) },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+    return { status: response.status, data: await response.json(), cookie: response.headers.get("set-cookie")?.split(";")[0] };
+  }
+  const setup = await call("/api/auth/setup", { username: "admin", password, token: "management-test-only" });
+  assert.equal(setup.status, 200);
+  session = { cookie: setup.cookie, csrf: setup.data.csrf };
+  const registration = { name: "Élève matières", class: "6e", centre: "CP La Boussole", guardian: "Responsable fictif", phone: "01 00 00 00 00", subjects: ["Mathématiques", "SVT"], consent: true };
+  for (const phone of ["--------", "((((((((", "0000000000000000"])
+    assert.equal((await call("/api/registrations", { ...registration, phone }, "POST", false)).status, 400);
+  assert.equal((await call("/api/registrations", registration, "POST", false)).status, 201);
+  const snapshot = (await call("/api/data", undefined, "GET")).data;
+  const student = snapshot.students[0];
+  const changed = await call("/api/records/students/" + student.id, { registrationStatus: "Inscrit" }, "PUT");
+  assert.equal(changed.status, 200);
+  assert.deepEqual(changed.data.subjects, registration.subjects);
+  assert.equal(changed.data.createdAt, student.createdAt);
+  assert.equal((await call("/api/records/students/" + student.id, { phone: "--------" }, "PUT")).status, 400);
+  async function create(kind, body) {
+    const response = await call("/api/records/" + kind, body);
+    assert.equal(response.status, 201, JSON.stringify(response.data));
+    return response.data;
+  }
+  const elsewhere = await create("students", { name: "Élève autre centre", class: "4e", centre: "EPP Borarou", group: "4e · EPP Borarou" });
+  const sameCentre = await create("students", { name: "Élève même centre", class: "3e", centre: student.centre, group: "3e · CP La Boussole" });
+  const firstTeacher = await create("teachers", { name: "Enseignant A", subject: "Mathématiques" });
+  const secondTeacher = await create("teachers", { name: "Enseignant B", subject: "Mathématiques" });
+  const thirdTeacher = await create("teachers", { name: "Enseignant C", subject: "Mathématiques" });
+  const course = { subject: "Mathématiques", group: student.group, teacher: firstTeacher.id, date: "2026-11-15", time: "16:00", duration: 60, room: "Salle 01" };
+  await create("courses", course);
+  await create("courses", { ...course, group: elsewhere.group, teacher: secondTeacher.id });
+  assert.equal((await call("/api/records/courses", { ...course, group: sameCentre.group, teacher: thirdTeacher.id })).status, 409);
+  assert.equal((await call("/api/records/courses", { ...course, group: elsewhere.group, room: "Salle 02" })).status, 409);
+});
 test("Authentification, dossiers, rôles et conservation des données", async (t) => {
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "crs-api-test-"));
   let instance = createApplication({

@@ -39,6 +39,10 @@ const esc = (v) =>
 const student = (id) => db.students.find((s) => s.id === id);
 const course = (id) => db.courses.find((c) => c.id === id);
 const teacher = (id) => db.teachers.find((t) => t.id === id);
+function groupCentre(group) {
+  const locations = [...new Set(db.students.filter((s) => s.group === group).map((s) => s.centre || ""))];
+  return locations.length === 1 ? locations[0] : "";
+}
 const money = (n) => new Intl.NumberFormat("fr-FR").format(n) + " FCFA";
 const date = (d) =>
   new Date(d + "T12:00:00").toLocaleDateString("fr-FR", {
@@ -150,7 +154,7 @@ function accountDashboard() {
     students.some((s) => s.id === p.student),
   );
   const future = courses
-    .filter((c) => c.date >= new Date().toLocaleDateString("en-CA"))
+    .filter((c) => new Date(c.date + "T" + c.time).getTime() + Number(c.duration) * 60000 > Date.now())
     .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
   const stats =
     role === "teacher"
@@ -220,7 +224,7 @@ function rowsForPage() {
       .filter((s) => (s.name + " " + s.group).toLowerCase().includes(search))
       .map(
         (s) =>
-          `<tr><td>${person(s)}</td><td>${esc(s.class)}</td><td><span class="badge">${esc(s.centre || "—")}</span></td><td>${esc(s.group)}</td><td>${esc(s.registrationStatus || "Inscrit")}</td><td>${actions(s.id)}</td></tr>`,
+          `<tr><td>${person(s)}</td><td>${esc(s.class)}</td><td><span class="badge">${esc(s.centre || "—")}</span></td><td>${esc(s.group)}</td><td>${esc((s.subjects || []).join(", ") || "Non renseignées")}</td><td>${esc(s.registrationStatus || "Inscrit")}</td><td>${actions(s.id)}</td></tr>`,
       );
   if (page === "teachers")
     rows = db.teachers
@@ -277,7 +281,7 @@ function actions(id) {
 }
 function list() {
   let headers = {
-    students: ["Élève", "Classe", "Centre", "Groupe", "Statut", "Actions"],
+    students: ["Élève", "Classe", "Centre", "Groupe", "Matières", "Statut", "Actions"],
     teachers: ["Enseignant", "Matière", "Cours", "Actions"],
     courses: ["Matière", "Groupe", "Enseignant", "Date & heure", "Lieu"],
     payments: ["Élève", "Période", "Montant", "Date", "Statut"],
@@ -320,7 +324,7 @@ function render() {
           ? accountsPage()
           : page === "payments"
             ? paymentPage()
-            : page === "assignments" ? assignmentsPage() : page === "statistics" ? statisticsPage() : list();
+            : page === "assignments" ? assignmentsPage() : page === "statistics" ? statisticsPage() : page === "help" ? helpPage() : list();
   if (role === "admin" && typeof bindAnalytics === "function") bindAnalytics();
   if ($("add"))
     $("add").onclick = () => (page === "users" ? openUserForm() : openForm());
@@ -459,7 +463,8 @@ function openForm(id) {
         ["Inscrit", "Inscrit"],
         ["Préinscription", "Préinscription"],
         ["Suspendu", "Suspendu"],
-      ]);
+      ]) +
+      `<fieldset class="subject-fields"><legend>Matières souhaitées</legend>${catalogue.subjects.map((subject) => `<label><input type="checkbox" name="subjects" value="${esc(subject)}" ${(r.subjects || []).includes(subject) ? "checked" : ""}>${esc(subject)}</label>`).join("")}<small>Choix transmis par la famille, modifiables par l’administration.</small></fieldset>`;
   if (page === "teachers")
     fields =
       f("name", "Nom complet") +
@@ -573,7 +578,9 @@ function openForm(id) {
   }
   $("form").onsubmit = async (e) => {
     e.preventDefault();
-    const data = Object.fromEntries(new FormData(e.target));
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    delete data.subjects;
     Object.keys(data).forEach((k) => (data[k] = data[k].trim()));
     if (
       Object.entries(data).some(
@@ -584,6 +591,7 @@ function openForm(id) {
     }
     for (const k of ["amount", "score", "duration", "monthlyFee"])
       if (k in data) data[k] = Number(data[k]);
+    if (page === "students") data.subjects = formData.getAll("subjects");
     if (
       page === "grades" &&
       student(data.student)?.group !== course(data.course)?.group
@@ -597,7 +605,8 @@ function openForm(id) {
         return (
           (c.teacher === data.teacher ||
             c.group === data.group ||
-            c.room.toLowerCase() === data.room.toLowerCase()) &&
+            (c.room.toLowerCase() === data.room.toLowerCase() &&
+              (!groupCentre(c.group) || !groupCentre(data.group) || groupCentre(c.group) === groupCentre(data.group)))) &&
           mins(c.time) < mins(data.time) + data.duration &&
           mins(data.time) < mins(c.time) + c.duration
         );

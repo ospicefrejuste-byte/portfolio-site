@@ -1,5 +1,7 @@
 # Hébergement gratuit avec base partagée
 
+La version Netlify avec Supabase/PostgreSQL se configure avec [le guide d’hébergement gratuit](GUIDE_HEBERGEMENT_GRATUIT.md). Les étapes de gestion et de remise au client sont dans [le guide d’utilisation](GUIDE_UTILISATION.md), également accessible depuis l’administration. Le serveur lancé par `npm start` utilise SQLite pour l’hébergement Node/Docker ; Netlify génère son serveur PostgreSQL avec `npm run build:cloud`.
+
 Pour la configuration Netlify + Supabase, suivre [GUIDE_HEBERGEMENT_GRATUIT.md](GUIDE_HEBERGEMENT_GRATUIT.md). La branche de publication est `site-complet-gratuit`. Cette configuration utilise PostgreSQL et protège l’administration côté serveur.
 
 # COURS DE RENFORCEMENT SCOLAIRE

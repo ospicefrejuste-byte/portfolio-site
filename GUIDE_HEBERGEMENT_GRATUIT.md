@@ -57,10 +57,14 @@ Déclencher un déploiement et attendre le statut **Published**. La génération
 
 La version serveur a été testée localement contre PostgreSQL 17 : authentification, rôles, persistance, validation des paiements, protection des dossiers, création concurrente d'un unique superviseur, confirmations de paiement simultanées et cookies sécurisés en mode serverless. Les transactions sont sérialisées pour empêcher les doublons de paiement. Les limites de tentatives sont stockées en base et restent actives entre plusieurs instances serveur.
 
-Le projet Supabase réel et le déploiement Netlify de cette version ne sont pas encore configurés. Les tests KKiaPay utilisent un vérificateur simulé ; la connexion au prestataire et les certificats du fournisseur seront à vérifier avec les services réels. Il n'y a pas de migration automatique des exemples locaux de la démo vers la base réelle : commencer les inscriptions réelles sur la version serveur uniquement.
+Le projet Supabase et le déploiement Netlify sont configurés. La création du compte superviseur, la connexion, la protection de l’administration et une préinscription visible depuis l’administration ont été confirmées sur le site par le propriétaire. Les tests KKiaPay utilisent un vérificateur simulé ; la connexion au prestataire et les certificats du fournisseur seront à vérifier avec les services réels. Il n'y a pas de migration automatique des exemples locaux de la démo vers la base réelle : commencer les inscriptions réelles sur la version serveur uniquement.
 
 L'export des dossiers est disponible dans l'administration. Prévoir également les sauvegardes de la base proposées par Supabase ou un export PostgreSQL privé. Les comptes et mots de passe ne sont pas inclus dans l'export public des dossiers.
 
 ### Mot de passe séparé (facultatif)
 
 Pour éviter d’encoder les symboles manuellement, ajoutez `DATABASE_PASSWORD` comme variable secrète dans Netlify, disponible pour les Functions en Production. Sa valeur est le mot de passe actuel de la base Supabase, saisi tel quel. Il remplace le mot de passe inclus dans `DATABASE_URL`, dont le serveur, le port et l’utilisateur restent nécessaires. Redéployez après modification. Ne partagez aucune de ces valeurs.
+
+## Gestion quotidienne et remise au client
+
+Le superviseur dispose maintenant d’un onglet **Guide d’utilisation** dans l’administration. Pour les étapes détaillées, consulter [GUIDE_UTILISATION.md](GUIDE_UTILISATION.md). Le paiement KKiaPay reste reporté jusqu’à la saisie privée des clés du client et au test du prestataire.
