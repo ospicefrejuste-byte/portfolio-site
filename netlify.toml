@@ -8,8 +8,8 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["pg"]
-  included_files = ["public/gestion.html"]
+  external_node_modules = ["pg", "pdfkit"]
+  included_files = ["public/gestion.html", "lib/assets/DejaVuSans.ttf"]
 
 [[redirects]]
   from = "/api/*"
@@ -53,7 +53,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "same-origin"
     X-Frame-Options = "DENY"
-    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-src https://widget-v3.kkiapay.me; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; connect-src 'self'; frame-src https://widget-v3.kkiapay.me; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
 
 [[headers]]
   for = "/connexion.html"

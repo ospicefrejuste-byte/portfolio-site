@@ -1,0 +1,47 @@
+.enrollments-panel{min-width:0;max-width:100%;overflow:hidden!important}
+.enrollments-toolbar{align-items:flex-start;flex-wrap:wrap}
+.enrollments-toolbar .helper{margin:8px 0 0}
+.enrollment-filters{display:grid;grid-template-columns:minmax(210px,1.4fr) repeat(3,minmax(145px,1fr));gap:14px;padding:18px;background:#f7f9fd;border:1px solid #e3e9f3;border-radius:12px;margin:0 0 20px}
+.enrollment-filters label,.enrollment-period-fields label{display:grid;gap:7px;min-width:0;font-size:12px;color:#607594}
+.enrollment-filters input,.enrollment-filters select,.enrollment-period-fields input{width:100%;max-width:100%;box-sizing:border-box;color:#173257}
+.enrollment-filters>button{justify-self:start;grid-column:1/-1}
+.enrollment-duplicate-note{padding:14px 16px;border:1px solid #efda98;background:#fff9e7;border-radius:10px;font-size:12px;line-height:1.7;color:#746027;margin-bottom:18px}
+.enrollment-duplicate-note p{margin:5px 0 0}
+.enrollment-duplicate-badge{display:inline-block;margin:8px 0 0 42px;padding:3px 7px;background:#fff1cf;border:1px solid #f4dea3;border-radius:6px;color:#876113;font-size:10px}
+.enrollment-report-period{border:1px solid #e3e9f3;border-radius:10px;padding:13px 15px;margin-bottom:20px;font-size:12px;min-width:0}
+.enrollment-report-period summary{cursor:pointer;font-weight:600;color:#173965}
+.enrollment-report-period .helper{line-height:1.7}
+.enrollment-period-fields{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin-top:12px}
+.enrollment-period-fields label{flex:0 1 180px}
+.enrollment-bulk-bar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;border:1px solid #dce6f6;border-radius:12px;background:#edf3ff;padding:15px;margin-bottom:10px}
+.enrollment-bulk-bar>div:first-child{min-width:0;flex:1 1 240px}
+.enrollment-bulk-bar strong{display:block;font-size:13px;color:#173965}
+.enrollment-bulk-bar span{display:block;margin-top:6px;font-size:11px;line-height:1.6;color:#607594}
+.enrollment-bulk-actions{display:flex;gap:8px;flex-wrap:wrap}
+.enrollments-panel button:disabled,.enrollment-report-disabled{opacity:.55;cursor:default}
+.enrollment-error{margin:12px 0;padding:12px 14px;color:#a33333;border:1px solid #f1c9c9;background:#fff4f4;border-radius:8px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.enrollment-error[hidden]{display:none}
+.enrollment-results{margin:16px 0 8px;color:#607594;font-size:12px;line-height:1.7}
+.enrollment-table-scroll{max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;border:1px solid #e3e9f3;border-radius:10px}
+.enrollment-table-scroll:focus-visible{outline:3px solid #89abed;outline-offset:3px}
+.enrollment-table{min-width:1040px}
+.enrollment-table th{background:#f8faff}
+.enrollment-table th:first-child,.enrollment-table td:first-child{width:35px;text-align:center}
+.enrollment-table input[type=checkbox]{width:17px;height:17px;padding:0;margin:0;vertical-align:middle;accent-color:#245ac2;cursor:pointer}
+.enrollment-table input[type=checkbox]:disabled{cursor:default;opacity:.35}
+.enrollment-table td{vertical-align:middle}
+.enrollment-table .enrollment-wrap{min-width:130px;max-width:210px;white-space:normal;overflow-wrap:anywhere;line-height:1.6}
+.enrollment-person{display:flex;align-items:center;gap:9px;max-width:240px;white-space:normal;line-height:1.5;overflow-wrap:anywhere}
+.enrollment-person .avatar{flex-shrink:0;margin:0}
+.enrollment-status{display:inline-block;padding:6px 8px;border-radius:7px;font-size:11px;background:#edf3ff;color:#245ac2}
+.enrollment-status.pending{background:#fff4cf;color:#856117}
+.enrollment-status.registered{background:#e7f5ec;color:#26704c}
+.enrollment-status.suspended{background:#fdecec;color:#a54646}
+.enrollment-selected{background:#f3f7ff}
+.enrollment-row-actions{display:flex;flex-wrap:wrap;gap:7px;max-width:230px}
+.enrollment-row-actions .row-actions{display:flex;flex-wrap:wrap;gap:7px}
+.enrollment-report{display:inline-block;text-decoration:none;white-space:nowrap;color:#245ac2}
+.enrollment-report:hover{background:#edf3ff;border-color:#bfceed}
+.enrollment-report-disabled{display:inline-block;padding:9px 12px;font-size:12px}
+@media(max-width:1150px){.enrollment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.enrollments-panel{padding:16px!important}.enrollments-toolbar{gap:12px}.enrollments-toolbar>button{width:100%}.enrollment-filters{grid-template-columns:minmax(0,1fr);padding:13px;gap:12px}.enrollment-filters>button{width:100%}.enrollment-bulk-bar{padding:13px;gap:12px}.enrollment-bulk-actions{width:100%}.enrollment-bulk-actions>button{flex:1;white-space:normal;line-height:1.5}.enrollment-period-fields{align-items:stretch}.enrollment-period-fields label{flex:1 1 120px}.enrollment-period-fields>button{width:100%}.enrollment-duplicate-badge{margin-left:0}.enrollment-table-scroll{margin-top:12px}}

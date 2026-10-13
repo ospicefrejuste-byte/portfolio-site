@@ -14,10 +14,12 @@
     "test:browser:public": "node tests/browser-public.cjs",
     "build:cloud": "node scripts/build-cloud.js",
     "test:cloud": "node --test tests/cloud.integration.cjs tests/cloud-concurrency.cjs",
-    "test:cloud:browser": "node scripts/test-cloud-browser.js"
+    "test:cloud:browser": "node scripts/test-cloud-browser.js",
+    "test:browser:platform": "node tests/browser-platform.cjs"
   },
   "dependencies": {
     "express": "5.1.0",
+    "pdfkit": "0.17.2",
     "pg": "^8.23.1",
     "serverless-http": "^3.2.0"
   },

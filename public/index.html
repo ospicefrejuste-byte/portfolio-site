@@ -1,12 +1,81 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inscription · Cours de renforcement scolaire</title><link rel="stylesheet" href="eleve.css"><script src="vendor/kkiapay-2.0.38.js" defer></script><script src="inscription.js" defer></script></head>
-<body><header><div><strong>COURS DE RENFORCEMENT SCOLAIRE</strong><small>Ensemble pour une meilleure réussite</small><a class="admin-entry" href="/administration">Administration →</a></div></header><main>
-<article id="registration-panel"><h1>Inscrivez-vous aux cours</h1><p class="intro">Remplissez ce formulaire. Après validation, vous pourrez payer les frais du mois.</p><form id="registration" novalidate><div class="grid">
-<label>Nom complet de l’élève<input name="name" autocomplete="name" required></label><label>Classe<select name="class" id="class"></select></label>
-<label class="wide">Centre de formation<select name="centre"><option>CSP Les Adorables de la Cité</option><option>CP La Boussole</option><option>EPP Borarou</option></select></label>
-<label>Nom du parent / responsable<input name="guardian" required></label><label>Téléphone du responsable<input name="phone" type="tel" placeholder="01 00 00 00 00" autocomplete="tel" required></label></div>
-<fieldset><legend>Matières souhaitées</legend><label class="choice"><input name="subjects" type="checkbox" value="Mathématiques" checked>Mathématiques</label><label class="choice"><input name="subjects" type="checkbox" value="Physique-Chimie" checked>Physique-Chimie</label><label class="choice"><input name="subjects" type="checkbox" value="SVT" checked>SVT</label></fieldset>
-<div class="fee"><span>Frais mensuels</span><strong id="fee"></strong></div><div class="notice">Votre demande sera transmise à l’établissement. Les frais sont calculés selon la classe choisie.</div><label class="choice consent"><input id="consent" type="checkbox">J’accepte la transmission de cette préinscription à l’établissement.</label><p id="error" class="error" role="alert"></p><button type="submit">Valider mon inscription →</button></form></article>
-<article id="confirmation" hidden><div class="success" role="status"><strong>Préinscription reçue !</strong><br>Votre dossier a été transmis. Vous pouvez payer les frais du mois ou fermer cette page.</div><h1 id="student-name"></h1><dl><dt>Classe</dt><dd id="summary-class"></dd><dt>Centre</dt><dd id="summary-centre"></dd><dt>Frais du mois</dt><dd id="amount"></dd></dl><p class="intro">Référence : <span id="reference"></span></p><p id="payment-note" class="notice">Le paiement sera confirmé après vérification auprès de KKiaPay.</p><p id="payment-status" role="status"></p><button id="retry-confirmation" class="secondary" hidden>Vérifier à nouveau le paiement</button><div id="paid" class="success" hidden><strong>Paiement confirmé</strong><p>Montant : <span id="receipt-amount"></span><br>Référence de paiement : <span id="receipt-reference"></span></p><span id="receipt-mode"></span></div><div class="actions"><button id="pay">Payer les frais du mois</button><button id="new-registration" class="secondary">Inscrire un autre élève</button></div></article>
-<footer>Vos inscriptions sont reçues par l’établissement.<br>Contacts : 01 41 77 84 49 / 01 95 48 91 34</footer></main>
-</body></html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Inscrivez votre enfant aux cours de renforcement scolaire et accompagnez ses progrès.">
+  <meta name="theme-color" content="#14355c">
+  <title>Inscription · Cours de renforcement scolaire</title>
+  <link rel="stylesheet" href="eleve.css">
+  <script src="vendor/kkiapay-2.0.38.js" defer></script>
+  <script src="inscription.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#registration">Aller au formulaire d’inscription</a>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="/" aria-label="Accueil de l’établissement">
+        <span class="brand-mark"><span id="school-monogram">CR</span><img id="school-logo" alt="" hidden></span>
+        <span class="brand-copy"><strong id="school-name">COURS DE RENFORCEMENT SCOLAIRE</strong><small id="school-tagline">Ensemble pour une meilleure réussite</small></span>
+      </a>
+      <a class="admin-entry" href="/administration"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path><path d="M12 14v3"></path></svg>Administration</a>
+    </div>
+  </header>
+
+  <main id="page-shell" class="page-shell">
+    <aside id="welcome-panel" class="welcome-panel">
+      <span class="eyebrow"><span class="gold-dot"></span> Cours de renforcement scolaire</span>
+      <h2>Chaque progrès <br>commence <em>ici.</em></h2>
+      <p id="school-description" class="welcome-copy">Un accompagnement dans les matières essentielles pour consolider les connaissances et progresser à son rythme.</p>
+      <div class="welcome-note"><span class="note-mark" aria-hidden="true">✓</span><span>Une inscription simple.<br><strong>Un nouveau départ pour apprendre.</strong></span></div>
+      <svg class="learning-illustration" viewBox="0 0 420 250" aria-hidden="true">
+        <circle cx="235" cy="117" r="102" fill="#f8df76" opacity=".32"></circle>
+        <path d="M64 197c46-26 82-26 114-4 28 19 45 22 80 0 33-21 68-20 102 4" fill="none" stroke="#c8d6e5" stroke-width="2"></path>
+        <path d="M90 88l113 24v102L90 190z" fill="#fff" stroke="#14355c" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M203 112l113-24v102l-113 24z" fill="#e5eef7" stroke="#14355c" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M105 76l98 27v111l-98-34z" fill="#f9fafb" stroke="#14355c" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M203 103l98-27v104l-98 34z" fill="#fff" stroke="#14355c" stroke-width="3" stroke-linejoin="round"></path>
+        <path d="M123 108l61 18m-61 1l61 18m-61 1l41 12m60-32l60-18m-60 38l60-18m-60 38l40-12" fill="none" stroke="#c8d6e5" stroke-width="3" stroke-linecap="round"></path>
+        <path d="M157 55l62-25 62 25-62 25z" fill="#14355c"></path><path d="M183 68v23c21 11 49 11 72 0V68" fill="#14355c"></path>
+        <path d="M274 57v40" fill="none" stroke="#dfb52e" stroke-width="4" stroke-linecap="round"></path><path d="M274 95l-5 15h10z" fill="#dfb52e"></path>
+        <path d="M334 85v14m-7-7h14M70 137v12m-6-6h12" stroke="#dfb52e" stroke-width="3" stroke-linecap="round"></path><circle cx="108" cy="44" r="4" fill="#96afca"></circle><circle cx="349" cy="156" r="5" fill="#96afca"></circle>
+      </svg>
+      <p class="family-contact">Une question ? <a href="#contact">Contactez l’établissement <span aria-hidden="true">↗</span></a></p>
+    </aside>
+
+    <article id="registration-panel" class="registration-card">
+      <div class="card-heading"><span class="eyebrow">Inscription aux cours</span><h1>Préparons ses prochains progrès.</h1><p class="intro">Renseignez les informations de l’élève. Votre dossier sera transmis à l’établissement.</p></div>
+      <div id="catalogue-message" class="catalogue-message" role="status"><span id="catalogue-status">Chargement des classes et des tarifs…</span><button id="retry-catalogue" class="secondary" type="button" hidden>Réessayer le chargement</button></div>
+      <form id="registration" novalidate>
+        <div class="grid">
+          <label>Nom complet de l’élève<input name="name" autocomplete="name" placeholder="Prénom et nom" required disabled></label>
+          <label>Classe<select name="class" id="class" required disabled><option value="">Chargement…</option></select></label>
+          <label class="wide">Centre de formation<select name="centre" id="centre" required disabled><option value="">Chargement…</option></select></label>
+          <label>Nom du parent / responsable<input name="guardian" placeholder="Prénom et nom" required disabled></label>
+          <label>Téléphone du responsable<input name="phone" type="tel" placeholder="01 00 00 00 00" autocomplete="tel" required disabled></label>
+        </div>
+        <fieldset id="subject-options"><legend>Matières souhaitées</legend><div id="subjects-list" class="subject-options"></div></fieldset>
+        <div class="fee"><span>Frais mensuels de la classe<small>Selon le tarif de l’établissement</small></span><strong id="fee">—</strong></div>
+        <label class="choice consent"><input id="consent" type="checkbox" disabled><span>J’accepte la transmission de cette préinscription à l’établissement.</span></label>
+        <p id="error" class="error" role="alert"></p>
+        <button type="submit" class="submit-registration" disabled>Valider mon inscription <span aria-hidden="true">→</span></button>
+        <p class="form-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 5-8 9-8 9s-8-4-8-9V6z"></path><path d="M8 12l3 3 5-6"></path></svg>Vos informations sont réservées à l’établissement.</p>
+      </form>
+      <noscript><p class="error">Activez JavaScript dans votre navigateur pour charger les classes et envoyer votre inscription.</p></noscript>
+    </article>
+
+    <article id="confirmation" class="confirmation-card" hidden>
+      <div class="success" role="status"><strong>Préinscription reçue !</strong><br>Votre dossier a été transmis. Vous pouvez payer les frais du mois ou fermer cette page.</div>
+      <h1 id="student-name"></h1>
+      <dl><dt>Classe</dt><dd id="summary-class"></dd><dt>Centre</dt><dd id="summary-centre"></dd><dt>Frais du mois</dt><dd id="amount"></dd></dl>
+      <p class="intro">Référence : <span id="reference"></span></p>
+      <p id="payment-note" class="notice">Le paiement sera confirmé après vérification auprès de KKiaPay.</p>
+      <p id="payment-status" role="status"></p>
+      <button id="retry-confirmation" class="secondary" hidden>Vérifier à nouveau le paiement</button>
+      <div id="paid" class="success" hidden><strong>Paiement confirmé</strong><p>Montant : <span id="receipt-amount"></span><br>Référence de paiement : <span id="receipt-reference"></span></p><span id="receipt-mode"></span><button id="download-receipt" type="button">Télécharger mon reçu PDF</button></div>
+      <div class="actions"><button id="pay">Payer les frais du mois</button><button id="new-registration" class="secondary">Inscrire un autre élève</button></div>
+    </article>
+  </main>
+  <footer id="contact" class="site-footer"><div><strong id="footer-school-name">COURS DE RENFORCEMENT SCOLAIRE</strong><span>Ensemble, accompagnons chaque progrès.</span></div><nav id="school-contacts" aria-label="Contacter l’établissement"></nav></footer>
+</body>
+</html>

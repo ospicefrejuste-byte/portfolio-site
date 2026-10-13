@@ -1,0 +1,41 @@
+"use strict";
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const os=require('node:os');const path=require('node:path');const crypto=require('node:crypto');
+const {createApplication}=require('../lib/application');
+test('Paramètres persistants, validation groupée, mensualités et PDF protégés',async t=>{
+ const dataDir=fs.mkdtempSync(path.join(os.tmpdir(),'crs-platform-test-'));
+ let instance=createApplication({dataDir,setupToken:'platform-test-only'});
+ let server=instance.app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));let base='http://127.0.0.1:'+server.address().port;
+ t.after(async()=>{await new Promise(r=>server.close(r));instance.db.close();fs.rmSync(dataDir,{recursive:true,force:true})});
+ async function call(route,method='GET',body,session){const r=await fetch(base+route,{method,headers:{...(body?{'Content-Type':'application/json'}:{}),...(session?{Cookie:session.cookie,'X-CSRF-Token':session.csrf}:{})},body:body?JSON.stringify(body):undefined});return {status:r.status, data:r.headers.get('content-type')?.includes('json')?await r.json():Buffer.from(await r.arrayBuffer()), cookie:r.headers.get('set-cookie')?.split(';')[0],type:r.headers.get('content-type')}}
+ const password='Platform-test-password-123!';const setup=await call('/api/auth/setup','POST',{username:'admin',password,token:'platform-test-only'});const admin={cookie:setup.cookie,csrf:setup.data.csrf};assert.equal(setup.status,200);
+ assert.equal((await call('/api/admin/settings')).status,401);assert.equal((await call('/api/admin/monthly-balances?period=2026-10')).status,401);
+ const original=(await call('/api/catalogue')).data;
+ const registration={name:'Ancien dossier',class:'6e',centre:original.centres[0],guardian:'Responsable fictif',phone:'0100000000',subjects:[original.subjects[0]],consent:true};assert.equal((await call('/api/registrations','POST',registration)).data.monthlyFee,3500);
+ const school={...original,name:'Établissement Élan',description:'Accompagnement scolaire',levels:original.levels.map(([name,fee])=>[name,name==='6e'?6500:fee]),centres:[...original.centres,'Centre Essai','C'.repeat(100)],subjects:[...original.subjects,'Anglais'],privateKey:'test-only-not-persisted'};
+ assert.equal((await call('/api/admin/settings','PUT',school)).status,401);
+ assert.equal((await call('/api/admin/settings','PUT',{...school,logoUrl:'javascript:alert(1)'},admin)).status,400);
+ const saved=await call('/api/admin/settings','PUT',school,admin);assert.equal(saved.status,200);assert.equal(saved.data.privateKey,undefined);
+ assert.equal((await call('/api/catalogue')).data.name,school.name);
+ const longSchool={...saved.data,levels:[...saved.data.levels,['L'.repeat(80),7000]]};assert.equal((await call('/api/admin/settings','PUT',longSchool,admin)).status,200);const longRegistration=await call('/api/registrations','POST',{...registration,name:'Long libellé',class:'L'.repeat(80),centre:'C'.repeat(100)});assert.equal(longRegistration.status,201);assert.equal(longRegistration.data.monthlyFee,7000);
+ const fresh=await call('/api/registrations','POST',{...registration,name:'Nouveau dossier',subjects:['Anglais']});assert.equal(fresh.data.monthlyFee,6500);
+ let data=(await call('/api/data','GET',undefined,admin)).data;const old=data.students.find(s=>s.name==='Ancien dossier'),next=data.students.find(s=>s.name==='Nouveau dossier');assert.equal(old.monthlyFee,3500);
+ assert.equal((await call('/api/admin/settings','PUT',{...school,centres:school.centres.slice(1)},admin)).status,409);
+ assert.equal((await call('/api/admin/registrations/validate','POST',{ids:[old.id,crypto.randomUUID()]},admin)).status,409);
+ data=(await call('/api/data','GET',undefined,admin)).data;assert.ok(data.students.every(s=>s.registrationStatus==='Préinscription'));
+ const validated=await call('/api/admin/registrations/validate','POST',{ids:[old.id,next.id]},admin);assert.equal(validated.status,200);assert.equal(validated.data.count,2);assert.ok(validated.data.students.every(s=>s.registrationStatus==='Inscrit'));
+ assert.equal((await call('/api/admin/registrations/validate','POST',{ids:[old.id]},admin)).status,409);
+ const payment=await call('/api/records/payments','POST',{student:next.id,amount:1000,period:'2026-10',date:'2026-10-13'},admin);assert.equal(payment.status,201);
+ await call('/api/records/payments','POST',{student:next.id,amount:1500,period:'2026-09',date:'2026-10-13'},admin);
+ const balances=await call('/api/admin/monthly-balances?period=2026-10','GET',undefined,admin);assert.equal(balances.status,200);const row=balances.data.rows.find(r=>r.student===next.id);assert.equal(row.paid,1000);assert.equal(row.balance,5500);assert.equal(row.status,'Partiel');
+ assert.equal((await call('/api/admin/monthly-balances?period=invalid','GET',undefined,admin)).status,400);
+ const report=await call('/api/admin/students/'+next.id+'/report.pdf','GET',undefined,admin);assert.equal(report.status,200);assert.match(report.type,/application\/pdf/);assert.equal(report.data.subarray(0,5).toString(),'%PDF-');
+ assert.equal((await call('/api/admin/students/'+next.id+'/report.pdf')).status,401);
+ assert.equal((await call('/api/admin/students/'+next.id+'/report.pdf?from=2026-10-20&to=2026-10-01','GET',undefined,admin)).status,400);
+ const receipt=await call('/api/payments/'+payment.data.id+'/receipt.pdf','GET',undefined,admin);assert.equal(receipt.status,200);assert.equal(receipt.data.subarray(0,5).toString(),'%PDF-');
+ const teacher=await call('/api/records/teachers','POST',{name:'Professeur test',subject:school.subjects[0]},admin);
+ await call('/api/admin/users','POST',{username:'prof-platform',password,role:'teacher',entityId:teacher.data.id},admin);
+ const login=await call('/api/auth/login','POST',{username:'prof-platform',password});let prof={cookie:login.cookie,csrf:login.data.csrf};const changed=await call('/api/auth/password','POST',{currentPassword:password,password:'Personal-teacher-password-123!'},prof);prof={cookie:changed.cookie,csrf:changed.data.csrf};
+ for(const route of ['/api/admin/settings','/api/admin/monthly-balances?period=2026-10','/api/admin/students/'+next.id+'/report.pdf','/api/payments/'+payment.data.id+'/receipt.pdf'])assert.equal((await call(route,'GET',undefined,prof)).status,403,route);
+ await new Promise(r=>server.close(r));instance.db.close();instance=createApplication({dataDir});server=instance.app.listen(0,'127.0.0.1');await new Promise(r=>server.once('listening',r));base='http://127.0.0.1:'+server.address().port;assert.equal((await call('/api/catalogue')).data.name,school.name);
+
+});

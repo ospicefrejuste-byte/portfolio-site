@@ -23,5 +23,6 @@ test('Accès superviseur et paiement public limité au dossier nouvellement insc
  verified={status:'SUCCESS',amount:1,data:order.data.data};assert.equal((await call('/api/registration-payments/confirm',confirmation,first.data.paymentToken)).status,409);
  verified={status:'SUCCESS',amount:3500,data:order.data.data};assert.equal((await call('/api/registration-payments/confirm',confirmation,first.data.paymentToken)).status,200);assert.equal((await call('/api/registration-payments/confirm',confirmation,first.data.paymentToken)).data.alreadyConfirmed,true);
  assert.equal(instance.db.prepare("SELECT count(*) n FROM records WHERE kind='payments'").get().n,1);
+ const pdf=await call('/api/registration-payments/receipt.pdf?orderId='+order.data.orderId,undefined,first.data.paymentToken);assert.equal(pdf.status,200);assert.ok(pdf.data.startsWith('%PDF-'));assert.equal((await call('/api/registration-payments/receipt.pdf?orderId='+order.data.orderId,undefined,second.data.paymentToken)).status,404);
  instance.db.prepare('UPDATE registration_access SET expires=0').run();assert.equal((await call('/api/registration-payments/config',undefined,first.data.paymentToken)).status,401);
 });

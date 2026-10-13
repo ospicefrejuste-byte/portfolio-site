@@ -84,7 +84,21 @@ function toast(message) {
   setTimeout(() => ($("toast").style.display = "none"), 3000);
 }
 async function refresh() {
+  Object.assign(catalogue, await schoolAPI.request("/api/catalogue"));
   db = await schoolAPI.request("/api/data");
+  if (typeof invalidateMonthlyBalances === "function") invalidateMonthlyBalances();
+  const brand = document.querySelector(".brand");
+  if (brand) {
+    brand.querySelector("span:last-child").textContent = catalogue.name;
+    const logo = brand.querySelector(".logo");
+    logo.replaceChildren();
+    if (catalogue.logoUrl) {
+      const image = document.createElement("img"); image.src = catalogue.logoUrl; image.alt = "Logo de l’établissement"; image.style.cssText = "width:100%;height:100%;object-fit:contain"; logo.append(image);
+    } else logo.textContent = "CR";
+  }
+  document.title = catalogue.name;
+  const footer = document.querySelector("main > footer");
+  if (footer) footer.firstChild.textContent = catalogue.name + " ";
   if (role === "admin") users = await schoolAPI.request("/api/admin/users");
   if (role !== "teacher") {
     paymentConfig = await schoolAPI.request("/api/payments/config");
@@ -102,7 +116,7 @@ function navigation() {
   let entries = Object.keys(sections).filter(
     (x) =>
       role === "admin" ||
-      ["dashboard", "courses", "attendance", "grades"].includes(x) ||
+      ["dashboard", "courses", "calendar", "attendance", "grades"].includes(x) ||
       (role === "student" && x === "payments"),
   );
   $("nav").innerHTML = entries
@@ -254,7 +268,7 @@ function rowsForPage() {
       )
       .map(
         (p) =>
-          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(p.period)}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : "Saisie manuelle"}</span></td><td><button class="secondary" data-receipt="${p.id}">Reçu</button>${role === "admin" && p.source !== "KKiaPay" ? actions(p.id) : ""}</td></tr>`,
+          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(p.period)}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : "Saisie manuelle"}</span></td><td><button class="secondary" data-receipt="${p.id}">Reçu</button><a class="secondary" href="/api/payments/${encodeURIComponent(p.id)}/receipt.pdf" download>Télécharger PDF</a>${role === "admin" && p.source !== "KKiaPay" ? actions(p.id) : ""}</td></tr>`,
       );
   if (page === "grades")
     rows = db.grades
@@ -326,8 +340,15 @@ function render() {
           ? accountsPage()
           : page === "payments"
             ? paymentPage()
-            : page === "assignments" ? assignmentsPage() : page === "statistics" ? statisticsPage() : page === "help" ? helpPage() : list();
+            : page === "students" && role === "admin" ? enrollmentPage()
+              : page === "calendar" ? calendarPage()
+                : page === "settings" ? settingsPage()
+                  : page === "balances" ? monthlyBalancesPage()
+                    : page === "assignments" ? assignmentsPage() : page === "statistics" ? statisticsPage() : page === "help" ? helpPage() : list();
   if (role === "admin" && typeof bindAnalytics === "function") bindAnalytics();
+  if (page === "calendar") bindCalendar();
+  if (page === "settings" && role === "admin") bindSettings();
+  if (page === "balances" && role === "admin") bindMonthlyBalances();
   if ($("add"))
     $("add").onclick = () => (page === "users" ? openUserForm() : openForm());
   if ($("export")) $("export").onclick = exportRecords;
@@ -401,6 +422,14 @@ function render() {
   document
     .querySelectorAll("[data-reset-user]")
     .forEach((b) => (b.onclick = () => resetUser(b.dataset.resetUser)));
+  if (page === "students" && role === "admin") bindEnrollments();
+}
+function openCourseForm(id) { page = "courses"; render(); openForm(id); }
+function openPaymentForm(studentId, period) {
+  page = "payments"; render(); openForm();
+  if ($("f-student")) $("f-student").value = studentId;
+  if ($("f-period")) $("f-period").value = period;
+  if ($("fields")) $("fields").insertAdjacentHTML("afterbegin", '<p class="helper">Saisissez uniquement une somme effectivement reçue par l’établissement.</p>');
 }
 
 function field(
@@ -412,7 +441,7 @@ function field(
   optional = false,
 ) {
   const required = optional ? "" : "required";
-  return `<label for="f-${name}">${label}</label>${options ? `<select id="f-${name}" name="${name}" ${required}>${options.map((o) => `<option value="${esc(o[0])}" ${String(value) === String(o[0]) ? "selected" : ""}>${esc(o[1])}</option>`).join("")}</select>` : `<input id="f-${name}" name="${name}" type="${type}" ${required} value="${esc(value)}" ${name === "score" ? 'min="0" max="20" step="0.5"' : name === "amount" ? 'min="1" max="100000000" step="1"' : name === "monthlyFee" ? 'min="0" max="1000000" step="1"' : name === "duration" ? 'min="15" max="480" step="15"' : type === "password" ? 'minlength="12" maxlength="128" autocomplete="new-password"' : name === "group" ? 'maxlength="180"' : 'maxlength="100"'}>`}`;
+  return `<label for="f-${name}">${label}</label>${options ? `<select id="f-${name}" name="${name}" ${required}>${options.map((o) => `<option value="${esc(o[0])}" ${String(value) === String(o[0]) ? "selected" : ""}>${esc(o[1])}</option>`).join("")}</select>` : `<input id="f-${name}" name="${name}" type="${type}" ${required} value="${esc(value)}" ${name === "score" ? 'min="0" max="20" step="0.5"' : name === "amount" ? 'min="1" max="100000000" step="1"' : name === "monthlyFee" ? 'min="0" max="1000000" step="1"' : name === "duration" ? 'min="15" max="480" step="15"' : type === "password" ? 'minlength="12" maxlength="128" autocomplete="new-password"' : name === "group" ? 'maxlength="200"' : 'maxlength="100"'}>`}`;
 }
 
 function openForm(id) {
@@ -783,7 +812,7 @@ function showReceipt(id) {
       ? "Reçu de test — sans valeur de paiement"
       : "Reçu de paiement";
   $("fields").innerHTML =
-    `<div class="receipt"><h3>COURS DE RENFORCEMENT SCOLAIRE</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois : ${esc(p.period)}</p><p>Montant : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
+    `<div class="receipt"><h3>${esc(catalogue.name)}</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois : ${esc(p.period)}</p><p>Montant : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
   $("error").textContent = "";
   $("form").querySelector('button[type="submit"]').textContent =
     "Imprimer le reçu";
@@ -987,6 +1016,7 @@ $("logout").onclick = async () => {
   }
 };
 (async () => {
+  await new Promise((resolve) => document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", resolve, { once: true }) : resolve());
   try {
     const result = await schoolAPI.request("/api/auth/me");
     user = result.user;

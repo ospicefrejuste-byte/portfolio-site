@@ -13,9 +13,11 @@ Dans **Élèves**, recherchez le dossier, cliquez sur **Modifier**, puis :
 3. Choisissez un **Groupe** permettant d’identifier le niveau et le centre. Le groupe proposé à l’inscription contient déjà ces deux informations.
 4. Passez le statut de **Préinscription** à **Inscrit** lorsque l’établissement accepte le dossier, puis enregistrez.
 
+Les filtres de la liste permettent de retrouver les dossiers par classe, centre et statut. Sélectionnez les préinscriptions à accepter, puis cliquez sur **Valider les préinscriptions** (100 au maximum). Les rapprochements signalent des dossiers de même nom, téléphone, classe et centre ; vérifiez-les avant de décider, car aucun dossier n’est supprimé automatiquement.
+
 **Suspendu** permet de signaler une inscription suspendue. Un changement de classe peut modifier le tarif proposé : vérifiez-le avant d’enregistrer. Ne regroupez pas sous le même nom des élèves de centres différents. Un changement de groupe peut être refusé si des notes ou présences existent déjà : vérifiez les liens avant de réorganiser les dossiers.
 
-Les centres, classes et matières proposés au public viennent du catalogue du site. Il n’existe pas d’onglet général permettant de renommer ce catalogue : transmettez les noms et tarifs définitifs au responsable technique. Les noms d’élèves et d’enseignants, les groupes et les horaires se modifient dans les rubriques correspondantes.
+Dans **Paramètres de l’établissement**, modifiez le nom, la présentation, les contacts et le logo, puis les classes, tarifs, centres et matières. Les nouvelles inscriptions utilisent les tarifs enregistrés ; les dossiers existants gardent leur tarif. Les entrées déjà utilisées ne peuvent pas être retirées : conservez-les et ajoutez les nouveaux choix. Les noms d’élèves et d’enseignants, les groupes et les horaires se modifient dans les rubriques correspondantes.
 
 ## 2. Enseignants et planning
 
@@ -23,6 +25,7 @@ Les centres, classes et matières proposés au public viennent du catalogue du s
 2. Dans **Cours & planning**, ajoutez une séance avec sa matière, son groupe, son enseignant, sa date, son heure, sa durée et sa salle.
 3. Vérifiez le centre indiqué dans le nom du groupe. Donnez des noms cohérents aux salles d’un même centre.
 4. Consultez **Classes & enseignants** pour retrouver les affectations. Elles proviennent des séances planifiées.
+5. Dans **Calendrier**, choisissez une semaine et filtrez par centre, enseignant ou matière. Cliquez sur une séance pour la modifier ; **Planifier un cours** permet d’en ajouter une.
 
 Le site refuse les chevauchements pour un même enseignant, un même groupe ou une même salle du même centre. Deux centres distincts peuvent employer le même nom de salle. Lorsque le centre d’un groupe est inconnu, le contrôle des salles reste prudent : précisez le centre dans les dossiers des élèves.
 
@@ -33,6 +36,8 @@ Créer une fiche enseignant ne crée pas son accès personnel. Si l’établisse
 Dans **Présences**, choisissez la séance, puis sélectionnez **Présent**, **Absent**, **Retard** ou **Excusé** pour chaque élève. Chaque changement s’enregistre immédiatement : attendez le message de confirmation. Pour corriger une saisie, changez le statut ; **Non renseigné** retire la présence enregistrée pour cette séance.
 
 Dans **Notes & résultats**, ajoutez une évaluation en choisissant d’abord le cours. La liste des élèves est limitée au groupe de ce cours. Indiquez le nom de l’évaluation et une note entre 0 et 20. Utilisez la recherche pour retrouver un élève ou une évaluation ; **Modifier** permet de corriger une note.
+
+Dans **Élèves**, **Bulletin PDF** télécharge le bilan de l’élève avec ses notes, présences et paiements. Vous pouvez définir les dates du bilan au-dessus du tableau. La moyenne est simple, sans coefficients. Les documents sont réservés aux personnes concernées.
 
 Après une saisie importante, actualisez la page pour vérifier qu’elle reste enregistrée. Si une erreur apparaît, corrigez la saisie ou la connexion avant de continuer.
 
@@ -46,13 +51,17 @@ Pour un règlement effectivement reçu par l’établissement :
 2. Choisissez l’élève et saisissez le **Montant reçu (FCFA)**.
 3. Renseignez le **Mois concerné**, c’est-à-dire le mois de cours payé.
 4. Renseignez la **Date du paiement**, c’est-à-dire le jour où l’argent a été reçu, puis enregistrez.
-5. Cliquez sur **Reçu** pour consulter le justificatif et l’imprimer si nécessaire.
+5. Cliquez sur **Reçu** pour consulter le justificatif et l’imprimer si nécessaire, ou sur **Télécharger PDF** pour obtenir le fichier.
 
 Une saisie manuelle enregistre votre déclaration ; elle ne déclenche aucun transfert d’argent. N’enregistrez pas de paiement fictif pour tester la caisse : ces montants entreraient dans les statistiques réelles. Évitez les doublons et vérifiez montant, élève et mois avant de remettre le reçu.
 
 Les paiements confirmés par KKiaPay sont distingués des saisies manuelles. Ils ne peuvent pas être modifiés comme un reçu manuel. Les transactions **Test confirmé** correspondent au mode sandbox et sont exclues des encaissements réels.
 
-## 5. Tableau de bord et statistiques
+## 5. Mensualités, tableau de bord et statistiques
+
+Dans **Mensualités**, choisissez le mois : le site distingue attendu, reçu, reste à régler et avances. Les paiements de test sont exclus. Les préinscriptions et dossiers suspendus ne sont pas facturés. Le montant attendu utilise le tarif et le statut actuels du dossier ; il ne constitue pas une archive de factures ou de changements de tarifs.
+
+**Préparer un rappel** ouvre un brouillon modifiable pour la famille. La plateforme ne l’envoie pas : relisez-le, copiez-le et transmettez-le vous-même. **Enregistrer un règlement** ouvre la saisie du paiement pour l’élève et le mois choisis.
 
 Les filtres **Classe**, **Centre** et **Mois des paiements** permettent de consulter un périmètre. **Réinitialiser** rétablit les filtres par défaut.
 

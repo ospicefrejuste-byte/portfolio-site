@@ -1,11 +1,12 @@
 "use strict";
 const path=require('node:path');
 const serverless=require('serverless-http');
+const serverlessOptions=require('../../lib/serverless-options');
 const {createApplication}=require('../../lib/cloud-application');
 let ready;
 exports.handler=async(event,context)=>{
  context.callbackWaitsForEmptyEventLoop=false;
- if(!ready)ready=createApplication({production:true,publicDir:path.join(process.cwd(),'public')}).then(({app})=>serverless(app)).catch(err=>{ready=undefined;throw err});
+ if(!ready)ready=createApplication({production:true,publicDir:path.join(process.cwd(),'public')}).then(({app})=>serverless(app,serverlessOptions)).catch(err=>{ready=undefined;throw err});
  try{
   const handler=await ready;
   const prefix='/.netlify/functions/api';

@@ -92,3 +92,9 @@ Pour restaurer, arrêter l’application, préserver la base actuelle, remplacer
 ## Validation
 
 `npm test` exécute les tests d’authentification, permissions, références, persistance, installation à usage unique et paiements. Les appels KKiaPay sont simulés dans les tests : ils ne constituent pas une validation du compte marchand ni un encaissement réel. Les essais de navigateur couvrent l’installation, les formulaires, les comptes et les rôles. Avec Chromium installé : `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser` ; sinon installer le navigateur de Playwright avec `npx playwright install chromium` avant `npm run test:browser`. Aucun hébergement public n’est créé par les commandes locales.
+
+## Personnalisation et gestion avancée
+
+L’administration dispose de Paramètres de l’établissement, Calendrier et Mensualités. Le catalogue et la présentation sont enregistrés en base ; les dossiers existants conservent leur tarif. La liste des élèves propose les filtres, les rapprochements et la validation groupée. Les bilans élèves et les reçus sont de vrais PDF téléchargés depuis des routes autorisées, avec encodage binaire pour Netlify. Les rappels sont des brouillons à transmettre manuellement. Le suivi mensuel utilise le tarif et le statut actuels, sans historique de factures. Les paramètres ne contiennent aucune clé de paiement.
+
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser:platform` vérifie la personnalisation, les inscriptions groupées, le calendrier, les PDF et les mensualités. Les trois parcours navigateur peuvent aussi être exécutés contre une base PostgreSQL de test avec `npm run test:cloud:browser`.
