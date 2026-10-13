@@ -1,4 +1,6 @@
 "use strict";
+window.addEventListener("pageshow", (event) => { if (event.persisted) location.reload(); });
+window.addEventListener("pagehide", () => { document.body.style.visibility = "hidden"; });
 let db = {
   students: [],
   teachers: [],

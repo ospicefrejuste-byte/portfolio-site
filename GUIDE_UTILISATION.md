@@ -1,6 +1,6 @@
 # Utiliser la plateforme de cours de renforcement
 
-Ce guide accompagne le superviseur et la remise du site à l’établissement. Les inscriptions sont enregistrées dans la base commune : elles sont visibles depuis un autre appareil après connexion. L’accès à l’administration exige un compte autorisé.
+Ce guide accompagne le superviseur et la remise du site à l’établissement. Les inscriptions sont enregistrées dans la base commune : elles sont visibles depuis un autre appareil après connexion. L’accès à l’administration exige un compte autorisé. Le lien Administration depuis l’accueil redemande les identifiants et ferme la session précédente avant la nouvelle connexion.
 
 ## 1. Accueil des familles et validation des dossiers
 

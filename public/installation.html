@@ -17,7 +17,7 @@
         <code>setup-token</code> du serveur, ou dans la configuration de votre
         hébergeur.
       </p>
-      <form id="auth-form" data-setup="true">
+      <form method="post" id="auth-form" data-setup="true">
         <label for="token">Code d’installation</label
         ><input
           id="token"
@@ -53,7 +53,7 @@
           minlength="12"
           maxlength="128"
           autocomplete="new-password"
-        /><button type="submit">Créer mon compte administrateur →</button>
+        /><button type="submit" disabled>Créer mon compte administrateur →</button>
         <p id="auth-result" role="alert"></p>
       </form>
       <p class="help">

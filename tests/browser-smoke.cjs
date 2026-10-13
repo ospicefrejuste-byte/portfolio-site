@@ -64,6 +64,38 @@ const { createApplication } = require("../lib/application");
     console.log(
       "PASS installation administrateur et redirection des visiteurs",
     );
+    const initialCookie = (await context.cookies()).find((cookie) => cookie.name === "crs_session");
+    let interrupted = true;
+    await p.route("**/api/auth/logout", (route) => {
+      if (interrupted) {
+        interrupted = false;
+        return route.fulfill({ status: 503, contentType: "application/json", body: JSON.stringify({ error: "Interruption de test" }) });
+      }
+      return route.continue();
+    });
+    await p.goto(base + "/");
+    assert.equal(await p.locator(".steps").count(), 0);
+    await p.getByRole("link", { name: "Administration" }).click();
+    await p.waitForURL("**/connexion.html");
+    await p.getByRole("button", { name: "Réessayer la connexion" }).waitFor({ state: "visible" });
+    assert.equal(await p.getByRole("button", { name: "Se connecter" }).isDisabled(), true);
+    const sessionRevoked = p.waitForResponse((response) => response.url().endsWith("/api/auth/logout") && response.request().method() === "POST" && response.status() === 200);
+    await p.getByRole("button", { name: "Réessayer la connexion" }).click();
+    await sessionRevoked;
+    await p.getByRole("button", { name: "Se connecter" }).waitFor({ state: "visible" });
+    const staleResponse = await fetch(base + "/api/data", { headers: { Cookie: initialCookie.name + "=" + initialCookie.value } });
+    assert.equal(staleResponse.status, 401);
+    assert.equal((await p.request.get(base + "/gestion.html", { maxRedirects: 0 })).status(), 302);
+    await p.locator("#username").fill("admin");
+    await p.locator("#password").fill("Wrong-browser-admin-password-123!");
+    await p.getByRole("button", { name: "Se connecter" }).click();
+    await p.locator("#auth-result").filter({ hasText: "Identifiant ou mot de passe incorrect" }).waitFor();
+    await p.locator("#password").fill("Browser-admin-password-123!");
+    await p.getByRole("button", { name: "Se connecter" }).click();
+    await p.waitForURL("**/gestion.html");
+    await p.locator('[data-page="students"]').waitFor();
+    await p.unroute("**/api/auth/logout");
+    console.log("PASS accès Administration depuis l’accueil : nouvelle connexion obligatoire, session révoquée et échec de déconnexion bloquant");
     const visitor = await browser.newContext();
     const publicPage = await visitor.newPage();
     await publicPage.goto(base);
