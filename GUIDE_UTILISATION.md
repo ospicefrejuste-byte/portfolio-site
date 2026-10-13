@@ -102,3 +102,13 @@ Cet export ne constitue pas une sauvegarde complète de PostgreSQL : il ne conti
 Vérifiez la connexion et la déconnexion, une inscription depuis un autre navigateur, sa validation, un enseignant, une séance, une présence, une note et l’export. Utilisez des dossiers clairement fictifs pour les essais pédagogiques et conservez les vrais dossiers. Les dossiers utilisés par des comptes, cours ou résultats ne se suppriment pas sans traiter leurs liens.
 
 Plus tard, le client ajoutera ses clés KKiaPay publique, privée et secrète directement dans les variables Netlify, en privé. Gardez le mode sandbox pour tester le parcours complet et la vérification serveur avant toute activation réelle. Aucun paiement réel KKiaPay n’est présenté comme vérifié à ce stade. La configuration technique est décrite dans [le guide d’hébergement](GUIDE_HEBERGEMENT_GRATUIT.md).
+
+## 9. Mises à jour du site
+
+Les modifications envoyées sur la branche de publication sont déployées automatiquement par Netlify. Elles deviennent disponibles pour tous les visiteurs dès que le nouveau déploiement est **Published**, sur le même lien du site. Une modification encore en préparation dans l’espace de travail n’est pas publiée.
+
+Chaque publication versionne les scripts et les styles. Les nouvelles visites chargent les fichiers à jour. Une page déjà ouverte vérifie la version publiée environ toutes les minutes et au retour sur l’onglet. Sans saisie active, elle recharge automatiquement après un court avis. L’administration conserve sa rubrique courante lors de cette actualisation.
+
+Une saisie, un dialogue ou une inscription avec sa confirmation de paiement empêchent l’actualisation automatique. Le bandeau **Actualiser / Plus tard** laisse alors choisir le moment ; terminez l’opération et récupérez le reçu avant d’actualiser. Aucune saisie n’est envoyée automatiquement par ce mécanisme. Un problème de connexion lors de la vérification de version ne bloque pas les autres fonctions.
+
+Pour installer ce mécanisme dans un onglet qui était déjà ouvert avant sa première publication, chargez une fois la nouvelle version du site. Il pourra ensuite détecter les publications suivantes. KKiaPay reste reporté.

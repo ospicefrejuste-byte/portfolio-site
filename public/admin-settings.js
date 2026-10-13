@@ -131,6 +131,7 @@ function bindSettings() {
     $("settings-add-level").disabled = buttons.length >= 30 || saving;
   };
   const clearErrors = () => {
+    form.dataset.crsUnsaved = "true";
     error.textContent = "";
     form.querySelectorAll('[aria-invalid="true"]').forEach(field => field.removeAttribute("aria-invalid"));
     status.textContent = "Modifications en cours. Pensez à enregistrer.";

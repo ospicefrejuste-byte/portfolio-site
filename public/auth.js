@@ -3,6 +3,7 @@
   const form = document.getElementById("auth-form"),
     result = document.getElementById("auth-result");
   const setup = form.dataset.setup === "true";
+  window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0;
   const submit = form.querySelector('button[type="submit"]');
   const retry = document.createElement("button");
   retry.type = "button";

@@ -3,8 +3,12 @@ const $ = (id) => document.getElementById(id);
 const money = (amount) => new Intl.NumberFormat("fr-FR").format(amount) + " FCFA";
 let catalogue = null;
 let current = null, paymentToken = "", order = null, transactionId = "", receipt = null;
+let pendingRequests = 0;
+window.crsHasUnsavedWork = () => pendingRequests > 0 || Boolean(current || paymentToken || order || transactionId);
 
 async function request(path, body, scoped = false, options = {}) {
+  pendingRequests += 1;
+  try {
   const response = await fetch(path, {
     method: body ? "POST" : "GET",
     credentials: "same-origin",
@@ -19,6 +23,9 @@ async function request(path, body, scoped = false, options = {}) {
   const result = await response.json();
   if (!response.ok) throw Error(result.error || "Impossible de terminer la demande.");
   return result;
+  } finally {
+    pendingRequests -= 1;
+  }
 }
 
 function enableRegistration(enabled) {

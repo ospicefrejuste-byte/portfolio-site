@@ -64,6 +64,13 @@ const sections = {
   grades: ["▤", "Notes & résultats"],
   users: ["♧", "Comptes & accès"],
 };
+window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0 || currentOrder !== null;
+window.crsPrepareReload = () => {
+  if (!accessibleSections().includes(page)) return;
+  const url = new URL(location.href);
+  url.searchParams.set("section", page);
+  history.replaceState(null, "", url);
+};
 const visibleCourses = () =>
   db.courses.filter(
     (c) =>

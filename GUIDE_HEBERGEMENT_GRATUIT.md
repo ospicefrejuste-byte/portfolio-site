@@ -68,3 +68,9 @@ Pour éviter d’encoder les symboles manuellement, ajoutez `DATABASE_PASSWORD` 
 ## Gestion quotidienne et remise au client
 
 Le superviseur dispose maintenant d’un onglet **Guide d’utilisation** dans l’administration. Pour les étapes détaillées, consulter [GUIDE_UTILISATION.md](GUIDE_UTILISATION.md). Le paiement KKiaPay reste reporté jusqu’à la saisie privée des clés du client et au test du prestataire.
+
+## Mises à jour pour tous les visiteurs
+
+Conserver la publication automatique de **site-complet-gratuit** dans Netlify. La commande `npm run build:cloud` produit le serveur puis appelle `scripts/build-release.js` : un identifiant de version est calculé à partir du code, publié dans `public/version.json`, inséré dans les quatre pages et ajouté aux URLs des scripts et styles. Une reconstruction du même code conserve la même version. Ne pas modifier uniquement le manifeste ou les fichiers générés.
+
+Le cache des pages et fichiers publics impose une récupération à jour. Le contrôleur `site-updates.js` consulte uniquement le manifeste public statique, sans requête d’authentification ou de base de données. Il actualise les pages disponibles et protège les opérations en cours. Vérifier ce parcours avec `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser:updates` après le build. La publication Netlify doit atteindre **Published** ; un push réussi ne prouve pas son achèvement.

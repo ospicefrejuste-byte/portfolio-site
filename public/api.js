@@ -1,7 +1,10 @@
 "use strict";
 window.schoolAPI = {
   csrf: "",
+  pendingRequests: 0,
   async request(path, method = "GET", body) {
+    this.pendingRequests += 1;
+    try {
     const response = await fetch(path, {
       method,
       credentials: "same-origin",
@@ -21,5 +24,8 @@ window.schoolAPI = {
     }
     if (result.csrf) this.csrf = result.csrf;
     return result;
+    } finally {
+      this.pendingRequests -= 1;
+    }
   },
 };

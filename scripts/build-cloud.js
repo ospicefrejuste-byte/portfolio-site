@@ -37,3 +37,5 @@ let payments=fs.readFileSync(path.join(root,'lib/payments.js'),'utf8');payments=
 payments=payments.replace('function createPaymentService({','async function createPaymentService({');
 fs.writeFileSync(path.join(root,'lib/cloud-payments.js'),transform(payments));
 console.log('Serveur PostgreSQL généré. Aucun secret inclus.');
+const { version } = require('./build-release').buildRelease(root);
+console.log(`Version de publication : ${version}`);
