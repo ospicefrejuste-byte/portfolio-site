@@ -102,3 +102,100 @@ code {
 [hidden] {
   display: none !important;
 }
+
+/* Match the public and staff spaces without loading an external typeface. */
+:root {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #153457;
+  background: #f4f7fb;
+  font-synthesis: none;
+}
+body {
+  min-height: 100svh;
+  padding: 44px 20px;
+  line-height: 1.6;
+  background: radial-gradient(ellipse at 8% 5%, #e3ebf8, transparent 48%),
+    radial-gradient(ellipse at 95% 96%, #fff4d4, transparent 40%), #f4f7fb;
+}
+.auth-card {
+  max-width: 490px;
+  padding: 34px 36px;
+  border-color: #dce5f0;
+  border-top: 4px solid #f1cc63;
+  border-radius: 20px;
+  box-shadow: 0 20px 56px #1534570d;
+}
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: #245391;
+  font-size: 13px;
+  font-weight: 600;
+}
+.home-link:hover { color: #143b76; text-decoration: underline; text-underline-offset: 4px; }
+.auth-logo {
+  width: 56px;
+  height: 56px;
+  margin: 20px 0 24px;
+  background: #153457;
+  color: #f1cc63;
+  border-radius: 15px;
+  font-size: 24px;
+  letter-spacing: -.04em;
+}
+.eyebrow {
+  margin: 0 0 12px;
+  color: #526780;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: .11em;
+}
+h1 { margin: 0 0 16px; font-size: 30px; font-weight: 700; line-height: 1.25; letter-spacing: -.035em; }
+.intro,
+.help { font-size: 14px; color: #526780; line-height: 1.75; }
+.intro { margin: 0 0 24px; }
+.help { border-top: 1px solid #e0e7f0; padding-top: 22px; margin: 24px 0 10px; }
+label { color: #153457; font-size: 13px; font-weight: 600; line-height: 1.5; margin: 20px 0 8px; }
+input {
+  min-height: 48px;
+  background: #fbfcff;
+  color: #102b4b;
+  font-size: 16px;
+  padding: 12px 14px;
+  border: 1px solid #ccd8e7;
+  border-radius: 10px;
+}
+input:hover { border-color: #9cb1ce; }
+input:focus { background: #fff; border-color: #205bc8; outline: none; }
+button {
+  min-height: 48px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #205bc8;
+  font-size: 14px;
+  line-height: 1.5;
+}
+button:hover:enabled { background: #184aab; }
+#auth-result { color: #a52e3f; font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+#auth-result:empty { display: none; }
+code { font-size: 12px; color: #153457; background: #edf2fa; padding: 2px 5px; border-radius: 4px; }
+a,
+button,
+input { touch-action: manipulation; }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible { outline: 3px solid #926c0c; outline-offset: 3px; }
+@media (max-width: 480px) {
+  body { padding: 24px 16px; }
+  .auth-card { padding: 26px 22px; border-radius: 18px; }
+  .auth-logo { margin: 16px 0 22px; }
+  h1 { font-size: 27px; }
+  .eyebrow { font-size: 10px; letter-spacing: .09em; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  input,
+  button,
+  a { transition: background-color .15s ease, border-color .15s ease, color .15s ease; }
+}

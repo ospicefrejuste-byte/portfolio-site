@@ -31,6 +31,7 @@
     help.textContent = advice;
     help.hidden = !advice;
     receiptPanel.hidden = !["verified", "test"].includes(state);
+    if (receiptPanel.hidden) for (const name of ["reference", "school", "student", "class", "centre", "amount", "period", "date", "channel"]) document.getElementById("receipt-" + name).textContent = "";
     retry.hidden = state !== "unavailable";
     retry.disabled = state === "loading";
   }
@@ -106,6 +107,10 @@
       if (!response.ok) throw new Error("verification unavailable");
       const result = await response.json();
       if (currentGeneration !== generation) return;
+      if (result?.status === "cancelled" && typeof result.reference === "string" && result.reference) {
+        setState("cancelled", "Reçu d’essai retiré", "Le responsable a supprimé ce dossier d’essai et son paiement fictif.", `Référence : ${result.reference}. Ce document ne justifie aucun encaissement. Contactez l’établissement si vous avez réellement versé de l’argent.`);
+        return;
+      }
       if (!validReceipt(result)) throw new Error("unexpected verification response");
       fillReceipt(result.receipt);
       if (result.status === "test") {

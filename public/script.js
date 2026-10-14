@@ -695,6 +695,15 @@ function openForm(id) {
   $("modal").showModal();
 }
 async function remove(id) {
+  if (page === "students" && role === "admin") {
+    const record = db.students.find((entry) => entry.id === id);
+    if (record && typeof window.openStudentCleanup === "function") {
+      window.openStudentCleanup(record);
+    } else {
+      toast("Le parcours de suppression est indisponible. Rechargez la page.");
+    }
+    return;
+  }
   if (!confirm("Supprimer cet enregistrement ?")) return;
   try {
     await schoolAPI.request("/api/records/" + page + "/" + id, "DELETE");

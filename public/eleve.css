@@ -7,3 +7,140 @@
 .portal-links{display:flex;align-items:center;gap:10px}.portal-links .admin-entry{white-space:nowrap}.cash-entry{background:#ffe16a;color:#14355c;border-color:#ffe16a}@media(max-width:600px){.header-inner{flex-wrap:wrap}.portal-links{width:100%}.portal-links .admin-entry{flex:1;justify-content:center}}
 
 .cash-entry:hover{background:#f3ce54;color:#14355c;border-color:#f3ce54}
+
+/* Shared school identity and comfortable reading across screen sizes. */
+:root {
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --navy: #153457;
+  --navy-deep: #102b4b;
+  --gold: #f1cc63;
+  --muted: #526780;
+  --border: #d5dfeb;
+  color: var(--navy);
+  background: #f4f7fb;
+}
+body {
+  line-height: 1.6;
+  background: radial-gradient(ellipse at 4% 16%, #e9eff8 0, transparent 48%), #f4f7fb;
+}
+.site-header {
+  background: linear-gradient(115deg, var(--navy-deep), #193d69);
+  border-bottom: 3px solid var(--gold);
+}
+.header-inner { padding-block: 22px; }
+.brand-copy strong { letter-spacing: .045em; font-size: 14px; }
+.brand-copy small { color: #d4dfed; font-size: 13px; }
+.brand-mark { box-shadow: 0 3px 12px #00000012; }
+.admin-entry { min-height: 44px; font-size: 13px; border-color: #ffffff50; }
+.cash-entry { background: var(--gold); border-color: var(--gold); color: var(--navy-deep); }
+.cash-entry:hover { background: #f8d97f; border-color: #f8d97f; color: var(--navy-deep); }
+.page-shell { padding-top: 44px; gap: 48px; }
+.welcome-panel { padding-top: 22px; }
+.eyebrow { font-size: 11px; color: #526780; letter-spacing: .12em; }
+.welcome-panel h2 { line-height: 1.2; letter-spacing: -.035em; }
+.welcome-panel h2 em { color: #7c5d0b; }
+.welcome-copy { font-size: 16px; line-height: 1.8; }
+.welcome-note { font-size: 14px; }
+.welcome-note strong { font-weight: 600; }
+.family-contact { font-size: 13px; }
+.registration-card,
+.confirmation-card {
+  border-color: #dce5f0;
+  border-top: 4px solid var(--gold);
+  box-shadow: 0 16px 42px #15345709;
+  padding: 32px;
+}
+.card-heading .eyebrow { color: #7c5d0b; }
+.card-heading h1 { font-size: 27px; line-height: 1.3; }
+.intro { font-size: 14px; line-height: 1.75; }
+label,
+legend { font-size: 13px; }
+input,
+select {
+  height: 48px;
+  margin-top: 8px;
+  background: #fbfcff;
+  color: var(--navy-deep);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 400;
+}
+input::placeholder { color: #66788d; font-size: 14px; }
+input:disabled,
+select:disabled { color: #5d6e83; }
+.subject-options { gap: 9px; }
+.subject-options .choice { min-height: 44px; padding: 10px 12px; font-size: 13px; }
+.subject-options .choice:has(input:checked) { background: #eaf1fd; border-color: #8aaadc; }
+.choice input { flex-basis: 18px; width: 18px; height: 18px; }
+.fee { padding: 18px; font-size: 13px; border: 1px solid #dde7f3; background: #f0f5fb; }
+.fee small { font-size: 12px; }
+.fee strong { font-size: 17px; font-variant-numeric: tabular-nums; }
+.consent { font-size: 13px; line-height: 1.65; gap: 10px; }
+.consent input { margin-top: 3px; }
+button { min-height: 48px; font-size: 14px; background: #205bc8; }
+button:hover { background: #184aab; }
+button.secondary { background: #edf3fc; color: var(--navy); }
+.submit-registration { padding: 15px 18px; border-radius: 11px; }
+.form-note { font-size: 12px; }
+.catalogue-message { color: #526780; border: 1px solid #dce5f0; font-size: 14px; }
+.catalogue-message button { min-height: 44px; font-size: 13px; }
+.site-footer { font-size: 12px; color: #526780; }
+.site-footer strong { font-size: 11px; letter-spacing: .06em; }
+.site-footer a { display: inline-flex; align-items: center; min-height: 44px; }
+.confirmation-card dl { padding-block: 4px; border-block: 1px solid var(--border); }
+.confirmation-card dt,
+.confirmation-card dd { padding-block: 6px; }
+.confirmation-card dd { font-variant-numeric: tabular-nums; }
+.success { border: 1px solid #b9ddc7; color: #1d6039; }
+.notice { border: 1px solid #ecdcaa; color: #715514; }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible { outline: 3px solid #926c0c; outline-offset: 3px; }
+.site-header a:focus-visible { outline-color: #f8d97f; }
+@media (max-width: 1100px) {
+  .page-shell { gap: 30px; }
+  .registration-card { padding: 28px; }
+  .subject-options .choice { font-size: 13px; padding: 9px 10px; }
+}
+@media (max-width: 850px) {
+  .page-shell { padding-top: 30px; }
+  .welcome-panel { padding-top: 0; }
+  .welcome-copy { font-size: 15px; }
+  .brand-copy strong { font-size: 12px; }
+  .brand-copy small { font-size: 12px; }
+}
+@media (max-width: 600px) {
+  .header-inner { padding: 18px 18px 16px; gap: 16px; }
+  .brand { gap: 12px; }
+  .brand-mark { width: 44px; height: 44px; flex-basis: 44px; }
+  .brand-copy strong { font-size: 12px; max-width: 265px; line-height: 1.45; letter-spacing: .025em; }
+  .portal-links { gap: 10px; }
+  .portal-links .admin-entry { font-size: 13px; padding: 10px 12px; }
+  .admin-entry svg { width: 17px; height: 17px; }
+  .page-shell { padding: 28px 16px 30px; }
+  .welcome-panel { padding: 0 2px 24px; }
+  .welcome-panel h2 { font-size: 32px; margin: 14px 0; }
+  .welcome-copy { font-size: 14px; line-height: 1.75; }
+  .eyebrow { font-size: 10px; }
+  .registration-card,
+  .confirmation-card { padding: 25px 20px; border-radius: 18px; }
+  .card-heading h1 { font-size: 24px; }
+  .intro { font-size: 14px; margin-bottom: 24px; }
+  .grid { gap: 18px; }
+  input,
+  select { font-size: 16px; }
+  .subject-options .choice { font-size: 13px; padding: 10px; }
+  .fee { padding: 15px 13px; font-size: 12px; gap: 12px; }
+  .fee small { font-size: 11px; }
+  .fee strong { font-size: 15px; }
+  .form-note { font-size: 11px; }
+  .confirmation-card dl { grid-template-columns: minmax(0, 1fr); gap: 0; font-size: 14px; }
+  .confirmation-card dt { color: var(--muted); padding-bottom: 0; }
+  .confirmation-card dd { text-align: left; padding-bottom: 14px; }
+  .success,
+  .notice { font-size: 14px; padding: 16px; }
+  .site-footer { margin-inline: 18px; }
+  .site-footer nav { gap: 8px 18px; }
+  .site-footer a { font-size: 13px; }
+}

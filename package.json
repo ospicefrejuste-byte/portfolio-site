@@ -19,7 +19,8 @@
     "test:browser:cashier": "node tests/browser-cashier.cjs",
     "test:browser:cashier-attendance": "node tests/browser-cashier-attendance.cjs",
     "test:browser:updates": "node tests/browser-updates.cjs",
-    "test:browser:receipts": "node tests/browser-receipt-verification.cjs"
+    "test:browser:receipts": "node tests/browser-receipt-verification.cjs",
+    "test:browser:cleanup": "node tests/browser-cleanup.cjs"
   },
   "dependencies": {
     "express": "5.1.0",

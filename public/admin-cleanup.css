@@ -1,0 +1,46 @@
+.student-cleanup-modal {
+  width: min(620px, calc(100vw - 28px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+}
+.student-cleanup-modal [hidden] { display: none !important; }
+.student-cleanup-modal .dialog-head h2 { font-size: 1.3rem; }
+.cleanup-student { font-weight: 700; overflow-wrap: anywhere; }
+.cleanup-warning {
+  padding: 12px;
+  border: 1px solid #edc7ba;
+  border-radius: 10px;
+  background: #fff3ed;
+  color: #853d29;
+}
+.cleanup-counts, .cleanup-amounts { margin: 16px 0; }
+.cleanup-counts > div, .cleanup-amounts > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 7px 0;
+  border-bottom: 1px solid #e8e8e8;
+}
+.cleanup-counts dd, .cleanup-amounts dd { margin: 0; font-weight: 700; text-align: right; }
+.cleanup-amounts > div:first-child { color: #853d29; font-weight: 700; }
+.student-cleanup-modal label.cleanup-confirmation {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 20px 0;
+  padding: 12px;
+  border: 1px solid #edc7ba;
+  border-radius: 10px;
+}
+.student-cleanup-modal .cleanup-confirmation input { width: auto; flex: 0 0 auto; margin: 3px 0 0; }
+.student-cleanup-modal .cleanup-delete { background: #a23827; margin-top: 20px; }
+.student-cleanup-modal .cleanup-delete:hover { background: #842b1e; }
+.student-cleanup-modal button:disabled { cursor: not-allowed; opacity: .55; }
+.student-cleanup-modal[aria-busy="true"] button:disabled { cursor: wait; }
+.cleanup-error { color: #a23827; overflow-wrap: anywhere; }
+@media (max-width: 480px) {
+  .student-cleanup-modal { padding: 18px; }
+  .cleanup-amounts > div { flex-direction: column; gap: 3px; }
+  .cleanup-amounts dd { text-align: left; }
+}

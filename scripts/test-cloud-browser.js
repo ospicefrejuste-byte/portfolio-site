@@ -2,7 +2,7 @@
 const fs=require('node:fs');const path=require('node:path');const {spawnSync}=require('node:child_process');
 const parser=require('@babel/parser');const traverse=require('@babel/traverse').default;const generate=require('@babel/generator').default;const t=require('@babel/types');
 if(!process.env.CRS_TEST_DATABASE_URL)throw Error('Utilisez une base PostgreSQL réservée aux tests.');
-const scenarios=['browser-smoke.cjs','browser-public.cjs','browser-platform.cjs','browser-cashier.cjs','browser-cashier-attendance.cjs','browser-receipt-verification.cjs'];
+const scenarios=['browser-smoke.cjs','browser-public.cjs','browser-platform.cjs','browser-cashier.cjs','browser-cashier-attendance.cjs','browser-receipt-verification.cjs','browser-cleanup.cjs'];
 const selected=process.argv.slice(2);
 if(selected.some(name=>!scenarios.includes(name)))throw Error('Parcours navigateur PostgreSQL inconnu.');
 for(const name of selected.length?selected:scenarios){

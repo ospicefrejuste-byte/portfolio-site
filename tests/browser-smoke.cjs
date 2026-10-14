@@ -7,6 +7,8 @@ const { chromium } = require("playwright");
 const { createApplication } = require("../lib/application");
 (async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "crs-browser-test-"));
+  const widgetOrigin = "https://widget-v3.kkiapay.me";
+  let verificationCalls = 0;
   let application;
   application = createApplication({
     dataDir: dir,
@@ -18,6 +20,7 @@ const { createApplication } = require("../lib/application");
       secretKey: "test-secret",
     },
     verifyTransaction: async (id) => {
+      verificationCalls++;
       assert.equal(id, "browser_test_transaction");
       const order = application.db
         .prepare(
@@ -45,6 +48,10 @@ const { createApplication } = require("../lib/application");
     const context = await browser.newContext({
       viewport: { width: 1440, height: 1000 },
     });
+    await context.route((url) => url.origin === widgetOrigin, (route) => route.fulfill({
+      contentType: "text/html",
+      body: '<!doctype html><html><body><p id="test-widget">Widget de test local</p></body></html>',
+    }));
     const p = await context.newPage();
     const errors = [];
     p.on("pageerror", (e) => errors.push(e.message));
@@ -174,8 +181,10 @@ const { createApplication } = require("../lib/application");
     assert.equal(await p.evaluate(() => window.__printed), true);
     await p.locator("#close").click();
     await p.evaluate(() => {
+      const openWidget = window.openKkiapayWidget;
       window.openKkiapayWidget = (options) => {
         window.__paymentWidget = options;
+        return openWidget(options);
       };
     });
     await p.locator("#pay-online").click();
@@ -184,18 +193,46 @@ const { createApplication } = require("../lib/application");
     await p.waitForFunction(() => Boolean(window.__paymentWidget));
     const widget = await p.evaluate(() => window.__paymentWidget);
     assert.equal(widget.amount, 3500); // Manual cash receipts are real; sandbox remains independent.
-    await p.evaluate(() =>
+    const widgetElement = await p.locator(`iframe[src="${widgetOrigin}"]`).elementHandle();
+    const widgetFrame = await widgetElement.contentFrame();
+    assert.ok(widgetFrame);
+    await widgetFrame.locator("#test-widget").waitFor();
+    await p.evaluate(() => new Promise((resolve) => {
+      const received = (event) => {
+        if (event.source === window && event.data?.name === "PAYMENT_SUCCESS" &&
+            event.data.data?.transactionId === "browser_test_transaction") {
+          window.removeEventListener("message", received);
+          resolve();
+        }
+      };
+      window.addEventListener("message", received);
       window.postMessage(
         {
           name: "PAYMENT_SUCCESS",
           data: { transactionId: "browser_test_transaction" },
         },
         "*",
-      ),
-    );
+      );
+    }));
+    assert.equal(await p.getByRole("cell", { name: "Test confirmé", exact: true }).count(), 0);
+    assert.equal(await p.locator(`iframe[src="${widgetOrigin}"]`).count(), 1);
+    assert.equal(verificationCalls, 0);
+    await widgetFrame.evaluate((parentOrigin) => {
+      window.parent.postMessage({
+        name: "PAYMENT_SUCCESS",
+        data: { transactionId: "browser_test_transaction" },
+      }, parentOrigin);
+    }, base);
     await p.getByRole("cell", { name: "Test confirmé", exact: true }).waitFor();
+    assert.equal(verificationCalls, 1);
+    const confirmedPayment = application.db.prepare("SELECT payload FROM records WHERE kind='payments'")
+      .all().map((row) => JSON.parse(row.payload))
+      .find((payment) => payment.transactionId === "browser_test_transaction");
+    assert.ok(confirmedPayment);
+    assert.equal(confirmedPayment.amount, 3500);
+    assert.equal(confirmedPayment.mode, "sandbox");
     console.log(
-      "PASS reçu imprimable et parcours KKiaPay simulé avec confirmation serveur",
+      "PASS reçu imprimable, message parent rejeté et message iframe KKiaPay local avec confirmation serveur",
     );
     await p.locator('[data-page="users"]').click();
     await p.locator("#add").click();

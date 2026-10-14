@@ -19,6 +19,12 @@ Les filtres de la liste permettent de retrouver les dossiers par classe, centre 
 
 Dans **Paramètres de l’établissement**, modifiez le nom, la présentation, les contacts et le logo, puis les classes, tarifs, centres et matières. Les nouvelles inscriptions utilisent les tarifs enregistrés ; les dossiers existants gardent leur tarif. Les entrées déjà utilisées ne peuvent pas être retirées : conservez-les et ajoutez les nouveaux choix. Les noms d’élèves et d’enseignants, les groupes et les horaires se modifient dans les rubriques correspondantes.
 
+Pour nettoyer les essais, le responsable ouvre **Élèves → Supprimer** sur le dossier concerné. Un récapitulatif indique les paiements fictifs, notes, présences et comptes élèves qui seront retirés. Vérifiez chaque élément, cochez **Je confirme que ce dossier est un essai et qu’aucun argent réel n’a été reçu**, recopiez le nom de l’élève et saisissez votre propre mot de passe de responsable, puis cliquez sur **Supprimer définitivement cet essai**. La suppression est irréversible. Le caissier et l’enseignant n’y ont pas accès.
+
+Les fausses recettes de ce dossier sont retirées de la caisse, du tableau de bord, des mensualités et de l’export. Ses comptes et accès publics sont fermés. Les autres élèves, enseignants et cours partagés sont conservés. Les QR de reçus d’essai déjà délivrés affichent désormais **Reçu d’essai retiré**. Un ancien numéro d’encaissement ne peut pas être réutilisé pour créer un nouveau paiement.
+
+Si le dossier possède un paiement KKiaPay en mode réel ou une échéance réelle, même ancienne, le nettoyage est bloqué afin de préserver les comptes. Si de vraies espèces ont été reçues ou si l’élève est réel, utilisez **Modifier → Suspendu** pour arrêter son suivi en conservant l’historique ; ne déclarez pas ce dossier fictif. Après une erreur ou une modification du dossier entre-temps, rechargez l’aperçu avant de confirmer à nouveau. Aucun essai n’est supprimé automatiquement.
+
 ## 2. Enseignants et planning
 
 1. Dans **Enseignants**, ajoutez le nom et la matière de chaque enseignant.
@@ -74,7 +80,7 @@ Le serveur enregistre le paiement dans la même base que l’administration. Une
 
 **Partager le PDF** propose le partage du fichier sur les appareils compatibles. À défaut, le fichier est téléchargé pour être joint à un message. **Préparer WhatsApp** demande le numéro complet du parent avec l’indicatif du pays et prépare un message modifiable. Joignez le PDF téléchargé dans WhatsApp avant d’envoyer. Le site n’envoie aucun message automatiquement.
 
-Les reçus de caisse restent disponibles dans l’historique avec le nom du caissier. Ils ne peuvent pas être modifiés ou supprimés. Vérifiez élève, mois et somme avant confirmation ; si une erreur est constatée, signalez-la au responsable technique avant toute nouvelle saisie.
+Les reçus de caisse restent disponibles dans l’historique avec le nom du caissier. Les actions normales ne permettent pas de les modifier ou supprimer. Le nettoyage de dossier d’essai ci-dessus constitue une exception réservée au responsable, uniquement lorsque l’argent est fictif. Vérifiez élève, mois et somme avant confirmation ; si un vrai règlement est erroné, signalez-le au responsable technique avant toute nouvelle saisie.
 
 Un ancien paiement saisi administrativement devient également non modifiable et non supprimable dès la première délivrance de son reçu avec QR. Les informations de ce reçu restent celles de sa délivrance, même si le dossier de l’élève est ensuite actualisé.
 
