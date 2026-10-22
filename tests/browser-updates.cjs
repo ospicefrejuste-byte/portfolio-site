@@ -340,8 +340,17 @@ const { createApplication } = require("../lib/application");
     await family.page.clock.fastForward(12000);
     assert.equal(family.navigations(), registeredNavigations);
     assert.equal(await family.page.locator("#reference").textContent(), reference);
-    await family.page.locator("#pay").click();
-    await family.page.locator("#payment-status").filter({ hasText: "pas encore activé" }).waitFor();
+    // This fixture has no payment-provider keys. The month quote remains
+    // available while checkout stays disabled until the school activates it.
+    const selectedPeriod = await family.page.locator("#payment-period").inputValue();
+    await family.page.waitForFunction(period => {
+      const month = document.querySelector(`[data-payment-period="${period}"]`);
+      return month && month.checked && !month.disabled;
+    }, selectedPeriod);
+    await family.page.locator("#payment-note").filter({ hasText: "activation" }).waitFor();
+    assert.equal(await family.page.locator("#pay").isDisabled(), true);
+    assert.equal(await family.page.locator("#payment-month-picker [data-payment-period]:checked").count(), 1);
+    assert.equal(await family.page.locator("#payment-total").textContent(), await family.page.locator("#amount").textContent());
     assert.equal(await family.page.locator("#confirmation").isVisible(), true);
     assert.deepEqual(family.mutations, ["/api/registrations"]);
     assert.equal(instance.db.prepare("SELECT count(*) n FROM records WHERE kind='students'").get().n, 1);

@@ -6,6 +6,11 @@
 .daily-attendance-filters { display: grid; grid-template-columns: minmax(160px, .65fr) minmax(0, 1.5fr) minmax(0, 1fr); gap: 1rem; padding: 1.15rem; margin-bottom: 1.2rem; border: 1px solid #dce6f2; border-radius: 15px; background: #fff; }
 .daily-attendance-filters label, .daily-attendance-pupil-picker { display: grid; gap: .5rem; color: #345172; font-size: .85rem; font-weight: 600; min-width: 0; }
 .daily-attendance-filters select, .daily-attendance-filters input, .daily-attendance-pupil-picker select { width: 100%; min-width: 0; min-height: 44px; font: inherit; font-weight: 400; color: #173860; border: 1px solid #cfdceb; border-radius: 8px; padding: .65rem .7rem; background: #fff; box-sizing: border-box; }
+.daily-attendance-class-list { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .8rem; border-top: 1px solid #e5edf6; padding-top: 1rem; }
+.daily-attendance-class-list p { flex: 1 1 260px; margin: 0; color: #596f87; font-size: .82rem; line-height: 1.6; }
+.daily-attendance-class-list button { min-height: 44px; white-space: normal; }
+#daily-attendance-class-list-feedback { grid-column: 1 / -1; margin: 0; overflow-wrap: anywhere; }
+#daily-attendance-class-list-feedback[hidden] { display: none; }
 .daily-attendance-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; }
 .daily-attendance-metric { display: grid; gap: .3rem; border-radius: 12px; border: 1px solid #dce6f2; padding: 1rem; background: #fff; min-width: 0; }
 .daily-attendance-metric span { color: #49617a; font-size: .84rem; }
@@ -54,6 +59,7 @@
   .daily-attendance-intro { flex-direction: column; gap: .75rem; }
   .daily-attendance-intro h2 { font-size: 1.4rem; }
   .daily-attendance-filters { grid-template-columns: minmax(0, 1fr); padding: 1rem; gap: .85rem; }
+  .daily-attendance-class-list button { width: 100%; }
   .daily-attendance-metrics { gap: .5rem; }
   .daily-attendance-metric { padding: .8rem .55rem; }
   .daily-attendance-metric span { font-size: .74rem; }

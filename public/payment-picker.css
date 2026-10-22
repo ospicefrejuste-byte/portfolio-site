@@ -1,0 +1,22 @@
+.payment-month-picker { margin: 18px 0; color: #183752; min-width: 0; }
+.payment-calendar-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.payment-calendar-head strong { font-size: 14px; line-height: 1.5; text-align: center; }
+.payment-calendar-head button { width: 44px; min-height: 44px; flex: 0 0 44px; padding: 8px; }
+.payment-calendar-mode, .payment-calendar-help, .payment-calendar-status { font-size: 12px; line-height: 1.6; color: #526780; margin: 10px 0; }
+.payment-calendar-mode { font-weight: 600; }
+.payment-calendar-error { font-size: 13px; color: #a52e2e; }
+.payment-calendar-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+.payment-calendar-month { display: flex; align-items: flex-start; gap: 9px; padding: 12px 10px; margin: 0; border: 1px solid #dce5f0; border-radius: 10px; background: #fbfcff; min-width: 0; cursor: pointer; }
+.payment-calendar-month input { width: 18px !important; height: 18px !important; min-height: 18px !important; flex: 0 0 18px; margin: 2px 0 0 !important; padding: 0; accent-color: #205bc8; }
+.payment-calendar-month span { display: grid; gap: 5px; min-width: 0; }
+.payment-calendar-month strong { font-size: 12px; font-weight: 600; line-height: 1.4; text-transform: capitalize; }
+.payment-calendar-month small { font-size: 11px; font-weight: 400; line-height: 1.4; overflow-wrap: anywhere; }
+.payment-calendar-month.is-selected { border-color: #7a9fd9; background: #edf3ff; }
+.payment-calendar-month.is-paid { background: #eff8f2; border-color: #b9ddc7; color: #1d6039; cursor: default; }
+.payment-calendar-month.is-pending { background: #fff7e5; border-color: #ecdcaa; color: #715514; cursor: default; }
+.payment-selection-summary { border: 1px solid #dce5f0; border-radius: 10px; padding: 14px; background: #f0f5fb; margin-top: 14px; }
+.payment-selection-summary > p:first-child { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; margin: 0; font-size: 14px; }
+.payment-selection-list { color: #39536f; font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; margin: 10px 0; }
+.payment-selection-summary > small { font-size: 11px; color: #526780; line-height: 1.6; display: block; }
+@media (max-width: 620px) { .payment-calendar-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 360px) { .payment-calendar-grid { grid-template-columns: minmax(0, 1fr); } }

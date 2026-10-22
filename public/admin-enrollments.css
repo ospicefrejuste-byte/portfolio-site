@@ -5,6 +5,11 @@
 .enrollment-filters label,.enrollment-period-fields label{display:grid;gap:7px;min-width:0;font-size:12px;color:#607594}
 .enrollment-filters input,.enrollment-filters select,.enrollment-period-fields input{width:100%;max-width:100%;box-sizing:border-box;color:#173257}
 .enrollment-filters>button{justify-self:start;grid-column:1/-1}
+.enrollment-class-list{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:0 0 20px;padding:15px 18px;border:1px solid #dce6f6;background:#f8faff;border-radius:12px}
+.enrollment-class-list>div{flex:1 1 240px;min-width:0}
+.enrollment-class-list strong{font-size:13px;color:#173965}
+.enrollment-class-list p{margin:6px 0 0;font-size:12px;color:#607594;line-height:1.6}
+.enrollment-class-list button{min-height:44px;white-space:normal}
 .enrollment-duplicate-note{padding:14px 16px;border:1px solid #efda98;background:#fff9e7;border-radius:10px;font-size:12px;line-height:1.7;color:#746027;margin-bottom:18px}
 .enrollment-duplicate-note p{margin:5px 0 0}
 .enrollment-duplicate-badge{display:inline-block;margin:8px 0 0 42px;padding:3px 7px;background:#fff1cf;border:1px solid #f4dea3;border-radius:6px;color:#876113;font-size:10px}
@@ -45,3 +50,4 @@
 .enrollment-report-disabled{display:inline-block;padding:9px 12px;font-size:12px}
 @media(max-width:1150px){.enrollment-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.enrollments-panel{padding:16px!important}.enrollments-toolbar{gap:12px}.enrollments-toolbar>button{width:100%}.enrollment-filters{grid-template-columns:minmax(0,1fr);padding:13px;gap:12px}.enrollment-filters>button{width:100%}.enrollment-bulk-bar{padding:13px;gap:12px}.enrollment-bulk-actions{width:100%}.enrollment-bulk-actions>button{flex:1;white-space:normal;line-height:1.5}.enrollment-period-fields{align-items:stretch}.enrollment-period-fields label{flex:1 1 120px}.enrollment-period-fields>button{width:100%}.enrollment-duplicate-badge{margin-left:0}.enrollment-table-scroll{margin-top:12px}}
+@media(max-width:600px){.enrollment-class-list{padding:13px;gap:12px}.enrollment-class-list button{width:100%}}

@@ -20,7 +20,11 @@
     "test:browser:cashier-attendance": "node tests/browser-cashier-attendance.cjs",
     "test:browser:updates": "node tests/browser-updates.cjs",
     "test:browser:receipts": "node tests/browser-receipt-verification.cjs",
-    "test:browser:cleanup": "node tests/browser-cleanup.cjs"
+    "test:browser:cleanup": "node tests/browser-cleanup.cjs",
+    "test:browser:months": "node tests/browser-multimonth.cjs",
+    "test:browser:classes": "node tests/browser-class-list.cjs",
+    "test:browser:reminders": "node tests/browser-reminders.cjs",
+    "test:browser:payment-recovery": "node tests/browser-payment-recovery.cjs"
   },
   "dependencies": {
     "express": "5.1.0",

@@ -10,13 +10,14 @@ function analytics(data = {}) {
   const db = { students: [], teachers: [], courses: [], payments: [], attendance: [], dailyAttendance: [], grades: [], ...data };
   const esc = (value) => String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
   const context = vm.createContext({
-    db, sections: {}, role: "admin", esc,
+    db, sections: {}, role: "admin", esc, window: {},
     money: (n) => `${n} FCFA`, date: (value) => value,
     teacher: (id) => db.teachers.find((record) => record.id === id),
     accountDashboard: () => "Account dashboard",
     table: (headers, rows) => `<table>${rows.join("")}</table>`,
     panel: (title, subtitle, body) => `<section><h2>${esc(title)}</h2><p>${esc(subtitle)}</p>${body}</section>`,
   });
+  vm.runInContext(fs.readFileSync(path.join(__dirname, "../public/payment-months.js"), "utf8"), context);
   vm.runInContext(source, context);
   return { context, run: (code) => vm.runInContext(code, context) };
 }
@@ -24,6 +25,25 @@ function metric(html, label) {
   return html.match(new RegExp(`${label}</span><strong>([^<]+)`))?.[1];
 }
 const pupil = (id, className = "6e", centre = "CP La Boussole") => ({ id, name: id, class: className, centre, group: `${className} · ${centre}`, registrationStatus: "Inscrit" });
+
+test("Un règlement groupé couvre chaque mois sans répéter la recette encaissée", () => {
+  const { run } = analytics({ students: [pupil("bundle"), pupil("test")], payments: [
+    { student: "bundle", amount: 10500, period: "2026-12", date: "2026-12-14", source: "Caisse", allocations: [
+      { period: "2026-12", amount: 3500 }, { period: "2027-01", amount: 3500 }, { period: "2027-02", amount: 3500 },
+    ] },
+    { student: "test", amount: 21000, period: "2026-12", date: "2026-12-14", mode: "sandbox", allocations: [
+      { period: "2026-12", amount: 7000 }, { period: "2027-01", amount: 7000 }, { period: "2027-02", amount: 7000 },
+    ] },
+  ] });
+  for (const month of ["2026-12", "2027-01", "2027-02"]) {
+    run(`scopeMonth='${month}'`);
+    const html = run("counters()");
+    assert.equal(metric(html, "Élèves sans paiement"), "1");
+    assert.equal(metric(html, "En présentiel"), month === "2026-12" ? "10500 FCFA" : "0 FCFA");
+  }
+  run("scopeMonth='2027-03'");
+  assert.equal(metric(run("counters()"), "Élèves sans paiement"), "2");
+});
 
 test("Le suivi des mensualités distingue la période réglée de la date d’encaissement", () => {
   const { run } = analytics({ students: [pupil("late"), pupil("advance")], payments: [

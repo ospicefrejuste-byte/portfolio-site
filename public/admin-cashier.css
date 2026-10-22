@@ -49,6 +49,11 @@
 .cashier-amounts .cashier-balance dd { color:#a45627; }
 .cashier-channel-detail { font-size:10px; line-height:1.8; color:#607594; margin:0 0 15px; }
 .cashier-collect { width:100%; box-sizing:border-box; }
+.cashier-other-months { width:100%; box-sizing:border-box; margin-top:9px; }
+.cashier-unresolved { padding:18px; margin-bottom:20px; border:1px solid #efd7a4; background:#fff8e6; }
+.cashier-unresolved strong { font-size:14px; color:#8a651d; }
+.cashier-unresolved p { font-size:12px; color:#607594; line-height:1.6; }
+.cashier-unresolved button { margin:4px 8px 4px 0; max-width:100%; white-space:normal; }
 .cashier-blocked { color:#996227; background:#fff8e6; padding:10px 12px; border-radius:8px; font-size:11px; line-height:1.6; }
 .cashier-history-count { color:#607594; background:#f2f5fa; border-radius:20px; padding:7px 11px; font-size:11px; white-space:nowrap; }
 .cashier-receipt-row { display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(140px,.8fr); gap:18px; border-top:1px solid #e8edf5; padding:18px 0; align-items:start; }
@@ -75,6 +80,35 @@
 .cashier-dialog-summary > div:last-child { border-top:1px solid #e6edf5; padding-top:13px; }
 .cashier-dialog input { box-sizing:border-box; font-variant-numeric:tabular-nums; }
 .cashier-dialog label { color:#607594; }
+.cashier-month-picker { min-width:0; padding:0; margin:22px 0 18px; border:0; }
+.cashier-month-picker legend { padding:0; font-size:14px; color:#173965; font-weight:650; }
+.cashier-month-shortcuts { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.cashier-month-shortcuts button { margin:0; padding:8px 12px; font-size:12px; width:auto; }
+.cashier-month-navigation { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; padding:10px 0; border-top:1px solid #e6edf5; border-bottom:1px solid #e6edf5; }
+.cashier-month-navigation button { width:auto; margin:0; padding:8px 10px; font-size:11px; }
+.cashier-month-navigation span { flex:1; min-width:120px; text-align:center; font-size:11px; line-height:1.6; color:#173965; overflow-wrap:anywhere; }
+.cashier-month-custom-count { display:flex; align-items:flex-end; gap:10px; margin-top:12px; }
+.cashier-month-custom-count label { display:grid; gap:6px; flex:1; min-width:0; font-size:11px; }
+.cashier-month-custom-count input { width:100%; min-width:0; }
+.cashier-month-custom-count button { width:auto; margin:0; font-size:12px; }
+.cashier-month-picker .cashier-note { margin:10px 0; }
+.cashier-month-list { display:grid; gap:7px; }
+.cashier-month-option { display:flex; align-items:center; gap:11px; min-width:0; padding:11px 12px; border:1px solid #e1e8f2; border-radius:9px; cursor:pointer; }
+.cashier-month-option.selected { border-color:#7399ef; background:#f2f6ff; }
+.cashier-month-option.unavailable { background:#f7f9fc; cursor:default; }
+.cashier-month-option.settled { border-color:#d6e4dd; background:#edf8f1; }
+.cashier-month-option.settled input[type=checkbox] { accent-color:#277153; opacity:1; }
+.cashier-month-option.settled .cashier-month-name small { color:#277153; }
+.cashier-month-option input[type=checkbox] { width:18px; height:18px; flex:none; margin:0; accent-color:#467ce1; }
+.cashier-month-name { display:grid; gap:3px; flex:1; min-width:0; }
+.cashier-month-name strong { font-size:12px; color:#173965; overflow-wrap:anywhere; }
+.cashier-month-name small { font-size:10px; line-height:1.5; color:#607594; }
+.cashier-month-name .cashier-month-reason { color:#996227; overflow-wrap:anywhere; }
+.cashier-month-balance { font-size:12px; font-weight:650; color:#173965; font-variant-numeric:tabular-nums; text-align:right; overflow-wrap:anywhere; max-width:38%; }
+.cashier-month-option.unavailable .cashier-month-balance { color:#8496ae; }
+.cashier-month-total { display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px 12px; margin:13px 0 0; color:#607594; font-size:12px; line-height:1.6; }
+.cashier-month-total strong { color:#173965; font-variant-numeric:tabular-nums; }
+.cashier-dialog input[readonly] { background:#f2f5fa; color:#173965; }
 .cashier-dialog-buttons { display:flex; gap:10px; margin-top:20px; }
 .cashier-dialog-buttons button { flex:1; min-width:0; margin-top:0; width:auto; line-height:1.5; }
 .cashier-dialog-buttons .primary { flex:1.7; }
@@ -119,6 +153,7 @@
   .cashier-receipt-actions { display:flex; flex-wrap:wrap; gap:8px; }
   .cashier-receipt-actions button { flex:1; }
   .cashier-dialog { padding:20px; }
+  .cashier-month-navigation span { order:-1; flex-basis:100%; }
   .cashier-dialog-buttons { flex-direction:column-reverse; }
   .cashier-dialog-buttons button { width:100%; }
   .cashier-dialog-summary > div { gap:10px; }

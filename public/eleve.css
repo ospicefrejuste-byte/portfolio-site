@@ -144,3 +144,12 @@ select:focus-visible { outline: 3px solid #926c0c; outline-offset: 3px; }
   .site-footer nav { gap: 8px 18px; }
   .site-footer a { font-size: 13px; }
 }
+.payment-choice { margin: 24px 0 18px; }
+.payment-covered { color: var(--muted); font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.payment-covered span { color: var(--navy); }
+.payment-total { margin: 16px 0 0; align-items: flex-start; }
+.payment-total small { max-width: 310px; }
+@media (max-width: 420px) {
+  .payment-choice .grid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .payment-total { flex-wrap: wrap; }
+}

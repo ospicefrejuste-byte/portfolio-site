@@ -4,6 +4,8 @@ const money = (amount) => new Intl.NumberFormat("fr-FR").format(amount) + " FCFA
 let catalogue = null;
 let current = null, paymentToken = "", order = null, transactionId = "", receipt = null;
 let pendingRequests = 0;
+let paymentAttempt = null, paymentBusy = false, paymentVerifying = false, widgetActive = false, providerPending = false;
+let paymentPicker = null, paymentConfig = null, lastConfirmed = null;
 window.crsHasUnsavedWork = () => pendingRequests > 0 || Boolean(current || paymentToken || order || transactionId);
 
 async function request(path, body, scoped = false, options = {}) {
@@ -21,7 +23,11 @@ async function request(path, body, scoped = false, options = {}) {
     ...options,
   });
   const result = await response.json();
-  if (!response.ok) throw Error(result.error || "Impossible de terminer la demande.");
+  if (!response.ok) {
+    const error = Error(result.error || "Impossible de terminer la demande.");
+    error.status = response.status;
+    throw error;
+  }
   return result;
   } finally {
     pendingRequests -= 1;
@@ -129,6 +135,58 @@ async function loadCatalogue() {
   }
 }
 
+function paymentSelection() {
+  return { periods: paymentPicker?.selection().periods || [] };
+}
+
+function updatePaymentChoice() {
+  if (!current) return;
+  const selection = paymentPicker?.selection();
+  const count = paymentAttempt ? paymentAttempt.periods.length : selection?.count || 0;
+  $("pay").textContent = order || paymentAttempt ? "Reprendre le même paiement" : count === 1 ? "Payer les frais du mois" : "Payer " + count + " mois";
+  const locked = paymentBusy || Boolean(paymentAttempt) || Boolean(receipt);
+  $("payment-period").disabled = locked;
+  $("payment-month-count").disabled = locked;
+  paymentPicker?.setLocked(locked);
+  $("pay").disabled = paymentBusy || widgetActive || providerPending || Boolean(transactionId) || Boolean(receipt) || !paymentConfig?.configured || (!paymentAttempt && !selection?.ready);
+  $("new-registration").disabled = paymentBusy || Boolean(paymentAttempt && !receipt);
+  $("another-payment").hidden = !receipt;
+  $("another-payment").disabled = paymentBusy;
+  $("payment-note").textContent = !paymentConfig ? "Chargement des disponibilités du paiement…" : !paymentConfig.configured ? "Le paiement en ligne est différé jusqu’à son activation par l’établissement. Les soldes réels et votre choix de mois sont disponibles." : paymentConfig.sandbox ? "KKiaPay est en mode test : aucun encaissement réel. Les règlements de test sont distincts des paiements réels." : "Le paiement sera confirmé après vérification auprès de KKiaPay.";
+}
+
+async function initializePaymentChoice() {
+  paymentPicker?.destroy();
+  paymentConfig = null;
+  const token = paymentToken, registration = current;
+  const start = new Date().toISOString().slice(0, 7);
+  $("payment-period").value = start;
+  $("payment-month-count").value = "1";
+  paymentPicker = window.paymentMonthPicker.create({
+    root: $("payment-month-picker"), start, selected: [start],
+    summaryIds: { total: "payment-total", selected: "payment-months" },
+    load: (period) => request("/api/registration-payments/months?start=" + encodeURIComponent(period), undefined, true),
+    onPageChange: (period) => { $("payment-period").value = period; },
+    onChange: updatePaymentChoice,
+  });
+  updatePaymentChoice();
+  const loading = paymentPicker.refresh();
+  try {
+    const config = await request("/api/registration-payments/config", undefined, true);
+    if (paymentToken !== token || current !== registration) return;
+    paymentConfig = config;
+  } catch (error) {
+    if (paymentToken !== token || current !== registration) return;
+    $("payment-status").textContent = error.message;
+  }
+  await loading;
+  if (paymentToken === token && current === registration) updatePaymentChoice();
+}
+
+$("payment-period").value = new Date().toISOString().slice(0, 7);
+$("payment-period").onchange = () => paymentPicker?.setStart($("payment-period").value);
+$("payment-month-count").onchange = () => paymentPicker?.chooseRange($("payment-period").value, Number($("payment-month-count").value));
+
 function confirmed() {
   $("registration-panel").hidden = true;
   $("welcome-panel").hidden = true;
@@ -142,21 +200,25 @@ function confirmed() {
   $("paid").hidden = !receipt;
   $("pay").hidden = !!receipt;
   $("payment-note").hidden = !!receipt;
-  if (receipt) {
-    $("receipt-reference").textContent = receipt.orderId;
-    $("receipt-amount").textContent = money(order.amount);
-    $("receipt-mode").textContent = receipt.sandbox ? "Paiement de test : aucun encaissement réel." : "Votre paiement a été vérifié auprès de KKiaPay.";
+  $("payment-choice").hidden = false;
+  updatePaymentChoice();
+  $("paid").hidden = !lastConfirmed;
+  if (lastConfirmed) {
+    $("receipt-reference").textContent = lastConfirmed.receipt.orderId;
+    $("receipt-amount").textContent = money(lastConfirmed.order.amount);
+    $("receipt-months").textContent = window.paymentMonths.labels(lastConfirmed.order).join(", ");
+    $("receipt-mode").textContent = lastConfirmed.receipt.sandbox ? "Paiement de test : aucun encaissement réel." : "Votre paiement a été vérifié auprès de KKiaPay.";
   }
   window.scrollTo(0, 0);
 }
 
 $("class").onchange = fee;
 $("download-receipt").onclick = async () => {
-  if (!receipt || !paymentToken) return;
+  if (!lastConfirmed || !paymentToken) return;
   const button = $("download-receipt");
   button.disabled = true;
   try {
-    const response = await fetch("/api/registration-payments/receipt.pdf?orderId=" + encodeURIComponent(receipt.orderId), { headers: { Authorization: "Bearer " + paymentToken }, credentials: "same-origin", cache: "no-store" });
+    const response = await fetch("/api/registration-payments/receipt.pdf?orderId=" + encodeURIComponent(lastConfirmed.receipt.orderId), { headers: { Authorization: "Bearer " + paymentToken }, credentials: "same-origin", cache: "no-store" });
     if (!response.ok) throw Error((await response.json()).error || "Reçu indisponible.");
     const url = URL.createObjectURL(await response.blob());
     const link = document.createElement("a"); link.href = url; link.download = "recu-" + current.reference + ".pdf"; document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
@@ -166,6 +228,7 @@ $("download-receipt").onclick = async () => {
 $("retry-catalogue").onclick = loadCatalogue;
 $("registration").onsubmit = async (event) => {
   event.preventDefault();
+  if (current || paymentBusy || paymentAttempt) return;
   $("error").textContent = "";
   if (!catalogue) {
     $("error").textContent = "Chargez les classes et les tarifs avant de vous inscrire.";
@@ -196,8 +259,16 @@ $("registration").onsubmit = async (event) => {
     current = { ...body, ...result };
     paymentToken = result.paymentToken;
     receipt = null;
+    lastConfirmed = null;
     order = null;
+    transactionId = "";
+    paymentAttempt = null;
+    widgetActive = false;
+    providerPending = false;
+    $("payment-period").value = new Date().toISOString().slice(0, 7);
+    $("payment-month-count").value = "1";
     confirmed();
+    initializePaymentChoice();
   } catch (error) {
     $("error").textContent = error.message;
   } finally {
@@ -206,32 +277,61 @@ $("registration").onsubmit = async (event) => {
 };
 
 $("pay").onclick = async () => {
-  const button = $("pay");
-  button.disabled = true;
+  if (!current || paymentBusy || widgetActive || providerPending || transactionId || receipt) return;
+  const selection = paymentAttempt || paymentSelection();
+  if (!selection.periods.length || (!paymentAttempt && !paymentPicker?.selection().ready)) {
+    $("payment-status").textContent = "Choisissez au moins un mois à régler et attendez le chargement des soldes.";
+    return;
+  }
+  paymentBusy = true;
+  updatePaymentChoice();
   $("payment-status").textContent = "Préparation du paiement…";
   try {
     const config = await request("/api/registration-payments/config", undefined, true);
-    if (!config.configured) throw Error("Le paiement en ligne n’est pas encore activé. Votre préinscription est bien reçue. Contactez l’établissement.");
+    paymentConfig = config;
+    if (!config.configured) throw Error("Le paiement en ligne est différé : il n’est pas encore activé. Votre choix de mois et votre préinscription sont conservés. Contactez l’établissement.");
     if (typeof openKkiapayWidget !== "function") throw Error("Le module de paiement ne peut pas être chargé. Réessayez.");
-    order = await request("/api/registration-payments/checkout", { period: new Date().toLocaleDateString("en-CA").slice(0, 7) }, true);
+    if (!paymentAttempt) paymentAttempt = { ...selection, token: paymentToken, registration: current };
+    const attempt = paymentAttempt;
+    if (!order) {
+      const checkout = await request("/api/registration-payments/checkout", { periods: [...attempt.periods] }, true);
+      if (paymentAttempt !== attempt || paymentToken !== attempt.token || current !== attempt.registration) return;
+      order = checkout;
+      paymentPicker?.refresh();
+    }
     transactionId = "";
     $("retry-confirmation").hidden = true;
     $("payment-status").textContent = order.sandbox ? "KKiaPay est en mode test. Aucun encaissement réel." : "Confirmez le paiement dans la fenêtre KKiaPay. Votre inscription est déjà reçue.";
-    openKkiapayWidget({ amount: order.amount, key: order.publicKey, sandbox: order.sandbox, fullname: current.name, phone: current.phone, data: order.data, position: "center", theme: "#205bcb" });
+    widgetActive = true;
+    paymentBusy = false;
+    openKkiapayWidget({ amount: order.amount, key: order.publicKey, sandbox: order.sandbox, fullname: attempt.registration.name, phone: attempt.registration.phone, data: order.data, position: "center", theme: "#205bcb" });
   } catch (error) {
+    widgetActive = false;
+    if (!order && error.status >= 400 && error.status < 500) paymentAttempt = null;
+    if (paymentAttempt || error.status === 409) paymentPicker?.refresh();
     $("payment-status").textContent = error.message;
   } finally {
-    button.disabled = false;
+    if (!paymentVerifying) paymentBusy = false;
+    updatePaymentChoice();
   }
 };
 
 async function verifyPayment() {
-  if (!order || !transactionId) return;
+  if (!order || !transactionId || paymentBusy || paymentVerifying || receipt) return;
+  const attempt = paymentAttempt, confirmedOrder = order, confirmedTransaction = transactionId;
+  paymentBusy = true;
+  paymentVerifying = true;
+  updatePaymentChoice();
   $("retry-confirmation").disabled = true;
   $("pay").disabled = true;
   $("payment-status").textContent = "Vérification du paiement auprès de KKiaPay…";
   try {
-    receipt = await request("/api/registration-payments/confirm", { orderId: order.orderId, transactionId }, true);
+    const result = await request("/api/registration-payments/confirm", { orderId: confirmedOrder.orderId, transactionId: confirmedTransaction }, true);
+    if (paymentAttempt !== attempt || order !== confirmedOrder || transactionId !== confirmedTransaction) return;
+    receipt = result;
+    lastConfirmed = { receipt: result, order: confirmedOrder };
+    paymentPicker?.clearSelection();
+    await paymentPicker?.refresh({ clear: true });
     $("retry-confirmation").hidden = true;
     $("payment-status").textContent = "";
     confirmed();
@@ -239,27 +339,84 @@ async function verifyPayment() {
     $("payment-status").textContent = error.message + " Ne payez pas une seconde fois : utilisez la vérification ci-dessous.";
     $("retry-confirmation").hidden = false;
   } finally {
+    paymentVerifying = false;
+    paymentBusy = false;
     $("retry-confirmation").disabled = false;
-    $("pay").disabled = !!transactionId && !receipt;
+    updatePaymentChoice();
   }
 }
 
 if (typeof addSuccessListener === "function") addSuccessListener(async (response) => {
-  if (!order) return;
+  if (!order || !paymentAttempt || paymentBusy || transactionId || receipt || !response?.transactionId) return;
   transactionId = response.transactionId;
+  widgetActive = false;
+  providerPending = false;
   closeKkiapayWidget();
   await verifyPayment();
 });
-if (typeof addFailedListener === "function") addFailedListener(() => {
-  $("payment-status").textContent = "Le paiement a échoué ou a été annulé. Votre préinscription est conservée. Vous pouvez réessayer.";
+function pausePayment() {
+  if (!order || paymentBusy || transactionId || receipt) return;
+  if (providerPending) {
+    widgetActive = false;
+    updatePaymentChoice();
+    return;
+  }
+  closeKkiapayWidget();
+  widgetActive = false;
+  $("payment-status").textContent = "Le paiement n’est pas confirmé. Votre préinscription et les mois choisis sont conservés. Vous pouvez reprendre le même paiement.";
+  updatePaymentChoice();
+}
+function failedPayment() {
+  if (paymentBusy || transactionId || receipt) return;
+  providerPending = false;
+  pausePayment();
+}
+if (typeof addFailedListener === "function") addFailedListener(failedPayment);
+if (typeof addKkiapayCloseListener === "function") addKkiapayCloseListener(pausePayment);
+if (typeof addPaymentAbortedListener === "function") addPaymentAbortedListener(failedPayment);
+if (typeof addPendingListener === "function") addPendingListener(async (response) => {
+  if (!order || transactionId || receipt) return;
+  if (response?.transactionId && !paymentBusy) {
+    transactionId = response.transactionId;
+    widgetActive = false;
+    closeKkiapayWidget();
+    await verifyPayment();
+    return;
+  }
+  providerPending = true;
+  $("payment-status").textContent = "Le paiement est en cours de traitement. Attendez la confirmation avant de payer à nouveau.";
+  updatePaymentChoice();
 });
 $("retry-confirmation").onclick = verifyPayment;
+$("another-payment").onclick = async () => {
+  if (!receipt || paymentBusy || !current) return;
+  receipt = null;
+  order = null;
+  transactionId = "";
+  paymentAttempt = null;
+  widgetActive = false;
+  providerPending = false;
+  $("payment-status").textContent = "";
+  $("retry-confirmation").hidden = true;
+  paymentPicker?.setLocked(false);
+  paymentPicker?.clearSelection();
+  confirmed();
+  await paymentPicker?.refresh({ clear: true });
+};
 $("new-registration").onclick = () => {
+  if (paymentBusy || (paymentAttempt && !receipt)) return;
   current = null;
   paymentToken = "";
   order = null;
   transactionId = "";
   receipt = null;
+  lastConfirmed = null;
+  paymentPicker?.destroy();
+  paymentPicker = null;
+  paymentConfig = null;
+  paymentAttempt = null;
+  widgetActive = false;
+  providerPending = false;
   $("registration").reset();
   fee();
   $("confirmation").hidden = true;
@@ -270,6 +427,7 @@ $("new-registration").onclick = () => {
   $("payment-status").textContent = "";
   $("retry-confirmation").hidden = true;
   $("pay").disabled = false;
+  $("new-registration").disabled = false;
   window.scrollTo(0, 0);
   loadCatalogue();
 };

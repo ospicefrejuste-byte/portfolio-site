@@ -9,6 +9,7 @@ const enrollmentState = {
   to: "",
   selected: new Set(),
   busy: false,
+  classListDownloading: false,
   error: "",
 };
 
@@ -112,6 +113,7 @@ function enrollmentPage() {
       <label for="enrollment-status">Statut<select id="enrollment-status" ${disabled}><option value="">Tous les statuts</option>${enrollmentOptions(["Préinscription", "Inscrit", "Suspendu"], enrollmentState.status)}</select></label>
       <button class="secondary" id="enrollment-reset" ${disabled}>Effacer les filtres</button>
     </div>
+    <div class="enrollment-class-list"><div><strong>Liste de classe à signer</strong><p>Choisissez une classe et un centre. La liste comprend tous les élèves de cette classe, quel que soit leur statut.</p></div><button class="secondary" type="button" id="enrollment-class-list-pdf"${!enrollmentState.class || !enrollmentState.centre || enrollmentState.classListDownloading ? " disabled" : ""}${enrollmentState.classListDownloading ? ' aria-busy="true"' : ""}>${enrollmentState.classListDownloading ? "Préparation…" : "Liste de classe PDF"}</button></div>
     ${duplicates.groups ? `<div class="enrollment-duplicate-note" role="status"><strong>${duplicates.groups} rapprochement(s) à vérifier</strong><p>Des dossiers partagent le même nom, téléphone, classe et centre. Vérifiez les fiches marquées « Doublon possible » avant de décider. Aucun dossier n’est supprimé automatiquement.</p></div>` : ""}
     <details class="enrollment-report-period" ${enrollmentState.from || enrollmentState.to ? "open" : ""}>
       <summary>Période des bulletins PDF</summary>
@@ -212,6 +214,46 @@ async function enrollmentDownloadReport(link) {
   }
 }
 
+async function downloadClassListPdf(className, centre) {
+  const query = new URLSearchParams({ class: className, centre });
+  const response = await fetch(`/api/reports/class.pdf?${query}`, { credentials: "same-origin", headers: { Accept: "application/pdf" } });
+  if (!response.ok) {
+    let message = "La liste de classe n’a pas pu être téléchargée. Réessayez.";
+    try { message = (await response.json()).error || message; } catch (_) { /* The gateway may return a non-JSON error. */ }
+    const error = new Error(message);
+    error.status = response.status;
+    throw error;
+  }
+  if (!String(response.headers.get("content-type") || "").toLowerCase().includes("application/pdf")) {
+    throw new Error("La liste de classe PDF est indisponible. Reconnectez-vous puis réessayez.");
+  }
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "liste-de-classe.pdf";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+}
+
+async function enrollmentDownloadClassList() {
+  if (role !== "admin" || enrollmentState.classListDownloading || !enrollmentState.class || !enrollmentState.centre) return;
+  enrollmentState.classListDownloading = true;
+  enrollmentSetError("");
+  enrollmentRender();
+  try {
+    await downloadClassListPdf(enrollmentState.class, enrollmentState.centre);
+    toast("Liste de classe PDF téléchargée.");
+  } catch (error) {
+    enrollmentState.error = error.message || "Le téléchargement a échoué. Réessayez.";
+    if (error.status === 401) location.assign("/connexion.html?espace=administration");
+  } finally {
+    enrollmentState.classListDownloading = false;
+    enrollmentRender();
+  }
+}
+
 function bindEnrollments() {
   if (role !== "admin" || page !== "students" || !$("enrollment-search")) return;
   if (enrollmentState.busy) {
@@ -249,6 +291,7 @@ function bindEnrollments() {
     enrollmentRender();
   };
   $("enrollment-validate").onclick = enrollmentValidate;
+  $("enrollment-class-list-pdf").onclick = enrollmentDownloadClassList;
   document.querySelectorAll("[data-enrollment-select]").forEach((checkbox) => {
     checkbox.onchange = () => {
       enrollmentState.error = "";

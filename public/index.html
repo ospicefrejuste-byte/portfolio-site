@@ -1,16 +1,19 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta name="crs-version" content="680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51">
+  <meta name="crs-version" content="a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="description" content="Inscrivez votre enfant aux cours de renforcement scolaire et accompagnez ses progrès.">
   <meta name="theme-color" content="#14355c">
   <title>Inscription · Cours de renforcement scolaire</title>
-  <link rel="stylesheet" href="eleve.css?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51">
-  <script src="vendor/kkiapay-2.0.38.js?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" defer></script>
-  <script src="inscription.js?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" defer></script>
-<link rel="stylesheet" href="site-updates.css?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" />
+  <link rel="stylesheet" href="eleve.css?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92">
+  <link rel="stylesheet" href="payment-picker.css?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92">
+  <script src="vendor/kkiapay-2.0.38.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
+  <script src="payment-months.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
+  <script src="payment-picker.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
+  <script src="inscription.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
+<link rel="stylesheet" href="site-updates.css?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" />
 </head>
 <body>
   <a class="skip-link" href="#registration">Aller au formulaire d’inscription</a>
@@ -70,18 +73,22 @@
     </article>
 
     <article id="confirmation" class="confirmation-card" hidden>
-      <div class="success" role="status"><strong>Préinscription reçue !</strong><br>Votre dossier a été transmis. Vous pouvez payer les frais du mois ou fermer cette page.</div>
+      <div class="success" role="status"><strong>Préinscription reçue !</strong><br>Votre dossier a été transmis. Vous pouvez choisir librement les mois à régler, ou fermer cette page.</div>
       <h1 id="student-name"></h1>
-      <dl><dt>Classe</dt><dd id="summary-class"></dd><dt>Centre</dt><dd id="summary-centre"></dd><dt>Frais du mois</dt><dd id="amount"></dd></dl>
+      <dl><dt>Classe</dt><dd id="summary-class"></dd><dt>Centre</dt><dd id="summary-centre"></dd><dt>Tarif pour un mois</dt><dd id="amount"></dd></dl>
       <p class="intro">Référence : <span id="reference"></span></p>
+      <div id="payment-choice" class="payment-choice">
+        <div class="grid"><label for="payment-period">Afficher à partir de<input id="payment-period" name="period" type="month" required></label><label for="payment-month-count">Sélection rapide de mois consécutifs<input id="payment-month-count" name="monthCount" type="number" min="1" step="1" value="1"></label></div>
+        <div id="payment-month-picker"></div>
+      </div>
       <p id="payment-note" class="notice">Le paiement sera confirmé après vérification auprès de KKiaPay.</p>
       <p id="payment-status" role="status"></p>
       <button id="retry-confirmation" class="secondary" hidden>Vérifier à nouveau le paiement</button>
-      <div id="paid" class="success" hidden><strong>Paiement confirmé</strong><p>Montant : <span id="receipt-amount"></span><br>Référence de paiement : <span id="receipt-reference"></span></p><span id="receipt-mode"></span><button id="download-receipt" type="button">Télécharger mon reçu PDF</button></div>
-      <div class="actions"><button id="pay">Payer les frais du mois</button><button id="new-registration" class="secondary">Inscrire un autre élève</button></div>
+      <div id="paid" class="success" hidden><strong>Paiement confirmé</strong><p>Mois couverts : <span id="receipt-months"></span><br>Montant total : <span id="receipt-amount"></span><br>Référence de paiement : <span id="receipt-reference"></span></p><span id="receipt-mode"></span><button id="download-receipt" type="button">Télécharger mon reçu PDF</button></div>
+      <div class="actions"><button id="pay">Payer les frais du mois</button><button id="another-payment" class="secondary" hidden>Choisir d’autres mois pour cet élève</button><button id="new-registration" class="secondary">Inscrire un autre élève</button></div>
     </article>
   </main>
   <footer id="contact" class="site-footer"><div><strong id="footer-school-name">COURS DE RENFORCEMENT SCOLAIRE</strong><span>Ensemble, accompagnons chaque progrès.</span></div><nav id="school-contacts" aria-label="Contacter l’établissement"></nav></footer>
-<script src="site-updates.js?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" defer></script>
+<script src="site-updates.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
 </body>
 </html>

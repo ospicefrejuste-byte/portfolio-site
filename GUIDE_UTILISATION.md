@@ -67,8 +67,9 @@ Pour un règlement effectivement reçu en espèces :
 1. Ouvrez **Caisse en présentiel** et choisissez le **Mois concerné**, c’est-à-dire le mois de cours payé.
 2. Choisissez l’**École / centre**, puis la **Classe** et l’**Élève de la classe** dans les menus déroulants. Il n’est pas nécessaire d’écrire le nom. Une recherche par élève, parent ou téléphone reste disponible si besoin.
 3. Vérifiez la mensualité, les sommes déjà réglées et le reste à payer, puis cliquez sur **Encaisser en espèces**.
-4. Saisissez la somme remise. Un règlement partiel est possible. Vérifiez le récapitulatif et cliquez sur **Confirmer l’encaissement** après réception de l’argent.
-5. Téléchargez le **reçu PDF** pour l’imprimer. Il indique l’élève, le mois, le montant, le caissier et une référence unique.
+4. Cochez librement les mois à régler, même sur plusieurs années, avec les flèches du calendrier. Les mois déjà soldés restent cochés avec **Déjà réglé** et sont exclus du total. Une tentative en ligne en attente est signalée et bloque uniquement ses mois. Les raccourcis permettent de sélectionner rapidement plusieurs mois.
+5. Pour un seul mois, saisissez la somme remise : un règlement partiel reste possible. Pour plusieurs mois, le montant correspond exactement au total restant des mois sélectionnés. Vérifiez tous les mois et le montant, puis cliquez sur **Confirmer l’encaissement** après réception de l’argent.
+6. Téléchargez le **reçu PDF** pour l’imprimer. Un seul reçu et un seul QR couvrent ce règlement ; chaque mois, son montant et le total y figurent, même lorsque plusieurs pages sont nécessaires.
 
 Chaque reçu téléchargé après cette mise à jour possède **son propre QR code**, lié à sa référence. Deux reçus distincts ont deux codes distincts ; un nouveau téléchargement du même reçu conserve son code et ses informations. Pour ajouter un QR à un ancien PDF, téléchargez de nouveau le reçu depuis l’historique après publication de la mise à jour.
 
@@ -90,7 +91,7 @@ Dans **Paiements**, l’administration voit deux parties : **Paiements en ligne*
 
 Dans **Mensualités**, choisissez le mois : le site distingue attendu, reçu, reste à régler et avances. Les paiements de test sont exclus. Les préinscriptions et dossiers suspendus ne sont pas facturés. Le montant attendu utilise le tarif et le statut actuels du dossier ; il ne constitue pas une archive de factures ou de changements de tarifs.
 
-**Préparer un rappel** ouvre un brouillon modifiable pour la famille. La plateforme ne l’envoie pas : relisez-le, copiez-le et transmettez-le vous-même. **Enregistrer un règlement** ouvre la saisie du paiement pour l’élève et le mois choisis.
+**Relancer sur WhatsApp** est réservé au responsable pour les élèves ayant un reste à payer. Le site vérifie le solde réel, puis prépare le mois, le nom de l’enfant et le montant restant dans un message modifiable. Vérifiez le numéro complet du parent avec + ou 00 et l’indicatif du pays ; aucun indicatif n’est ajouté automatiquement. Cliquez sur **Ouvrir WhatsApp**, puis validez vous-même **Envoyer dans WhatsApp**. Le solde est vérifié de nouveau avant l’ouverture : si le dossier ou le montant a changé, relisez le message actualisé ; un mois déjà réglé ne permet plus de préparer la relance. Aucun message n’est envoyé automatiquement et l’ouverture du brouillon n’est pas enregistrée comme un envoi. **Copier le message** reste disponible. **Enregistrer un règlement** ouvre la saisie du paiement pour l’élève et le mois choisis.
 
 Les filtres **Classe**, **Centre** et **Mois des encaissements et présences du jour** permettent de consulter un périmètre. **Réinitialiser** rétablit les filtres par défaut.
 
@@ -136,3 +137,15 @@ Chaque publication versionne les scripts et les styles. Les nouvelles visites ch
 Une saisie, un dialogue, des présences du jour non enregistrées ou une inscription avec sa confirmation de paiement empêchent l’actualisation automatique. Le bandeau **Actualiser / Plus tard** laisse alors choisir le moment ; enregistrez les présences, terminez l’opération et récupérez le reçu avant d’actualiser. Aucune saisie n’est envoyée automatiquement par ce mécanisme. Un problème de connexion lors de la vérification de version ne bloque pas les autres fonctions.
 
 Pour installer ce mécanisme dans un onglet qui était déjà ouvert avant sa première publication, chargez une fois la nouvelle version du site. Il pourra ensuite détecter les publications suivantes. KKiaPay reste reporté.
+
+## Listes de classe à imprimer
+
+Dans **Élèves**, le responsable choisit une école / un centre et une classe puis utilise **Liste de classe PDF**. Le même téléchargement est disponible au caissier dans **Présences du jour**, après sélection de l’école et de la classe. Le PDF A4 numérote les élèves et contient **Nom et prénoms**, **Classe** et une colonne **Signature** vide. Les en-têtes sont repris sur les pages suivantes. La liste comprend tous les dossiers de cette classe, y compris les préinscriptions et suspensions, sans coordonnées des familles ni montants. Le téléchargement ne modifie ni les dossiers ni les présences en cours de saisie.
+
+## Mois à payer dans l’espace élève
+
+Choisissez librement les mois dans le calendrier, avec les flèches pour passer aux années suivantes ou précédentes. Le nombre de mois n’est plus limité aux choix 1, 3 et 6 : un raccourci numérique permet aussi une sélection consécutive. Les mois **Payé** sont cochés et bloqués, sans être ajoutés au montant. Un mois partiellement réglé reste sélectionnable pour son solde. Les mois **Paiement en cours** sont bloqués jusqu’à vérification de cette tentative. Le récapitulatif conserve tous les mois choisis lors du changement de page ou de la date d’affichage. Si la fenêtre de paiement est fermée sans règlement confirmé, **Reprendre le paiement** rouvre la même échéance. Si une transaction est déjà en cours ou possède une référence, utilisez sa vérification pour éviter de payer deux fois.
+
+Le serveur confirme le montant avant toute demande de paiement et refuse un mois devenu réglé ou réservé entre-temps. Un règlement produit un seul reçu avec le détail de chaque mensualité et son QR individuel. La recette est comptée une fois à sa date d’encaissement, tandis que les soldes sont répartis entre les mois indiqués. Sans activation de KKiaPay, les soldes réels restent consultables et cochés, et aucun paiement en ligne ne peut être lancé. Les paiements de test sont toujours présentés séparément des règlements réels.
+
+Les élèves déjà enregistrés, y compris les dossiers d’essai, sont conservés. Leur suppression reste une opération volontaire du responsable avec les confirmations prévues dans l’interface.

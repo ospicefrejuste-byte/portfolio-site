@@ -45,3 +45,22 @@ test("Les anciens dossiers incomplets restent lisibles et les mois invalides son
   for (const period of [undefined, "2026-00", "2026-13", "2026-1", "2026-10<script>"])
     assert.throws(() => calculateMonthlyBalances({}, period), RangeError);
 });
+
+test("Les règlements groupés répartissent le montant entre les mensualités sans répéter le total", () => {
+  const data = {
+    students: [{ id: "pupil", monthlyFee: 4500 }],
+    payments: [
+      { id: "three-months", student: "pupil", period: "2026-10", periods: ["2026-10", "2026-11", "2026-12"], amount: 11000, date: "2026-09-30", allocations: [{ period: "2026-10", amount: 2000 }, { period: "2026-11", amount: 4500 }, { period: "2026-12", amount: 4500 }] },
+      { student: "pupil", period: "2026-10", amount: 500 },
+      { student: "pupil", period: "2026-10", periods: ["2026-10", "2026-11"], amount: 9000, allocations: [{ period: "2026-10", amount: 4500 }, { period: "2026-11", amount: 4500 }], mode: "sandbox" },
+    ],
+  };
+  const original = structuredClone(data);
+  const row = (period) => calculateMonthlyBalances(data, period)[0];
+  assert.deepEqual([row("2026-10").paid, row("2026-10").balance, row("2026-10").status], [2500, 2000, "Partiel"]);
+  for (const period of ["2026-11", "2026-12"])
+    assert.deepEqual([row(period).paid, row(period).balance, row(period).status], [4500, 0, "Réglé"]);
+  assert.equal(row("2027-01").paid, 0);
+  assert.equal(["2026-10", "2026-11", "2026-12"].reduce((total, period) => total + row(period).paid, 0), 11500);
+  assert.deepEqual(data, original);
+});

@@ -123,6 +123,48 @@ test("Le reçu de caisse identifie le parent et le caissier avec une référence
   assert.match(legacy, /Non renseigné \(ancien enregistrement\)/);
 });
 
+test("Un reçu groupé détaille trois ou six mensualités, conserve un total et un seul lien de vérification", { skip: !canExtract }, async () => {
+  const url = "https://receipts.example.test/verification-recu.html#bundled-receipt-token";
+  for (const periods of [["2026-10", "2026-11", "2026-12"], ["2026-10", "2026-11", "2026-12", "2027-01", "2027-02", "2027-03"]]) {
+    const allocations = periods.map((period, index) => ({ period, amount: (index + 1) * 1000 }));
+    const total = allocations.reduce((sum, allocation) => sum + allocation.amount, 0);
+    const buffer = await createPaymentReceipt({
+      payment: { id: "bundled-receipt", student: "pupil", amount: total, period: periods[0], periods, allocations, date: "2026-10-13", source: "Caisse", channel: "cash" },
+      student: { name: "Élève Grâce" }, verification: { url },
+    });
+    assertPdf(buffer);
+    const output = extract(buffer);
+    assert.match(output, /Détail des mensualités/);
+    assert.match(output, /Montant total reçu/);
+    for (const allocation of allocations)
+      assert.ok(output.includes(`${allocation.period} ${allocation.amount.toLocaleString("fr-FR").replace(/\s/g, " ")} FCFA`), `Le reçu doit détailler ${allocation.period} et son montant propre.`);
+    const displayedTotal = `${total.toLocaleString("fr-FR").replace(/\s/g, " ")} FCFA`;
+    assert.equal(output.split(displayedTotal).length - 1, 1, "Le total reçu est présenté une seule fois.");
+    assert.equal(output.split("Scanner pour vérifier").length - 1, 1);
+    assert.equal(output.split("Référence du reçu : bundled-receipt").length - 1, 1);
+    const raw = buffer.toString("latin1");
+    assert.equal((raw.match(/\/URI\s*\(/g) || []).length, 1);
+    const masks = new Set([...raw.matchAll(/\/SMask\s+(\d+)\s+0\s+R/g)].map((match) => match[1]));
+    const images = [...raw.matchAll(/(\d+)\s+0\s+obj\b([\s\S]*?)endobj/g)].filter((match) => /\/Subtype\s+\/Image\b/.test(match[2]) && !masks.has(match[1]));
+    assert.equal(images.length, 1, "Un seul QR principal est intégré au reçu, sans compter son masque de transparence.");
+  }
+});
+
+test("Le bilan liste les mois groupés et filtre l’encaissement en comptant chaque règlement une seule fois", { skip: !canExtract }, async () => {
+  const allocations = [{ period: "2026-11", amount: 1000 }, { period: "2026-12", amount: 2000 }, { period: "2027-01", amount: 3000 }];
+  const payment = { student: "pupil", period: allocations[0].period, periods: allocations.map((allocation) => allocation.period), allocations, amount: 6000, date: "2026-10-13" };
+  const output = extract(await createStudentReport({
+    student: { id: "pupil", name: "Élève Grâce" }, from: "2026-10-01", to: "2026-10-31",
+    payments: [payment, { student: "pupil", period: "2026-10", amount: 500, date: "2026-10-15" }, { ...payment, date: "2026-09-30", period: "2027-04", periods: ["2027-04", "2027-05"], allocations: [{ period: "2027-04", amount: 4000 }, { period: "2027-05", amount: 4000 }], amount: 8000 }, { ...payment, mode: "sandbox", amount: 9000, allocations: allocations.map((allocation) => ({ ...allocation, amount: 3000 })) }],
+  }));
+  assert.match(output, /Total des règlements réels : 6 500 FCFA/);
+  assert.match(output, /Les mois indiqués sont les mensualités concernées/);
+  for (const allocation of allocations) assert.ok(output.includes(allocation.period));
+  assert.equal(output.split("6 000 FCFA").length - 1, 1, "Le règlement groupé constitue une seule ligne d’encaissement.");
+  assert.match(output, /Transactions de test — hors règlements/);
+  assert.doesNotMatch(output, /2027-04|2027-05|8 000 FCFA/);
+});
+
 test("Le reçu contient un QR local et un lien cliquable vers le site officiel de vérification", async () => {
   const url = "https://cours-renforcement-scolaire.netlify.app/verification-recu.html#verification-token-123";
   const payment = { id: "reference-qr", student: "pupil", amount: 4500, period: "2026-10", date: "2026-10-13", source: "Caisse", channel: "cash", collectedByName: "Caissière Élodie" };

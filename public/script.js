@@ -65,7 +65,7 @@ const sections = {
   grades: ["▤", "Notes & résultats"],
   users: ["♧", "Comptes & accès"],
 };
-window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0 || currentOrder !== null || (typeof window.hasDailyDrafts === "function" && window.hasDailyDrafts());
+window.crsHasUnsavedWork = () => schoolAPI.pendingRequests > 0 || currentOrder !== null || Boolean(checkoutDraft?.locked) || (typeof cashierState !== "undefined" && cashierState.intents.size > 0) || (typeof window.hasDailyDrafts === "function" && window.hasDailyDrafts());
 window.crsPrepareReload = () => {
   if (!accessibleSections().includes(page)) return;
   const url = new URL(location.href);
@@ -279,13 +279,13 @@ function rowsForPage() {
         (p) =>
           (paymentChannel === "all" || (paymentChannel === "test" ? p.mode === "sandbox" : p.mode !== "sandbox" && (paymentChannel === "online" ? p.source === "KKiaPay" : p.source !== "KKiaPay"))) &&
           visibleStudents().some((s) => s.id === p.student) &&
-          (student(p.student)?.name + " " + p.period)
+          (student(p.student)?.name + " " + window.paymentMonths.allocations(p).map((allocation) => allocation.period).join(" ") + " " + window.paymentMonths.labels(p).join(" "))
             .toLowerCase()
             .includes(search),
       )
       .map(
         (p) =>
-          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(p.period)}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : p.source === "Caisse" ? "Caisse en présentiel" : "Saisie administrative"}</span></td><td><button class="secondary" data-receipt="${esc(p.id)}">Reçu</button><a class="secondary" href="/api/payments/${encodeURIComponent(p.id)}/receipt.pdf" download>Télécharger PDF</a>${role === "admin" && p.source !== "KKiaPay" && p.source !== "Caisse" ? actions(p.id) : ""}</td></tr>`,
+          `<tr><td>${esc(student(p.student)?.name)}</td><td>${esc(window.paymentMonths.labels(p).join(", "))}</td><td>${money(p.amount)}</td><td>${date(p.date)}</td><td><span class="badge ${p.mode === "sandbox" ? "orange" : ""}">${p.mode === "sandbox" ? "Test confirmé" : p.source === "KKiaPay" ? "KKiaPay confirmé" : p.source === "Caisse" ? "Caisse en présentiel" : "Saisie administrative"}</span></td><td><button class="secondary" data-receipt="${esc(p.id)}">Reçu</button><a class="secondary" href="/api/payments/${encodeURIComponent(p.id)}/receipt.pdf" download>Télécharger PDF</a>${role === "admin" && p.source !== "KKiaPay" && p.source !== "Caisse" ? actions(p.id) : ""}</td></tr>`,
       );
   if (page === "grades")
     rows = db.grades
@@ -378,6 +378,9 @@ function render() {
   document
     .querySelectorAll("[data-verify-order]")
     .forEach((b) => (b.onclick = () => verifyOrderForm(b.dataset.verifyOrder)));
+  document.querySelectorAll("[data-resume-order]").forEach((button) => {
+    button.onclick = () => resumePaymentOrder(button.dataset.resumeOrder);
+  });
   document.querySelectorAll("[data-authorize-cash]").forEach((button) => {
     button.onclick = () => authorizeCashForm(button.dataset.authorizeCash);
   });
@@ -720,7 +723,7 @@ function collectionSummary() {
   return `<div class="analytics-grid">${panel("Paiements en ligne", "KKiaPay confirmés · totalité des encaissements réels", `<div class="mini-summary"><strong>${money(sum(true))}</strong></div><button class="secondary" data-payment-channel="online">Voir les paiements en ligne</button>`)}${panel("Encaissements en présentiel", "Caisse et anciennes saisies administratives · hors tests", `<div class="mini-summary"><strong>${money(sum(false))}</strong></div><div class="quick-actions"><button class="secondary" data-payment-channel="cash">Voir les paiements en présentiel</button><button class="primary" data-go="cashier">Ouvrir la caisse</button></div>`)}</div>`;
 }
 function paymentPage() {
-  return (role === "admin" ? collectionSummary() : "") + `<div class="panel payment-intro"><div class="panel-head"><div><h2>Régler les frais mensuels</h2><p>${paymentConfig.sandbox ? "KKiaPay · Mode test : aucune somme réelle n’est encaissée." : "KKiaPay · Paiement en ligne"}</p></div><button class="primary" id="pay-online" ${paymentConfig.configured ? "" : "disabled"}>Payer en ligne</button></div>${!paymentConfig.configured ? '<p class="helper">Le paiement en ligne attend la configuration des trois clés KKiaPay dans les paramètres sécurisés du serveur.</p>' : ""}<p class="helper">Le montant est calculé à partir du tarif de l’élève et des paiements déjà enregistrés pour le mois. La confirmation est vérifiée auprès de KKiaPay.</p></div>${list()}${
+  return (role === "admin" ? collectionSummary() : "") + `<div class="panel payment-intro"><div class="panel-head"><div><h2>Régler les frais mensuels</h2><p>${!paymentConfig.configured ? "Soldes réels · Paiement en ligne différé" : paymentConfig.sandbox ? "KKiaPay · Mode test : aucune somme réelle n’est encaissée." : "KKiaPay · Paiement en ligne"}</p></div><button class="primary" id="pay-online" ${currentOrder || checkoutInFlight || paymentConfirmationInFlight ? "disabled" : ""}>${paymentConfig.configured ? "Payer en ligne" : "Choisir les mois à régler"}</button></div>${!paymentConfig.configured ? '<p class="helper">Le paiement en ligne est différé jusqu’à son activation par l’établissement. Vous pouvez préparer votre choix de mois.</p>' : ""}${currentOrder ? '<p class="helper">Une tentative de paiement est en attente. Vérifiez cette transaction avant de préparer un autre règlement.</p>' : ""}<p class="helper">Choisissez librement les mois à régler, même sur plusieurs années. Le total est calculé à partir du tarif de l’élève et du solde de chaque mois. La confirmation est vérifiée auprès de KKiaPay.</p></div>${list()}${
     paymentOrders.length
       ? panel(
           "Échéances en ligne",
@@ -729,7 +732,7 @@ function paymentPage() {
             ["Élève", "Mois", "Montant", "Mode", "Statut", "Action"],
             paymentOrders.map(
               (o) =>
-                `<tr><td>${esc(student(o.student)?.name || "—")}</td><td>${esc(o.period)}</td><td>${money(o.amount)}</td><td>${o.mode === "sandbox" ? "Test" : "Réel"}</td><td>${o.status === "paid" ? "Confirmé" : o.status === "cash_authorized" ? "Présentiel autorisé · en ligne non confirmé" : "En attente"}</td><td><div class="row-actions">${["pending", "cash_authorized"].includes(o.status) ? `<button class="secondary" data-verify-order="${esc(o.id)}">Vérifier la transaction</button>` : ""}${role === "admin" && o.mode === "live" && o.status === "pending" ? `<button class="secondary" data-authorize-cash="${esc(o.id)}">Autoriser la caisse</button>` : ""}</div></td></tr>`,
+                `<tr><td>${esc(student(o.student)?.name || "—")}</td><td>${esc(window.paymentMonths.labels(o).join(", "))}</td><td>${money(o.amount)}</td><td>${o.mode === "sandbox" ? "Test" : "Réel"}</td><td>${o.status === "paid" ? "Confirmé" : o.status === "cash_authorized" ? "Présentiel autorisé · en ligne non confirmé" : "En attente"}</td><td><div class="row-actions">${["pending", "cash_authorized"].includes(o.status) ? `<button class="secondary" data-verify-order="${esc(o.id)}" ${checkoutInFlight || paymentConfirmationInFlight || currentOrder?.widgetActive ? "disabled" : ""}>Vérifier la transaction</button>` : ""}${o.status === "pending" && o.mode === (paymentConfig.sandbox ? "sandbox" : "live") && !privateAttemptState(o).transactionId ? `<button class="secondary" data-resume-order="${esc(o.id)}" ${canResumePaymentOrder(o) ? "" : "disabled"}>Reprendre le paiement</button>` : ""}${role === "admin" && o.mode === "live" && o.status === "pending" ? `<button class="secondary" data-authorize-cash="${esc(o.id)}">Autoriser la caisse</button>` : ""}</div>${privateAttemptState(o).providerPending ? '<p class="helper">Paiement en cours : attendez sa confirmation avant de reprendre.</p>' : ""}${paymentResumeErrors.has(o.id) ? `<p class="helper" role="alert">${esc(paymentResumeErrors.get(o.id))}</p>` : ""}</td></tr>`,
             ),
           ),
         )
@@ -737,58 +740,157 @@ function paymentPage() {
   }`;
 }
 let currentOrder = null;
+let checkoutDraft = null, checkoutInFlight = false, paymentConfirmationInFlight = false;
+const paymentResumeErrors = new Map();
+function privateAttemptKey(id) { return "crs-payment-attempt:" + user.id + ":" + id; }
+function privateAttemptState(order) {
+  const id = order.orderId || order.id;
+  let saved = {};
+  try { saved = JSON.parse(sessionStorage.getItem(privateAttemptKey(id)) || "{}"); } catch (_) { /* Storage may be unavailable. */ }
+  const active = currentOrder?.orderId === id ? currentOrder : null;
+  return { transactionId: active?.transactionId || order.transactionId || saved.transactionId || "", providerPending: Boolean(active?.providerPending || saved.providerPending) };
+}
+function rememberPrivateAttempt(order) {
+  const state = { transactionId: order.transactionId || "", providerPending: Boolean(order.providerPending) };
+  try {
+    if (state.transactionId || state.providerPending) sessionStorage.setItem(privateAttemptKey(order.orderId || order.id), JSON.stringify(state));
+    else sessionStorage.removeItem(privateAttemptKey(order.orderId || order.id));
+  } catch (_) { /* The current page still keeps the active attempt in memory. */ }
+}
+function canResumePaymentOrder(order) {
+  const state = privateAttemptState(order);
+  return paymentConfig.configured && order.status === "pending" && order.mode === (paymentConfig.sandbox ? "sandbox" : "live") && !state.transactionId && !state.providerPending && !checkoutInFlight && !paymentConfirmationInFlight && !currentOrder?.widgetActive && (!currentOrder || currentOrder.orderId === (order.id || order.orderId));
+}
+function openPrivatePaymentWidget(order) {
+  order.widgetActive = true;
+  order.providerPending = false;
+  rememberPrivateAttempt(order);
+  render();
+  try {
+    openKkiapayWidget({ amount: order.amount, key: order.publicKey, sandbox: order.sandbox, fullname: order.studentName, data: order.data, position: "center", theme: "#1c59bc" });
+  } catch (error) {
+    order.widgetActive = false;
+    throw error;
+  }
+}
+async function resumePaymentOrder(id) {
+  const previous = paymentOrders.find((order) => order.id === id);
+  if (!previous || !canResumePaymentOrder(previous)) return;
+  if (typeof openKkiapayWidget !== "function") return toast("Le module de paiement est indisponible. Réessayez.");
+  const allocations = window.paymentMonths.allocations(previous);
+  if (!allocations.length) return toast("Les mois de cette échéance sont indisponibles. Contactez le responsable.");
+  checkoutInFlight = true;
+  render();
+  try {
+    const order = await schoolAPI.request("/api/payments/checkout", "POST", { student: previous.student, periods: allocations.map((allocation) => allocation.period) });
+    if (order.orderId !== id || Number(order.amount) !== Number(previous.amount) || JSON.stringify(window.paymentMonths.allocations(order)) !== JSON.stringify(allocations)) {
+      throw Object.assign(Error("Cette échéance a changé. Contactez le responsable avant de reprendre le paiement."), { status: 409 });
+    }
+    if (privateAttemptState(previous).transactionId || privateAttemptState(previous).providerPending || paymentConfirmationInFlight) return;
+    currentOrder = { ...order, student: previous.student, mode: previous.mode, status: "pending" };
+    paymentResumeErrors.delete(id);
+    openPrivatePaymentWidget(currentOrder);
+  } catch (error) {
+    if (error.status === 409) paymentResumeErrors.set(id, error.message + " Contactez le responsable avant de reprendre le paiement.");
+    handleError(error);
+  } finally {
+    checkoutInFlight = false;
+    render();
+  }
+}
 function openCheckout() {
-  const students = visibleStudents().filter(
-    (s) => s.registrationStatus === "Inscrit",
-  );
-  if (!students.length)
-    return toast("Une inscription validée est nécessaire pour payer.");
-  $("modal-title").textContent = paymentConfig.sandbox
-    ? "Paiement KKiaPay de test"
-    : "Régler un mois de cours";
+  if (currentOrder || checkoutInFlight || paymentConfirmationInFlight) return toast("Une tentative de paiement est en attente. Vérifiez sa transaction avant de changer les mois.");
+  const students = visibleStudents().filter((s) => s.registrationStatus === "Inscrit");
+  if (!students.length) return toast("Une inscription validée est nécessaire pour payer.");
+  $("modal-title").textContent = paymentConfig.configured && paymentConfig.sandbox ? "Paiement KKiaPay de test" : "Régler les mois de cours";
+  if (!checkoutDraft || !students.some((s) => s.id === checkoutDraft.student)) {
+    const period = new Date().toISOString().slice(0, 7);
+    checkoutDraft = { student: students[0].id, period, monthCount: 1, periods: [period], locked: false };
+  }
+  const draft = checkoutDraft;
   $("fields").innerHTML =
-    field(
-      "student",
-      "Élève",
-      "text",
-      students.map((s) => [s.id, s.name]),
-    ) +
-    field(
-      "period",
-      "Mois à régler",
-      "month",
-      null,
-      new Date().toISOString().slice(0, 7),
-    ) +
-    `<p class="helper">${paymentConfig.sandbox ? "Mode test : ne saisissez pas de coordonnées de paiement réelles." : "Le montant définitif est calculé sur le serveur avant l’ouverture de KKiaPay."}</p>`;
+    field("student", "Élève", "text", students.map((s) => [s.id, s.name]), draft.student) +
+    field("period", "Afficher à partir de", "month", null, draft.period) +
+    '<label for="f-monthCount">Sélection rapide de mois consécutifs</label><input id="f-monthCount" name="monthCount" type="number" min="1" step="1" value="' + esc(draft.monthCount) + '">' +
+    '<div id="checkout-summary"><div id="checkout-month-picker"></div></div>' +
+    `<p class="helper">${!paymentConfig.configured ? "Paiement en ligne différé : vous pouvez choisir vos mois. Le paiement sera disponible après son activation par l’établissement." : paymentConfig.sandbox ? "Mode test : aucun encaissement réel. Les soldes de test sont distincts des soldes réels." : "Le montant définitif est calculé sur le serveur avant l’ouverture de KKiaPay."}</p>`;
   $("error").textContent = "";
-  $("form").onsubmit = async (e) => {
-    e.preventDefault();
-    const b = e.target.querySelector('button[type="submit"]');
-    b.disabled = true;
+  const controls = [$("f-student"), $("f-period"), $("f-monthCount")];
+  const submit = $("form").querySelector('button[type="submit"]');
+  let picker;
+  const updateSummary = (selection = picker?.selection()) => {
+    if (checkoutDraft !== draft || !selection) return;
+    if (!draft.locked) draft.periods = [...selection.periods];
+    controls.forEach((control) => { control.disabled = checkoutInFlight || draft.locked; });
+    picker?.setLocked(checkoutInFlight || draft.locked);
+    submit.disabled = checkoutInFlight || !paymentConfig.configured || (draft.locked ? !draft.periods.length || selection.loading || Boolean(selection.error) : !selection.ready);
+    submit.textContent = draft.locked ? "Reprendre le même paiement" : "Payer " + selection.count + " mois";
+  };
+  function mountPicker(selected) {
+    picker?.destroy();
+    const studentId = draft.student;
+    picker = window.paymentMonthPicker.create({
+      root: $("checkout-month-picker"), start: draft.period, selected,
+      summaryIds: { total: "checkout-total", selected: "checkout-months" },
+      load: (start) => schoolAPI.request("/api/payments/months?student=" + encodeURIComponent(studentId) + "&start=" + encodeURIComponent(start)),
+      onPageChange: (start) => { draft.period = start; controls[1].value = start; },
+      onChange: updateSummary,
+    });
+    picker.setLocked(checkoutInFlight || draft.locked);
+    picker.refresh();
+  }
+  controls[0].onchange = () => {
+    if (draft.locked) return;
+    draft.student = controls[0].value;
+    draft.periods = [draft.period];
+    draft.monthCount = 1;
+    controls[2].value = "1";
+    mountPicker(draft.periods);
+  };
+  controls[1].onchange = () => {
+    if (draft.locked) return;
+    draft.period = controls[1].value;
+    picker.setStart(draft.period);
+  };
+  controls[2].onchange = () => {
+    if (draft.locked) return;
+    draft.monthCount = Number(controls[2].value);
+    picker.chooseRange(controls[1].value, draft.monthCount);
+  };
+  mountPicker(draft.periods || window.paymentMonthPicker.range(draft.period, draft.monthCount));
+  $("modal").oncancel = (event) => { if (checkoutInFlight) event.preventDefault(); };
+  $("modal").onclose = () => { picker.destroy(); submit.textContent = "Enregistrer"; submit.disabled = false; $("modal").oncancel = null; };
+  $("form").onsubmit = async (event) => {
+    event.preventDefault();
+    if (currentOrder || checkoutInFlight || paymentConfirmationInFlight || !paymentConfig.configured) return;
+    if (typeof openKkiapayWidget !== "function") { $("error").textContent = "Le module de paiement est indisponible. Réessayez."; return; }
+    updateSummary();
+    if (submit.disabled) return;
+    const selection = { student: draft.student, periods: [...draft.periods] };
+    checkoutInFlight = true;
+    draft.locked = true;
+    updateSummary();
     try {
-      const order = await schoolAPI.request(
-        "/api/payments/checkout",
-        "POST",
-        Object.fromEntries(new FormData(e.target)),
-      );
-      currentOrder = order;
+      const order = await schoolAPI.request("/api/payments/checkout", "POST", selection);
+      if (checkoutDraft !== draft) return;
+      currentOrder = { ...order, student: selection.student, mode: order.sandbox ? "sandbox" : "live", status: "pending" };
+      if (!paymentOrders.some((pending) => pending.id === order.orderId)) paymentOrders.unshift({ ...order, id: order.orderId, student: selection.student, mode: order.sandbox ? "sandbox" : "live", status: "pending" });
       $("modal").close();
-      openKkiapayWidget({
-        amount: order.amount,
-        key: order.publicKey,
-        sandbox: order.sandbox,
-        fullname: order.studentName,
-        data: order.data,
-        position: "center",
-        theme: "#1c59bc",
-      });
+      openPrivatePaymentWidget(currentOrder);
       await refresh();
       render();
-    } catch (err) {
-      $("error").textContent = err.message;
+    } catch (error) {
+      if (!currentOrder && error.status >= 400 && error.status < 500) {
+        draft.locked = false;
+        if (error.status === 409) picker.refresh({ clear: true });
+      }
+      $("error").textContent = error.message;
+      if (currentOrder) { render(); handleError(error); }
     } finally {
-      b.disabled = false;
+      checkoutInFlight = false;
+      if ($("modal").open && $("checkout-summary")) updateSummary();
+      if (currentOrder) render();
+      if ($("pay-online")) $("pay-online").disabled = Boolean(currentOrder) || paymentConfirmationInFlight;
     }
   };
   $("modal").showModal();
@@ -798,6 +900,13 @@ async function confirmPayment(orderId, transactionId) {
     orderId,
     transactionId,
   });
+  rememberPrivateAttempt({ orderId });
+  paymentResumeErrors.delete(orderId);
+  if (currentOrder?.orderId === orderId) {
+    if (typeof closeKkiapayWidget === "function") closeKkiapayWidget();
+    currentOrder = null;
+    checkoutDraft = null;
+  }
   await refresh();
   render();
   toast(
@@ -807,40 +916,78 @@ async function confirmPayment(orderId, transactionId) {
   );
   return result;
 }
-if (typeof addSuccessListener === "function")
-  addSuccessListener(async (response) => {
-    if (!currentOrder) return;
-    const id = currentOrder.orderId;
-    closeKkiapayWidget();
-    try {
-      await confirmPayment(id, response.transactionId);
-      currentOrder = null;
-    } catch (err) {
-      handleError(err);
-    }
-  });
-if (typeof addFailedListener === "function")
-  addFailedListener(() => {
-    toast("Paiement non confirmé. Vérifiez votre échéance avant de réessayer.");
-  });
+async function receivePrivateTransaction(response) {
+  if (!currentOrder || paymentConfirmationInFlight || currentOrder.transactionId || !response?.transactionId) return;
+  const pendingOrder = currentOrder, id = pendingOrder.orderId;
+  pendingOrder.transactionId = response.transactionId;
+  pendingOrder.widgetActive = false;
+  pendingOrder.providerPending = false;
+  rememberPrivateAttempt(pendingOrder);
+  paymentConfirmationInFlight = true;
+  closeKkiapayWidget();
+  render();
+  try {
+    await confirmPayment(id, response.transactionId);
+  } catch (error) {
+    handleError(error);
+    toast(error.message + " Ne payez pas une seconde fois : vérifiez la transaction.");
+  } finally {
+    paymentConfirmationInFlight = false;
+    render();
+  }
+}
+function pausePrivatePayment(failed = false) {
+  if (!currentOrder || currentOrder.transactionId || paymentConfirmationInFlight) return;
+  currentOrder.widgetActive = false;
+  if (failed) currentOrder.providerPending = false;
+  rememberPrivateAttempt(currentOrder);
+  if (!currentOrder.providerPending && typeof closeKkiapayWidget === "function") closeKkiapayWidget();
+  render();
+  toast(currentOrder.providerPending ? "Le paiement est en cours de traitement. Attendez sa confirmation avant de reprendre." : "Le paiement n’est pas confirmé. Vous pouvez reprendre le même paiement depuis son échéance.");
+}
+if (typeof addSuccessListener === "function") addSuccessListener(receivePrivateTransaction);
+if (typeof addFailedListener === "function") addFailedListener(() => pausePrivatePayment(true));
+if (typeof addKkiapayCloseListener === "function") addKkiapayCloseListener(() => pausePrivatePayment());
+if (typeof addPaymentAbortedListener === "function") addPaymentAbortedListener(() => pausePrivatePayment(true));
+if (typeof addPendingListener === "function") addPendingListener(async (response) => {
+  if (!currentOrder || currentOrder.transactionId || paymentConfirmationInFlight) return;
+  if (response?.transactionId) return receivePrivateTransaction(response);
+  currentOrder.providerPending = true;
+  rememberPrivateAttempt(currentOrder);
+  render();
+  toast("Le paiement est en cours de traitement. Attendez sa confirmation avant de reprendre.");
+});
 function verifyOrderForm(id) {
+  if (checkoutInFlight || paymentConfirmationInFlight || currentOrder?.widgetActive) return toast("Le paiement ou sa vérification est en cours.");
+  const pendingOrder = paymentOrders.find((order) => order.id === id);
   $("modal-title").textContent = "Vérifier une transaction KKiaPay";
   $("fields").innerHTML = field(
     "transactionId",
     "Référence de transaction KKiaPay",
+    "text", null, pendingOrder ? privateAttemptState(pendingOrder).transactionId : "",
   );
   $("error").textContent = "";
   $("form").onsubmit = async (e) => {
     e.preventDefault();
+    if (paymentConfirmationInFlight) return;
     const b = e.target.querySelector('button[type="submit"]');
     b.disabled = true;
+    paymentConfirmationInFlight = true;
+    const transactionId = $("f-transactionId").value.trim();
+    if (currentOrder?.orderId === id) {
+      currentOrder.transactionId = transactionId;
+      currentOrder.providerPending = false;
+    }
+    rememberPrivateAttempt({ orderId: id, transactionId });
     try {
-      await confirmPayment(id, $("f-transactionId").value.trim());
+      await confirmPayment(id, transactionId);
       $("modal").close();
     } catch (err) {
       $("error").textContent = err.message;
     } finally {
+      paymentConfirmationInFlight = false;
       b.disabled = false;
+      render();
     }
   };
   $("modal").showModal();
@@ -850,7 +997,7 @@ function authorizeCashForm(id) {
   const order = paymentOrders.find((candidate) => candidate.id === id && candidate.mode === "live" && candidate.status === "pending");
   if (!order) return toast("Cette échéance a changé. Actualisez les paiements.");
   $("modal-title").textContent = "Autoriser le paiement en présentiel";
-  $("fields").innerHTML = `<p><strong>${esc(student(order.student)?.name || "Élève")}</strong> · ${esc(order.period)} · ${money(order.amount)}</p><p class="helper">Cette tentative de paiement en ligne n’a pas été confirmée. Si le parent dispose d’une référence de transaction, vérifiez-la d’abord avec « Vérifier la transaction ».</p><p class="helper">Après vérification avec le parent, vous pouvez autoriser le caissier à recevoir des espèces. Cette action n’enregistre aucun paiement. Si un paiement en ligne est confirmé plus tard, les deux sommes resteront visibles dans les comptes.</p><label style="display:flex;align-items:flex-start;gap:12px"><input id="f-confirmedUnpaid" type="checkbox" required style="width:auto;margin-top:3px"><span>J’ai vérifié avec le parent que ce paiement en ligne n’a pas été effectué.</span></label>`;
+  $("fields").innerHTML = `<p><strong>${esc(student(order.student)?.name || "Élève")}</strong> · ${esc(window.paymentMonths.labels(order).join(", "))} · ${money(order.amount)}</p><p class="helper">Cette tentative de paiement en ligne n’a pas été confirmée. Si le parent dispose d’une référence de transaction, vérifiez-la d’abord avec « Vérifier la transaction ».</p><p class="helper">Après vérification avec le parent, vous pouvez autoriser le caissier à recevoir des espèces. Cette action n’enregistre aucun paiement. Si un paiement en ligne est confirmé plus tard, les deux sommes resteront visibles dans les comptes.</p><label style="display:flex;align-items:flex-start;gap:12px"><input id="f-confirmedUnpaid" type="checkbox" required style="width:auto;margin-top:3px"><span>J’ai vérifié avec le parent que ce paiement en ligne n’a pas été effectué.</span></label>`;
   $("error").textContent = "";
   const submit = $("form").querySelector('button[type="submit"]');
   submit.textContent = "Autoriser la caisse";
@@ -877,7 +1024,7 @@ function showReceipt(id) {
       ? "Reçu de test — sans valeur de paiement"
       : "Reçu de paiement";
   $("fields").innerHTML =
-    `<div class="receipt"><h3>${esc(catalogue.name)}</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois : ${esc(p.period)}</p><p>Montant : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : p.source === "Caisse" ? "Caisse en présentiel · espèces" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
+    `<div class="receipt"><h3>${esc(catalogue.name)}</h3><p>Élève : ${esc(student(p.student)?.name)}</p><p>Mois couverts : ${esc(window.paymentMonths.labels(p).join(", "))}</p><p>Montant total : <strong>${money(p.amount)}</strong></p><p>Date : ${date(p.date)}</p><p>Mode : ${p.source === "KKiaPay" ? "KKiaPay" : p.source === "Caisse" ? "Caisse en présentiel · espèces" : "Saisie administrative"}</p><p>Référence : ${esc(p.transactionId || p.id)}</p>${p.mode === "sandbox" ? '<p class="helper">Transaction de test. Aucun règlement réel.</p>' : ""}</div>`;
   $("error").textContent = "";
   $("form").querySelector('button[type="submit"]').textContent =
     "Imprimer le reçu";
@@ -1073,7 +1220,7 @@ function passwordForm(forced = false) {
   };
   $("modal").showModal();
 }
-$("close").onclick = () => $("modal").close();
+$("close").onclick = () => { if (!checkoutInFlight) $("modal").close(); };
 $("change-password").onclick = () => passwordForm();
 $("logout").onclick = async () => {
   try {

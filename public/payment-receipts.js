@@ -9,7 +9,7 @@
     if (typeof toast === "function") toast(message);
   }
   function cacheKey(payment) {
-    return JSON.stringify([payment.id, payment.amount, payment.period, payment.date, payment.mode, payment.source, payment.collectedByName]);
+    return JSON.stringify([payment.id, payment.amount, payment.period, payment.date, payment.mode, payment.source, payment.collectedByName, payment.allocations]);
   }
   function filename(payment) {
     const reference = String(payment.id || "paiement").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 120);
@@ -22,7 +22,7 @@
       payment.mode === "sandbox" ? "Confirmation de test — aucun paiement réel" : "Reçu de paiement — cours de renforcement scolaire",
       "Élève : " + (student.name || "Élève"),
       student.class ? "Classe : " + student.class : "",
-      "Mensualité : " + (payment.period || ""),
+      "Mois réglés : " + (window.paymentMonths ? window.paymentMonths.labels(payment).join(", ") : payment.period || ""),
       "Montant : " + total,
       day ? "Date : " + day : "",
       "Référence : " + (payment.id || ""),

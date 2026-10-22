@@ -11,6 +11,7 @@ const dailyAttendanceState = {
   date: dailyAttendanceToday(), centre: "", class: "", student: "",
   cache: new Map(), drafts: new Map(), generation: 0, saving: false,
   error: "", feedback: "", conflict: false,
+  classListDownloading: false, classListError: "",
 };
 
 function dailyAttendanceAllowed() {
@@ -51,7 +52,9 @@ function dailyAttendancePage() {
     <section id="daily-attendance-form" class="daily-attendance-shell" data-crs-unsaved="${hasDailyDrafts() ? "true" : "false"}">
       <div class="daily-attendance-filters"><label for="daily-attendance-date">Jour du cours<input id="daily-attendance-date" type="date" value="${esc(dailyAttendanceState.date)}" required${dailyAttendanceState.saving ? " disabled" : ""}></label>
       <label for="daily-attendance-centre">École<select id="daily-attendance-centre" required${dailyAttendanceState.saving ? " disabled" : ""}>${dailyAttendanceOptions(catalogue.centres, dailyAttendanceState.centre, "Choisir une école")}</select></label>
-      <label for="daily-attendance-class">Classe<select id="daily-attendance-class" required${!dailyAttendanceState.centre || dailyAttendanceState.saving ? " disabled" : ""}>${dailyAttendanceOptions(catalogue.levels.map(([name]) => name), dailyAttendanceState.class, "Choisir une classe")}</select></label></div>
+      <label for="daily-attendance-class">Classe<select id="daily-attendance-class" required${!dailyAttendanceState.centre || dailyAttendanceState.saving ? " disabled" : ""}>${dailyAttendanceOptions(catalogue.levels.map(([name]) => name), dailyAttendanceState.class, "Choisir une classe")}</select></label>
+      <div class="daily-attendance-class-list"><p>La liste à signer comprend tous les élèves de l’école et de la classe choisies, quel que soit leur statut.</p><button id="daily-attendance-class-list-pdf" type="button" class="secondary"${!dailyAttendanceState.centre || !dailyAttendanceState.class || dailyAttendanceState.classListDownloading ? " disabled" : ""}${dailyAttendanceState.classListDownloading ? ' aria-busy="true"' : ""}>${dailyAttendanceState.classListDownloading ? "Préparation…" : "Liste de classe PDF"}</button></div>
+      <p id="daily-attendance-class-list-feedback" class="daily-attendance-error" role="alert"${dailyAttendanceState.classListError ? "" : " hidden"}>${esc(dailyAttendanceState.classListError)}</p></div>
       <div id="daily-attendance-results" aria-live="polite">${dailyAttendanceResults()}</div>
     </section>`;
 }
@@ -144,6 +147,35 @@ function dailyAttendanceReload() {
   dailyAttendanceFetch();
 }
 
+async function dailyAttendanceDownloadClassList() {
+  if (!dailyAttendanceAllowed() || dailyAttendanceState.classListDownloading || !dailyAttendanceState.centre || !dailyAttendanceState.class) return;
+  dailyAttendanceState.classListDownloading = true;
+  dailyAttendanceState.classListError = "";
+  dailyAttendanceUpdateClassList();
+  try {
+    await downloadClassListPdf(dailyAttendanceState.class, dailyAttendanceState.centre);
+    toast("Liste de classe PDF téléchargée.");
+  } catch (error) {
+    dailyAttendanceState.classListError = error.message || "Le téléchargement a échoué. Réessayez.";
+    if (error.status === 401) location.assign("/connexion.html?espace=caisse");
+  } finally {
+    dailyAttendanceState.classListDownloading = false;
+    dailyAttendanceUpdateClassList();
+  }
+}
+
+function dailyAttendanceUpdateClassList() {
+  const button = $("daily-attendance-class-list-pdf");
+  if (!button) return;
+  button.disabled = !dailyAttendanceState.centre || !dailyAttendanceState.class || dailyAttendanceState.classListDownloading;
+  button.textContent = dailyAttendanceState.classListDownloading ? "Préparation…" : "Liste de classe PDF";
+  if (dailyAttendanceState.classListDownloading) button.setAttribute("aria-busy", "true");
+  else button.removeAttribute("aria-busy");
+  const feedback = $("daily-attendance-class-list-feedback");
+  feedback.textContent = dailyAttendanceState.classListError;
+  feedback.hidden = !dailyAttendanceState.classListError;
+}
+
 function bindDailyAttendance() {
   if (!dailyAttendanceAllowed() || page !== "dailyAttendance") return;
   for (const name of ["date", "centre", "class"]) {
@@ -163,9 +195,11 @@ function bindDailyAttendance() {
       dailyAttendanceState.error = "";
       dailyAttendanceState.feedback = "";
       dailyAttendanceState.conflict = false;
+      dailyAttendanceState.classListError = "";
       render();
     };
   }
+  $("daily-attendance-class-list-pdf").onclick = dailyAttendanceDownloadClassList;
   bindDailyAttendanceResults();
   dailyAttendanceFetch();
 }

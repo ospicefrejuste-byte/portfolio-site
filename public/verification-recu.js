@@ -17,6 +17,8 @@
   const title = document.getElementById("verification-title");
   const message = document.getElementById("verification-message");
   const receiptPanel = document.getElementById("verified-receipt");
+  const allocationPanel = document.getElementById("receipt-allocation-panel");
+  const allocationList = document.getElementById("receipt-allocations");
   const retry = document.getElementById("verification-retry");
   const help = document.getElementById("verification-help");
   let pending = false;
@@ -31,7 +33,11 @@
     help.textContent = advice;
     help.hidden = !advice;
     receiptPanel.hidden = !["verified", "test"].includes(state);
-    if (receiptPanel.hidden) for (const name of ["reference", "school", "student", "class", "centre", "amount", "period", "date", "channel"]) document.getElementById("receipt-" + name).textContent = "";
+    if (receiptPanel.hidden) {
+      for (const name of ["reference", "school", "student", "class", "centre", "amount", "period", "date", "channel"]) document.getElementById("receipt-" + name).textContent = "";
+      allocationList.replaceChildren();
+      allocationPanel.hidden = true;
+    }
     retry.hidden = state !== "unavailable";
     retry.disabled = state === "loading";
   }
@@ -41,11 +47,25 @@
     return ["verified", "test"].includes(result?.status) && value &&
       ["reference", "studentName", "class", "centre", "schoolName", "date", "period"].every(name => typeof value[name] === "string") &&
       value.reference.length > 0 && value.studentName.length > 0 &&
-      Number.isFinite(value.amount) && value.amount >= 0 && value.currency === "FCFA" &&
+      Number.isSafeInteger(value.amount) && value.amount >= 0 && value.currency === "FCFA" &&
       ["cash", "online", "administrative"].includes(value.channel) &&
       /^\d{4}-(0[1-9]|1[0-2])$/.test(value.period) &&
       /^\d{4}-\d{2}-\d{2}(?:T.*)?$/.test(value.date) &&
-      Number.isFinite(new Date(value.date.length === 10 ? value.date + "T12:00:00" : value.date).getTime());
+      Number.isFinite(new Date(value.date.length === 10 ? value.date + "T12:00:00" : value.date).getTime()) &&
+      receiptAllocations(value).length > 0;
+  }
+
+  function receiptAllocations(value) {
+    if (value.allocations === undefined && value.periods === undefined) return [{ period: value.period, amount: value.amount }];
+    const rows = value.allocations;
+    if (!Array.isArray(rows) || rows.length < 1 || rows.length > 1200 ||
+      rows.some(row => !row || !/^20\d{2}-(0[1-9]|1[0-2])$/.test(row.period) || !Number.isSafeInteger(row.amount) || row.amount < 0) ||
+      new Set(rows.map(row => row.period)).size !== rows.length ||
+      rows.reduce((sum, row) => sum + row.amount, 0) !== value.amount) return [];
+    const sorted = [...rows].sort((a, b) => a.period.localeCompare(b.period));
+    if (sorted[0].period !== value.period || !Array.isArray(value.periods) ||
+      value.periods.length !== sorted.length || sorted.some((row, index) => row.period !== value.periods[index])) return [];
+    return sorted;
   }
 
   function dateLabel(value) {
@@ -60,6 +80,7 @@
   }
 
   function fillReceipt(value) {
+    const allocations = receiptAllocations(value);
     const fields = {
       reference: value.reference,
       school: value.schoolName || "Non renseigné",
@@ -67,11 +88,22 @@
       class: value.class || "Non renseignée",
       centre: value.centre || "Non renseignée",
       amount: `${new Intl.NumberFormat("fr-FR").format(value.amount)} FCFA`,
-      period: periodLabel(value.period),
+      period: allocations.map(row => periodLabel(row.period)).join(", "),
       date: dateLabel(value.date),
       channel: { cash: "Paiement en présentiel", online: "Paiement en ligne", administrative: "Saisie administrative" }[value.channel],
     };
     for (const [name, text] of Object.entries(fields)) document.getElementById("receipt-" + name).textContent = text;
+    allocationList.replaceChildren();
+    allocationPanel.hidden = allocations.length < 2;
+    if (!allocationPanel.hidden) for (const allocation of allocations) {
+      const row = document.createElement("div");
+      const month = document.createElement("dt");
+      const amount = document.createElement("dd");
+      month.textContent = periodLabel(allocation.period);
+      amount.textContent = `${new Intl.NumberFormat("fr-FR").format(allocation.amount)} FCFA`;
+      row.append(month, amount);
+      allocationList.append(row);
+    }
   }
 
   async function verify() {

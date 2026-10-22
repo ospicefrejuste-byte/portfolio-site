@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="fr">
   <head>
-    <meta name="crs-version" content="680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51">
+    <meta name="crs-version" content="a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
     <meta name="robots" content="noindex,nofollow" />
     <title>Vérification d’un reçu</title>
-    <link rel="stylesheet" href="verification-recu.css?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" />
-    <script src="verification-recu.js?v=680b213949ed555eae29cb2aa905a969dbbb60e40341a69dd11412581fad2e51" defer></script>
+    <link rel="stylesheet" href="verification-recu.css?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" />
+    <script src="verification-recu.js?v=a4eab065e1a900807a9ea26b92b8aeae17cc809a7cf4d713065942ba521cec92" defer></script>
   </head>
   <body>
     <main id="receipt-verification" class="verification-card" data-state="loading" aria-busy="true">
@@ -33,10 +33,14 @@
           <div><dt>Élève</dt><dd id="receipt-student"></dd></div>
           <div><dt>Classe</dt><dd id="receipt-class"></dd></div>
           <div><dt>École / centre</dt><dd id="receipt-centre"></dd></div>
-          <div><dt>Mois concerné</dt><dd id="receipt-period"></dd></div>
+          <div><dt>Mois réglés</dt><dd id="receipt-period"></dd></div>
           <div><dt>Date du paiement</dt><dd id="receipt-date"></dd></div>
           <div><dt>Type d’encaissement</dt><dd id="receipt-channel"></dd></div>
         </dl>
+        <section id="receipt-allocation-panel" class="verification-allocations" aria-label="Répartition du paiement par mois" hidden>
+          <h2>Détail des mensualités</h2>
+          <dl id="receipt-allocations"></dl>
+        </section>
         <p id="receipt-comparison" class="verification-comparison">Comparez ces informations avec le reçu papier ou PDF. Un QR copié sur un autre document ne garantit pas son contenu.</p>
       </section>
 

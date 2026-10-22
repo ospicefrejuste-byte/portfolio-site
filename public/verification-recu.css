@@ -29,6 +29,12 @@ h1 { margin: 0 0 18px; font-size: 1.9rem; line-height: 1.2; letter-spacing: -.02
 .verification-details dt { font-size: .83rem; line-height: 1.5; color: #697b90; }
 .verification-details dd { margin: 0; font-size: .9rem; line-height: 1.5; font-weight: 600; color: #173860; min-width: 0; }
 .verification-comparison { margin: 20px 0 0; background: #fff8e5; border: 1px solid #f0e0b3; border-radius: 10px; padding: 15px; color: #775818; font-size: .84rem; line-height: 1.65; }
+.verification-allocations { margin-top: 20px; padding: 16px; border: 1px solid #dce5f0; border-radius: 12px; background: #f7f9fc; }
+.verification-allocations h2 { margin: 0 0 8px; font-size: 15px; }
+.verification-allocations dl { margin: 0; }
+.verification-allocations dl > div { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-bottom: 1px solid #e0e7f0; font-size: 14px; }
+.verification-allocations dl > div:last-child { border-bottom: 0; }
+.verification-allocations dd { margin: 0; font-weight: 600; white-space: nowrap; }
 .verification-retry { margin-top: 20px; width: 100%; min-height: 46px; padding: 13px 16px; border: 0; border-radius: 9px; color: #fff; background: #205cc0; font: inherit; font-size: .9rem; font-weight: 600; cursor: pointer; }
 .verification-retry:hover { background: #184d9f; }
 .verification-retry:disabled { opacity: .65; cursor: wait; }
