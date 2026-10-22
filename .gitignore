@@ -1,0 +1,12 @@
+node_modules/
+.data/
+.env
+.env.*
+!.env.example
+*.sqlite*
+*.db*
+backups/
+.netlify/
+playwright-report/
+test-results/
+*.zip

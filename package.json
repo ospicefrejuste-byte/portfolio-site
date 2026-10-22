@@ -1,0 +1,26 @@
+{
+  "name": "adeoye-ferme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Inventaire partag\u00e9 et suivi des activit\u00e9s de la ferme ADEOYE",
+  "engines": {
+    "node": ">=24.0.0 <25"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node tests/browser.cjs",
+    "test:cloud": "node --test tests/cloud.cjs",
+    "build": "node scripts/build.js",
+    "backup": "node scripts/backup.js"
+  },
+  "dependencies": {
+    "express": "5.1.0",
+    "pg": "8.23.1",
+    "pdfkit": "0.17.2",
+    "serverless-http": "3.2.0"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}
