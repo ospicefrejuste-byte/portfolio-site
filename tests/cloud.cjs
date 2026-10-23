@@ -6,6 +6,8 @@ const crypto = require("node:crypto");
 const { Pool } = require("pg");
 const { createPostgres } = require("../lib/store");
 const { createApplication } = require("../lib/application");
+const { png, dataUrl } = require("./helpers-logo.cjs");
+const { canonicalLogo } = require("../lib/branding");
 
 const connectionString = process.env.ADEOYE_TEST_DATABASE_URL;
 
@@ -93,6 +95,14 @@ test("PostgreSQL : inventaire, dépenses et lots Goliath partagés, opérations 
     assert.equal((await secondOwner.request("/api/state")).body.expenses.length, 2);
     const expenseProtection = await admin.query("SELECT relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname='adeoye_expenses'", [schema]);
     assert.equal(expenseProtection.rows[0].relrowsecurity, true, "La nouvelle table conserve la protection RLS Supabase");
+    const logoDraft = dataUrl(png({ pixel: [24, 90, 45, 255] }));
+    const branding = await owner.request("/api/settings/logo", "PUT", { dataUrl: logoDraft });
+    assert.equal(branding.status, 200, branding.body?.error);
+    const logoAddress = branding.body.logoUrl;
+    assert.equal((await secondOwner.request("/api/settings")).body.logoUrl, logoAddress, "Le logo est partagé entre instances PostgreSQL");
+    const publicLogo = await client(second).request(logoAddress);
+    assert.equal(publicLogo.status, 200);
+    assert.deepEqual(publicLogo.bytes, Buffer.from(canonicalLogo(logoDraft).data, "base64"));
     const viewer = await owner.request("/api/users", "POST", { username: "lecture-cloud-usa", password: "Initial-viewer-cloud-987!", role: "viewer" });
     assert.equal(viewer.ok, true, viewer.body?.error);
     const reader = client(second);
@@ -159,6 +169,8 @@ test("PostgreSQL : inventaire, dépenses et lots Goliath partagés, opérations 
     assert.equal(after.movements.length, 8);
     assert.equal(after.expenses.length, 2);
     assert.equal(after.goliathBatches[0].remainingCount, 16);
+    assert.equal(after.settings.logoUrl, logoAddress);
+    assert.equal((await reader.request("/api/settings/logo", "PUT", { dataUrl: logoDraft })).status, 401, "Un compte désactivé ne peut pas modifier l’identité visuelle");
   } finally {
     for (const server of servers) await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
     for (const instance of instances) await instance.db.close();

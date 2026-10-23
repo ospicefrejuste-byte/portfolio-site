@@ -50,6 +50,8 @@ L’ajout de **Dépenses et achats** ne nécessite aucune nouvelle variable Netl
 
 L’onglet **Élevage Goliath** est ajouté de la même manière, sans nouvelle variable ni réinstallation : les tables protégées `adeoye_goliath_batches` et `adeoye_goliath_events` sont créées au démarrage. Aucun lot réel n’est généré et les anciennes fiches ne sont pas converties automatiquement. Après publication, l’équipe peut saisir chaque nouvel arrivage dans cet onglet ; ses effectifs sont alors reliés à l’inventaire.
 
+La personnalisation du logo ne nécessite pas de stockage externe ni de nouvelle variable : l’image validée est conservée dans `adeoye_settings`, séparément des paramètres généraux. Après **Published**, le responsable la choisit depuis **Paramètres**. Les images et les PDF sont transmis en binaire par la fonction Netlify ; déposer seulement les fichiers statiques ne suffit pas.
+
 Activer les sauvegardes du fournisseur de base et vérifier les limites du forfait de l’hébergement. Une suspension de service, un manque de quota ou un incident réseau ne peut pas être corrigé par une simple modification de l’interface.
 
 ## Comprendre un démarrage refusé

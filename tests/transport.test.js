@@ -4,6 +4,8 @@ const fs = require("node:fs"), os = require("node:os"), path = require("node:pat
 const serverless = require("serverless-http");
 const { createApplication } = require("../lib/application");
 const { options, normalizeEvent } = require("../lib/serverless");
+const { png, dataUrl } = require("./helpers-logo.cjs");
+const { canonicalLogo } = require("../lib/branding");
 test("transport Netlify : chemins, session partagée et vrai PDF binaire sans corruption", async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "adeoye-transport-test-"));
   const instance = await createApplication({ dataDir: dir, setupToken: "transport-test-only", publicOrigin: "https://adeoye.example" });
@@ -56,5 +58,13 @@ test("transport Netlify : chemins, session partagée et vrai PDF binaire sans co
     assert.equal(poultryReport.statusCode, 200); assert.equal(poultryReport.isBase64Encoded, true);
     assert.equal(Buffer.from(poultryReport.body, "base64").subarray(0, 5).toString(), "%PDF-");
     assert.equal((await request("/api/reports/goliath.pdf?batchId=incorrect")).statusCode, 400);
+    const preparedLogo = dataUrl(png());
+    const logoSaved = await request("/api/settings/logo", "PUT", { dataUrl: preparedLogo });
+    assert.equal(logoSaved.statusCode, 200, logoSaved.data?.error);
+    assert.match(logoSaved.data.logoUrl, /^\/api\/branding\/logo\.png\?v=/);
+    const logoImage = await request(logoSaved.data.logoUrl);
+    assert.equal(logoImage.statusCode, 200); assert.equal(logoImage.isBase64Encoded, true, "Le logo PNG doit rester binaire à travers Netlify");
+    assert.deepEqual(Buffer.from(logoImage.body, "base64"), Buffer.from(canonicalLogo(preparedLogo).data, "base64"));
+    assert.equal((await request("/api/settings/logo", "PUT", { dataUrl: null })).data.logoUrl, null);
   } finally { await instance.db.close(); fs.rmSync(dir, { recursive: true, force: true }); }
 });

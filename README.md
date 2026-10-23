@@ -12,6 +12,8 @@ Fonctions : tableau de bord, recherche et filtres, seuils de stock, entrées/sor
 
 Le compte aux États-Unis doit être créé avec le rôle **Consultation à distance**. Il devra changer son mot de passe initial à la première connexion. Désactiver ou réinitialiser un compte ferme ses sessions sur tous les serveurs.
 
+Le responsable peut changer le logo dans **Paramètres** ; la même identité apparaît sur les pages publiques, l’espace connecté et les PDF. Le fichier est préparé dans le navigateur puis validé et conservé dans la base. Seul le logo est public, sans exposer les données de gestion. Les pistes d’évolution pour la santé, l’alimentation, la croissance et la rentabilité sont décrites dans [SUIVI_EVALUATION.md](SUIVI_EVALUATION.md) et restent des propositions.
+
 ## Développement
 
 Node.js 24 et npm. Depuis le dossier du projet :
@@ -34,6 +36,7 @@ npm test
 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:expenses-browser
 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:goliath-browser
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:branding-browser
 ADEOYE_TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:15433/adeoye_test npm run test:cloud
 ```
 

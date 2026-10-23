@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#173d32"><title>Mon exploitation · Ferme ADEOYE</title><link rel="stylesheet" href="/app.css">
 </head>
-<body>
+<body data-branding-private>
 <div class="app-shell">
   <aside class="sidebar" id="sidebar" aria-label="Navigation principale">
-    <a class="brand" href="/" aria-label="Ferme ADEOYE, accueil"><span class="brand-mark"><svg viewBox="0 0 40 40" fill="none" aria-hidden="true"><path d="M20 31V17M20 23C10 23 8 16 9 10c8 0 12 4 11 13ZM20 18C20 9 26 6 32 7c0 8-4 12-12 11Z" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M10 33h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg></span><span class="brand-copy">ADEOYE<small>LA FERME, EN LIEN.</small></span></a>
+    <a class="brand" href="/" aria-label="Ferme ADEOYE, accueil"><span class="brand-mark"><img data-brand-logo src="/mark.svg" width="43" height="47" alt=""></span><span class="brand-copy">ADEOYE<small>LA FERME, EN LIEN.</small></span></a>
     <p class="side-caption">MON EXPLOITATION</p>
     <nav id="main-nav"></nav>
     <div class="sidebar-foot"><span class="connection-dot"></span><div>Un même inventaire.<small>À la ferme et à distance.</small></div></div>
@@ -22,5 +22,5 @@
 <dialog id="editor" aria-labelledby="editor-title"><form id="editor-form"><div class="dialog-head"><div><p class="eyebrow" id="editor-eyebrow">VOTRE EXPLOITATION</p><h2 id="editor-title"></h2></div><button class="icon-button" type="button" id="editor-close" aria-label="Fermer">×</button></div><div class="dialog-body"><div id="editor-fields" class="form-grid"></div><p class="dialog-error" id="editor-error" role="alert" hidden></p></div><div class="dialog-foot"><button class="button secondary" type="button" id="editor-cancel">Annuler</button><button class="button primary" id="editor-submit" type="submit">Enregistrer</button></div></form></dialog>
 <dialog id="password-dialog" aria-labelledby="password-title"><form id="password-form"><div class="dialog-head"><div><p class="eyebrow">SÉCURITÉ DU COMPTE</p><h2 id="password-title">Votre mot de passe</h2></div><button class="icon-button" type="button" id="password-close" aria-label="Fermer">×</button></div><div class="dialog-body"><p id="password-intro">Choisissez un mot de passe personnel d’au moins 12 caractères.</p><div class="form-grid"><label class="field span-all">Mot de passe actuel<input name="currentPassword" type="password" autocomplete="current-password" required></label><label class="field span-all">Nouveau mot de passe<input name="password" type="password" autocomplete="new-password" minlength="12" maxlength="200" required></label><label class="field span-all">Confirmer le nouveau mot de passe<input name="confirmPassword" type="password" autocomplete="new-password" minlength="12" maxlength="200" required></label></div><p class="dialog-error" id="password-error" role="alert" hidden></p></div><div class="dialog-foot"><button class="button primary" type="submit" id="password-submit">Enregistrer mon mot de passe</button></div></form></dialog>
 <div class="toast" id="toast" role="status" hidden></div>
-<script src="/app.js" defer></script>
+<script src="/branding.js" defer></script><script src="/app.js" defer></script>
 </body></html>

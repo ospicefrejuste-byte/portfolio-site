@@ -14,7 +14,8 @@
     "build": "node scripts/build.js",
     "backup": "node scripts/backup.js",
     "test:expenses-browser": "node tests/expenses-browser.cjs",
-    "test:goliath-browser": "node tests/goliath-browser.cjs"
+    "test:goliath-browser": "node tests/goliath-browser.cjs",
+    "test:branding-browser": "node tests/branding-browser.cjs"
   },
   "dependencies": {
     "express": "5.1.0",

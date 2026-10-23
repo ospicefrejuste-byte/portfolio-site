@@ -18,9 +18,11 @@ Une fiche avec un stock nul peut être archivée. Son historique est conservé e
 
 ## Enregistrer les dépenses et les achats
 
-Ouvrir **Dépenses et achats**, puis **Enregistrer une dépense**. Indiquer ce qui a été acheté ou payé, la catégorie, le montant en F CFA, la date et l’heure de l’achat. Le fournisseur et les précisions sont facultatifs. La catégorie **Autres** permet de saisir les achats qui n’entrent pas dans les catégories proposées. L’heure suit le fuseau de la ferme défini dans **Paramètres**, même si la personne connectée est à l’étranger.
+Ouvrir **Dépenses et achats**, puis **Enregistrer une dépense**. Écrire librement ce qui a été acheté ou payé dans **Dépense effectuée**, puis indiquer la catégorie, le montant en F CFA, la date et l’heure de l’achat. Le fournisseur et les précisions sont facultatifs. La catégorie **Autres** permet de saisir les achats qui n’entrent pas dans les catégories proposées. L’heure suit le fuseau de la ferme défini dans **Paramètres**, même si la personne connectée est à l’étranger.
 
 Choisir une **date de début** et une **date de fin** pour consulter le total de la période. Les deux dates sont comprises dans le calcul. Le mois en cours est proposé à l’ouverture ; il est aussi possible d’afficher toutes les dépenses. Télécharger le **PDF** depuis cette rubrique pour imprimer le détail des achats et leur total sur la même période. Le compte de consultation peut lire et télécharger ce rapport, mais ne peut pas ajouter une dépense.
+
+Après un enregistrement, la nouvelle ligne est mise en évidence. Si sa date n’appartient pas à la période affichée, le site affiche le jour de cette dépense pour qu’elle reste visible et indique le changement de période. Le PDF et le total suivent cette période. Utiliser **Ce mois-ci**, une période choisie ou **Tout l’historique** pour revenir à une vue plus large. Une liste vide sous un filtre ne signifie pas que les dépenses ont été effacées.
 
 Chaque dépense garde son auteur, son heure d’enregistrement et sa référence. En cas de coupure après validation, utiliser la reprise proposée pour éviter un doublon. Une dépense est une trace financière : si l’achat augmente aussi les stocks, ajouter l’entrée correspondante dans **Mouvements**.
 
@@ -51,3 +53,9 @@ Le **Journal de la ferme** sert aux observations de terrain : récolte prévue, 
 Changer son mot de passe depuis le menu du compte. En cas d’oubli, le responsable réinitialise le compte dans **Accès & équipe**. **Désactiver** ferme ses sessions et bloque sa connexion ; **Réactiver** lui rend l’accès. Ne pas partager le compte responsable. Se déconnecter après utilisation d’un appareil partagé.
 
 Le responsable peut personnaliser le nom, la présentation, la localisation et le fuseau d’affichage dans **Paramètres**. Les données de départ sont vides : renseigner les informations réelles de la ferme.
+
+## Changer le logo
+
+Dans **Paramètres**, le responsable dispose d’un espace **Logo de la ferme**. Choisir une image PNG, JPEG ou WebP, vérifier l’aperçu puis l’enregistrer. La sélection d’un fichier seule ne remplace pas le logo en ligne. Le formulaire prépare une image légère en conservant ses proportions ; le logo est ensuite partagé sur l’accueil, les pages de connexion, l’espace de gestion et les rapports PDF.
+
+Il est possible de remplacer le logo ou de revenir au logo par défaut. Les comptes de gestion et de consultation voient l’identité de la ferme mais ne peuvent pas la modifier. Le logo reste enregistré dans la base lors des mises à jour et les autres utilisateurs le récupèrent à l’actualisation de leur espace. Enregistrer ou abandonner une modification des informations de la ferme avant de passer au formulaire du logo, afin de conserver les saisies en cours.
