@@ -48,6 +48,8 @@ Les nouveaux commits de `ferme-adeoye` déclenchent la publication du nouveau pr
 
 L’ajout de **Dépenses et achats** ne nécessite aucune nouvelle variable Netlify ni réinstallation du compte responsable. La nouvelle table protégée `adeoye_expenses` est créée au démarrage, sans effacer les utilisateurs, stocks, mouvements ou notes existants. Après **Published**, actualiser l’espace connecté pour voir la rubrique.
 
+L’onglet **Élevage Goliath** est ajouté de la même manière, sans nouvelle variable ni réinstallation : les tables protégées `adeoye_goliath_batches` et `adeoye_goliath_events` sont créées au démarrage. Aucun lot réel n’est généré et les anciennes fiches ne sont pas converties automatiquement. Après publication, l’équipe peut saisir chaque nouvel arrivage dans cet onglet ; ses effectifs sont alors reliés à l’inventaire.
+
 Activer les sauvegardes du fournisseur de base et vérifier les limites du forfait de l’hébergement. Une suspension de service, un manque de quota ou un incident réseau ne peut pas être corrigé par une simple modification de l’interface.
 
 ## Comprendre un démarrage refusé

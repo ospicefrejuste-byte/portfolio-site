@@ -42,5 +42,19 @@ test("transport Netlify : chemins, session partagée et vrai PDF binaire sans co
     assert.equal(expenseReport.statusCode, 200); assert.equal(expenseReport.isBase64Encoded, true);
     assert.equal(Buffer.from(expenseReport.body, "base64").subarray(0, 5).toString(), "%PDF-");
     assert.equal((await request("/api/reports/expenses.pdf?from=2025-03-02&to=2025-03-01")).statusCode, 400);
+    const batch = await request("/api/goliath/batches", "POST", { requestId: crypto.randomUUID(), name: "Lot Goliath transport fictif", arrivalDate: "2025-01-01", initialCount: 40, stage: "chicks" });
+    assert.equal(batch.statusCode, 201, batch.data?.error);
+    assert.equal(batch.data.ageDays, null);
+    const batchId = batch.data.id;
+    const event = await request("/api/goliath/batches/" + batchId + "/events", "POST", { requestId: crypto.randomUUID(), type: "sale", quantity: 4, date: "2025-03-01", time: "11:30", totalAmount: 26000, buyer: "Client fictif" });
+    assert.equal(event.statusCode, 201, event.data?.error);
+    const poultry = (await request("/api/state")).data;
+    assert.equal(poultry.goliathBatches[0].remainingCount, 36);
+    assert.equal(poultry.goliathBatches[0].salesTotal, "26000");
+    assert.equal(poultry.items.find(item => item.id === batch.data.itemId).quantity, 36);
+    const poultryReport = await request("/api/reports/goliath.pdf?batchId=" + batchId);
+    assert.equal(poultryReport.statusCode, 200); assert.equal(poultryReport.isBase64Encoded, true);
+    assert.equal(Buffer.from(poultryReport.body, "base64").subarray(0, 5).toString(), "%PDF-");
+    assert.equal((await request("/api/reports/goliath.pdf?batchId=incorrect")).statusCode, 400);
   } finally { await instance.db.close(); fs.rmSync(dir, { recursive: true, force: true }); }
 });

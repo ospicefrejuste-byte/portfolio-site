@@ -9,7 +9,7 @@ const { createApplication } = require("../lib/application");
 
 const connectionString = process.env.ADEOYE_TEST_DATABASE_URL;
 
-test("PostgreSQL : inventaire et dépenses partagés, opérations atomiques sans doublon et consultation distante", { skip: connectionString ? false : "ADEOYE_TEST_DATABASE_URL doit désigner une base PostgreSQL réservée aux tests." }, async () => {
+test("PostgreSQL : inventaire, dépenses et lots Goliath partagés, opérations atomiques et consultation distante", { skip: connectionString ? false : "ADEOYE_TEST_DATABASE_URL doit désigner une base PostgreSQL réservée aux tests." }, async () => {
   const schema = "adeoye_test_" + crypto.randomBytes(12).toString("hex");
   const admin = new Pool({ connectionString });
   const servers = [], instances = [];
@@ -111,15 +111,54 @@ test("PostgreSQL : inventaire et dépenses partagés, opérations atomiques sans
     const expensesPdf = await reader.request("/api/reports/expenses.pdf?from=2025-01-31&to=2025-01-31");
     assert.equal(expensesPdf.status, 200);
     assert.equal(expensesPdf.bytes.subarray(0, 5).toString(), "%PDF-");
+    const batchDraft = { requestId: crypto.randomUUID(), name: "Goliath PostgreSQL fictif", arrivalDate: "2025-01-01", hatchDate: "2024-12-30", initialCount: 100, stage: "chicks", location: "Poulailler de test", supplier: "Couvoir de test", notes: "Lot fictif isolé" };
+    const batchReplies = await Promise.all([owner.request("/api/goliath/batches", "POST", batchDraft), secondOwner.request("/api/goliath/batches", "POST", batchDraft)]);
+    assert.ok(batchReplies.every(result => result.status === 201), JSON.stringify(batchReplies.map(result => result.body)));
+    assert.equal(batchReplies[0].body.id, batchReplies[1].body.id);
+    const batch = batchReplies[0].body;
+    assert.equal(batch.remainingCount, 100);
+    const death = { requestId: crypto.randomUUID(), type: "mortality", quantity: 3, date: "2025-01-02", time: "09:10", reason: "Constat fictif" };
+    const deathReplies = await Promise.all([owner.request("/api/goliath/batches/" + batch.id + "/events", "POST", death), secondOwner.request("/api/goliath/batches/" + batch.id + "/events", "POST", death)]);
+    assert.ok(deathReplies.every(result => result.status === 201), JSON.stringify(deathReplies.map(result => result.body)));
+    assert.equal(deathReplies[0].body.id, deathReplies[1].body.id);
+    const sale = { requestId: crypto.randomUUID(), type: "sale", quantity: 10, date: "2025-01-03", time: "15:25", buyer: "Acheteur fictif", totalAmount: 50000 };
+    assert.equal((await owner.request("/api/goliath/batches/" + batch.id + "/events", "POST", sale)).status, 201);
+    assert.equal((await secondOwner.request("/api/goliath/batches/" + batch.id + "/events", "POST", { ...sale, requestId: crypto.randomUUID(), quantity: 1, totalAmount: null })).status, 201);
+    const parallelEvents = await Promise.all([
+      owner.request("/api/goliath/batches/" + batch.id + "/events", "POST", { ...death, requestId: crypto.randomUUID(), quantity: 70 }),
+      secondOwner.request("/api/goliath/batches/" + batch.id + "/events", "POST", { ...sale, requestId: crypto.randomUUID(), quantity: 70, totalAmount: 700000 }),
+    ]);
+    assert.equal(parallelEvents.filter(result => result.status === 201).length, 1, "Deux serveurs ne peuvent sortir les mêmes poulets");
+    assert.equal(parallelEvents.filter(result => result.status === 409).length, 1);
+    const sharedPoultry = (await reader.request("/api/state")).body;
+    const currentBatch = sharedPoultry.goliathBatches.find(row => row.id === batch.id);
+    assert.equal(currentBatch.remainingCount, 16);
+    assert.equal(currentBatch.initialCount, currentBatch.deadCount + currentBatch.soldCount + currentBatch.remainingCount);
+    assert.equal(currentBatch.unpricedSalesCount, 1);
+    assert.equal(sharedPoultry.goliathEvents.length, 4);
+    assert.equal(currentBatch.salesTotal, sharedPoultry.goliathEvents.reduce((sum, event) => sum + BigInt(event.totalAmount || 0), 0n).toString());
+    const linkedItem = sharedPoultry.items.find(row => row.id === batch.itemId);
+    assert.equal(linkedItem.quantity, 16); assert.equal(linkedItem.goliathBatchId, batch.id);
+    assert.equal(sharedPoultry.movements.filter(row => row.itemId === batch.itemId).length, 5);
+    assert.equal((await secondOwner.request("/api/movements", "POST", { requestId: crypto.randomUUID(), itemId: batch.itemId, type: "exit", quantity: 1, reason: "Doit passer par Goliath", date })).status, 409);
+    assert.equal((await reader.request("/api/goliath/batches", "POST", { ...batchDraft, requestId: crypto.randomUUID() })).status, 403);
+    assert.equal((await reader.request("/api/goliath/batches/" + batch.id + "/events", "POST", { ...sale, requestId: crypto.randomUUID() })).status, 403);
+    const poultryPdf = await reader.request("/api/reports/goliath.pdf?batchId=" + batch.id);
+    assert.equal(poultryPdf.status, 200, poultryPdf.body?.error);
+    assert.equal(poultryPdf.bytes.subarray(0, 5).toString(), "%PDF-");
+    const poultryProtection = await admin.query("SELECT relname,relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname IN ('adeoye_goliath_batches','adeoye_goliath_events')", [schema]);
+    assert.equal(poultryProtection.rows.length, 2);
+    assert.ok(poultryProtection.rows.every(row => row.relrowsecurity));
     const disable = await owner.request("/api/users/" + viewer.body.id, "PATCH", { enabled: false });
     assert.equal(disable.ok, true);
     assert.equal((await reader.request("/api/state")).status, 401, "Disabling a user revokes their session on every server");
     const otherServerLogin = await secondOwner.request("/api/auth/login", "POST", { username: "proprietaire-cloud", password: "Cloud-admin-fixture-8925!" });
     assert.equal(otherServerLogin.ok, true);
     const after = (await secondOwner.request("/api/state")).body;
-    assert.equal(after.items[0].quantity, 5.125);
-    assert.equal(after.movements.length, 3);
+    assert.equal(after.items.find(row => row.id === item.id).quantity, 5.125);
+    assert.equal(after.movements.length, 8);
     assert.equal(after.expenses.length, 2);
+    assert.equal(after.goliathBatches[0].remainingCount, 16);
   } finally {
     for (const server of servers) await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
     for (const instance of instances) await instance.db.close();

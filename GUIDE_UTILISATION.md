@@ -1,6 +1,6 @@
 # Utiliser la plateforme ADEOYE
 
-Le responsable crée les comptes depuis **Accès & équipe**. Chaque personne a son identifiant. Le compte **Consultation à distance** permet à la personne aux États-Unis de voir l’inventaire, les mouvements, les dépenses, les observations et les rapports, sans modifier les données. L’équipe de la ferme peut enregistrer les stocks, les dépenses et les notes ; seuls les responsables gèrent les comptes et les paramètres.
+Le responsable crée les comptes depuis **Accès & équipe**. Chaque personne a son identifiant. Le compte **Consultation à distance** permet à la personne aux États-Unis de voir l’inventaire, les lots Goliath, les mouvements, les dépenses, les observations et les rapports, sans modifier les données. L’équipe de la ferme peut enregistrer les stocks, le suivi de l’élevage, les dépenses et les notes ; seuls les responsables gèrent les comptes et les paramètres.
 
 ## Commencer l’inventaire
 
@@ -24,11 +24,25 @@ Choisir une **date de début** et une **date de fin** pour consulter le total de
 
 Chaque dépense garde son auteur, son heure d’enregistrement et sa référence. En cas de coupure après validation, utiliser la reprise proposée pour éviter un doublon. Une dépense est une trace financière : si l’achat augmente aussi les stocks, ajouter l’entrée correspondante dans **Mouvements**.
 
+## Suivre les poulets Goliath
+
+Dans **Élevage Goliath**, créer **un lot pour chaque nouvel arrivage**. Donner un nom au lot et indiquer sa date d’arrivée, le nombre initial de poussins, le bâtiment ou l’emplacement et le fournisseur si connu. La date d’éclosion est facultative : quand elle est renseignée, l’âge est calculé automatiquement. Si elle est inconnue, le site affiche la durée depuis l’arrivée sans inventer l’âge des poulets.
+
+Le stade **Poussins**, **Croissance** ou **Adultes** est choisi par l’équipe. Le site ne décide pas seul qu’un lot est adulte à un âge arbitraire. Ouvrir la fiche du lot pour consulter ses effectifs et mettre son stade à jour pendant sa croissance.
+
+Pour chaque mortalité, enregistrer le nombre de morts, la date, l’heure et les observations utiles. Pour une vente, enregistrer le nombre vendu, la date, l’heure, l’acheteur si connu et le montant total de cette vente. Les nombres sont entiers et l’on ne peut pas déclarer davantage de poulets que le lot n’en contient. Les morts et les ventes sont affichés séparément : **restants = nombre initial − morts − vendus**.
+
+Chaque lot ajoute automatiquement une fiche liée dans l’inventaire. Une mortalité crée une perte de stock et une vente crée une sortie. Pour ces fiches, effectuer les opérations depuis **Élevage Goliath**, sans ressaisir le même arrivage, la même vente ou les mêmes morts dans **Inventaire** ou **Mouvements**. Les anciennes fiches manuelles restent telles qu’elles ont été saisies et ne sont pas transformées automatiquement en lots.
+
+Le total des recettes additionne les montants de vente renseignés. Une vente dont le prix est inconnu reste visible comme **non renseignée** et le total est alors partiel. Le montant saisi est celui de toute la vente, pas un prix unitaire. Les achats, aliments et autres frais continuent d’être saisis dans **Dépenses et achats** ; le suivi ne calcule pas de bénéfice automatique.
+
+Le PDF de l’élevage reprend les lots et leurs événements. Un PDF peut aussi être téléchargé pour un lot précis. Le compte de consultation à distance voit les effectifs, les mortalités, les ventes et les recettes, et peut télécharger les rapports. Seuls le responsable et l’équipe de gestion peuvent enregistrer des événements. En cas de réponse perdue, utiliser la reprise conservée afin de ne pas compter deux fois le même arrivage ou la même vente.
+
 ## Consulter depuis les États-Unis
 
 Ouvrir l’adresse publique du site puis **Se connecter**. Le tableau de bord affiche les références, les alertes et les dernières opérations. **Inventaire** permet de rechercher ou filtrer les articles ; **Mouvements** et **Journal de la ferme** expliquent l’activité. Le bouton **Actualiser** récupère les dernières données. Les pages visibles se rafraîchissent aussi toutes les 30 secondes en l’absence de saisie.
 
-**Rapports** propose l’inventaire PDF, les exports CSV de l’inventaire et des mouvements, ainsi que l’accès au rapport des dépenses par période. Les téléchargements nécessitent une connexion au compte. Les impressions sont des photographies datées des données enregistrées, pas des certifications de comptage physique.
+**Rapports** propose l’inventaire PDF, le suivi Goliath, les exports CSV de l’inventaire et des mouvements, ainsi que l’accès au rapport des dépenses par période. Les téléchargements nécessitent une connexion au compte. Les impressions sont des photographies datées des données enregistrées, pas des certifications de comptage physique.
 
 ## Notes et sécurité
 
