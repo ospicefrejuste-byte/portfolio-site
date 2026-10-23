@@ -2,9 +2,9 @@
 
 Plateforme privée en français pour inventorier les animaux, cultures et récoltes, aliments et intrants, matériel et autres biens de la ferme. Les données sont enregistrées sur le serveur et partagées entre les comptes. Aucun jeu de données, compte ou mot de passe par défaut.
 
-Fonctions : tableau de bord, recherche et filtres, seuils de stock, entrées/sorties/pertes datées et attribuées, journal de terrain, rapports PDF A4 et CSV, gestion des accès. Les stocks sont mis à jour sous transaction ; les références d’opération évitent un double enregistrement lors d’une reprise. L’archivage conserve l’historique et exige un stock nul. Une valeur de stock est une estimation, pas une vente ni un bénéfice.
+Fonctions : tableau de bord, recherche et filtres, seuils de stock, entrées/sorties/pertes datées et attribuées, dépenses et achats avec total par période et rapport PDF, journal de terrain, rapports PDF A4 et CSV, gestion des accès. Les stocks sont mis à jour sous transaction ; les références d’opération évitent un double enregistrement lors d’une reprise. L’archivage conserve l’historique et exige un stock nul. Une valeur de stock est une estimation, pas une vente ni un bénéfice.
 
-| Compte | Consultation et rapports | Inventaire et journal | Comptes et paramètres |
+| Compte | Consultation et rapports | Inventaire, dépenses et journal | Comptes et paramètres |
 | --- | --- | --- | --- |
 | Consultation à distance | Oui | Non | Non |
 | Équipe de la ferme | Oui | Oui | Non |
@@ -32,6 +32,7 @@ Le serveur écoute le port `PORT` (3000 par défaut). En développement seulemen
 ```sh
 npm test
 PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:browser
+PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium npm run test:expenses-browser
 ADEOYE_TEST_DATABASE_URL=postgresql://postgres@127.0.0.1:15433/adeoye_test npm run test:cloud
 ```
 
@@ -51,6 +52,8 @@ En local, `npm run backup` crée une copie cohérente privée dans `.data/backup
 
 En production, activer les sauvegardes PostgreSQL chez le fournisseur, conserver des copies privées et vérifier une restauration sur une base distincte. Les CSV et PDF sont des rapports, pas des sauvegardes complètes des comptes et de l’historique.
 
-Le rafraîchissement des données se fait toutes les 30 secondes quand la page est visible et sans saisie en cours, ou avec **Actualiser**. Cela ne fonctionne pas hors connexion : une panne doit être résolue avant de reprendre une opération. En cas de réponse incertaine à une création ou un mouvement, utiliser la reprise proposée pour conserver la même référence.
+Le rafraîchissement des données se fait toutes les 30 secondes quand la page est visible et sans saisie en cours, ou avec **Actualiser**. Cela ne fonctionne pas hors connexion : une panne doit être résolue avant de reprendre une opération. En cas de réponse incertaine à une création, un mouvement ou une dépense, utiliser la reprise proposée pour conserver la même référence.
+
+**Dépenses et achats** conserve la désignation, la catégorie, le fournisseur facultatif, le montant entier en F CFA, la date et l’heure locales de la ferme, l’auteur et une référence d’opération. Les bornes de période sont inclusives ; les totaux sont calculés en entiers exacts, y compris au-delà de la précision des nombres JavaScript. Le PDF utilise la même période que la liste affichée. Une dépense n’ajoute pas automatiquement de stock : enregistrer aussi une entrée si l’achat approvisionne l’inventaire. Les nouveaux déploiements ajoutent la table `adeoye_expenses` sans réinitialiser les données existantes.
 
 Les quantités acceptent trois décimales ; les unités `tête`, `pièce` et `plateau` restent entières. Le stock ne peut pas être négatif. Les dates de mouvements passées restent possibles, mais l’historique représente l’ordre d’enregistrement ; le stock après opération n’est pas une reconstitution chronologique des dates antérieures. Aucune comptabilité, facturation, gestion sanitaire détaillée ou paiement en ligne n’est activé.

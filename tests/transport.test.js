@@ -10,7 +10,8 @@ test("transport Netlify : chemins, session partagée et vrai PDF binaire sans co
   const handler = serverless(instance.app, options);
   let cookie = "", csrf = "";
   async function request(route, method = "GET", body) {
-    const result = await handler(normalizeEvent({ httpMethod: method, path: "/.netlify/functions/api" + route, headers: { host: "adeoye.example", origin: "https://adeoye.example", ...(cookie ? { cookie } : {}), ...(csrf ? { "x-csrf-token": csrf } : {}), ...(body ? { "content-type": "application/json" } : {}) }, requestContext: { identity: { sourceIp: "127.0.0.1" } }, body: body ? JSON.stringify(body) : null, isBase64Encoded: false }), {});
+    const parsed = new URL(route, "https://adeoye.example");
+    const result = await handler(normalizeEvent({ httpMethod: method, path: "/.netlify/functions/api" + parsed.pathname, queryStringParameters: Object.fromEntries(parsed.searchParams), headers: { host: "adeoye.example", origin: "https://adeoye.example", ...(cookie ? { cookie } : {}), ...(csrf ? { "x-csrf-token": csrf } : {}), ...(body ? { "content-type": "application/json" } : {}) }, requestContext: { identity: { sourceIp: "127.0.0.1" } }, body: body ? JSON.stringify(body) : null, isBase64Encoded: false }), {});
     const cookies = result.multiValueHeaders?.["set-cookie"] || result.multiValueHeaders?.["Set-Cookie"] || (result.headers?.["set-cookie"] ? [result.headers["set-cookie"]] : []);
     if (cookies.length) cookie = cookies.at(-1).split(";", 1)[0];
     if ((result.headers?.["content-type"] || "").includes("application/json")) {
@@ -32,5 +33,14 @@ test("transport Netlify : chemins, session partagée et vrai PDF binaire sans co
     assert.equal((await request("/api/notes", "POST", { title: "Trop volumineux", body: "x".repeat(70000), date: new Date().toISOString().slice(0, 10) })).statusCode, 413);
     assert.equal((await request("/api/notes", "POST", ["objet JSON requis"])).statusCode, 400);
     assert.equal((await request("/api/state")).data.notes.length, 0);
+    const purchase = { requestId: crypto.randomUUID(), description: "Transport de récolte", category: "Transport", supplier: "Fournisseur fictif", amount: 18500, date: "2025-03-01", time: "09:15", notes: "Fixture isolée" };
+    assert.equal((await request("/api/expenses", "POST", purchase)).statusCode, 201);
+    assert.equal((await request("/api/expenses", "POST", { ...purchase, requestId: crypto.randomUUID(), amount: 5000, date: "2025-03-02" })).statusCode, 201);
+    const filtered = await request("/api/expenses?from=2025-03-01&to=2025-03-01");
+    assert.equal(filtered.statusCode, 200); assert.equal(filtered.data.count, 1); assert.equal(filtered.data.total, "18500");
+    const expenseReport = await request("/api/reports/expenses.pdf?from=2025-03-01&to=2025-03-01");
+    assert.equal(expenseReport.statusCode, 200); assert.equal(expenseReport.isBase64Encoded, true);
+    assert.equal(Buffer.from(expenseReport.body, "base64").subarray(0, 5).toString(), "%PDF-");
+    assert.equal((await request("/api/reports/expenses.pdf?from=2025-03-02&to=2025-03-01")).statusCode, 400);
   } finally { await instance.db.close(); fs.rmSync(dir, { recursive: true, force: true }); }
 });

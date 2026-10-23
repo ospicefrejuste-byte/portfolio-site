@@ -9,7 +9,7 @@ const { createApplication } = require("../lib/application");
 
 const connectionString = process.env.ADEOYE_TEST_DATABASE_URL;
 
-test("PostgreSQL : inventaire partagé entre serveurs, sorties atomiques, reprises idempotentes et consultation distante", { skip: connectionString ? false : "ADEOYE_TEST_DATABASE_URL doit désigner une base PostgreSQL réservée aux tests." }, async () => {
+test("PostgreSQL : inventaire et dépenses partagés, opérations atomiques sans doublon et consultation distante", { skip: connectionString ? false : "ADEOYE_TEST_DATABASE_URL doit désigner une base PostgreSQL réservée aux tests." }, async () => {
   const schema = "adeoye_test_" + crypto.randomBytes(12).toString("hex");
   const admin = new Pool({ connectionString });
   const servers = [], instances = [];
@@ -77,6 +77,22 @@ test("PostgreSQL : inventaire partagé entre serveurs, sorties atomiques, repris
     const conflict = await secondOwner.request("/api/movements", "POST", { ...entry, quantity: 3 });
     assert.equal(conflict.status, 409);
     assert.equal((await secondOwner.request("/api/state")).body.items[0].quantity, 5.125);
+    const purchase = { requestId: crypto.randomUUID(), description: "Achat de maïs PostgreSQL", category: "Aliments et intrants", supplier: "Fournisseur de test", amount: 12500, date: "2025-01-31", time: "23:59", notes: "Dépense fictive en schéma isolé" };
+    const concurrentPurchases = await Promise.all([owner.request("/api/expenses", "POST", purchase), secondOwner.request("/api/expenses", "POST", purchase)]);
+    assert.ok(concurrentPurchases.every(result => result.status === 201), JSON.stringify(concurrentPurchases.map(result => result.body)));
+    assert.equal(concurrentPurchases[0].body.id, concurrentPurchases[1].body.id, "Une reprise concurrente ne double pas la dépense");
+    assert.equal(concurrentPurchases[0].body.timezone, "Africa/Porto-Novo");
+    const nextMonth = await secondOwner.request("/api/expenses", "POST", { ...purchase, requestId: crypto.randomUUID(), description: "Transport PostgreSQL", category: "Transport", amount: 2500, date: "2025-02-01", time: "00:00" });
+    assert.equal(nextMonth.status, 201, nextMonth.body?.error);
+    assert.equal((await owner.request("/api/expenses", "POST", { ...purchase, amount: 15000 })).status, 409);
+    const january = (await secondOwner.request("/api/expenses?from=2025-01-01&to=2025-01-31")).body;
+    assert.equal(january.total, "12500"); assert.equal(january.count, 1);
+    assert.equal(january.expenses[0].time, "23:59");
+    const bothMonths = (await owner.request("/api/expenses?from=2025-01-31&to=2025-02-01")).body;
+    assert.equal(bothMonths.total, "15000"); assert.equal(bothMonths.count, 2);
+    assert.equal((await secondOwner.request("/api/state")).body.expenses.length, 2);
+    const expenseProtection = await admin.query("SELECT relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname=$1 AND c.relname='adeoye_expenses'", [schema]);
+    assert.equal(expenseProtection.rows[0].relrowsecurity, true, "La nouvelle table conserve la protection RLS Supabase");
     const viewer = await owner.request("/api/users", "POST", { username: "lecture-cloud-usa", password: "Initial-viewer-cloud-987!", role: "viewer" });
     assert.equal(viewer.ok, true, viewer.body?.error);
     const reader = client(second);
@@ -90,6 +106,11 @@ test("PostgreSQL : inventaire partagé entre serveurs, sorties atomiques, repris
     assert.equal(pdf.ok, true);
     assert.equal(pdf.bytes.subarray(0, 5).toString(), "%PDF-");
     assert.equal((await reader.request("/api/export/inventory.csv")).ok, true);
+    assert.equal((await reader.request("/api/expenses")).body.total, "15000");
+    assert.equal((await reader.request("/api/expenses", "POST", { ...purchase, requestId: crypto.randomUUID() })).status, 403);
+    const expensesPdf = await reader.request("/api/reports/expenses.pdf?from=2025-01-31&to=2025-01-31");
+    assert.equal(expensesPdf.status, 200);
+    assert.equal(expensesPdf.bytes.subarray(0, 5).toString(), "%PDF-");
     const disable = await owner.request("/api/users/" + viewer.body.id, "PATCH", { enabled: false });
     assert.equal(disable.ok, true);
     assert.equal((await reader.request("/api/state")).status, 401, "Disabling a user revokes their session on every server");
@@ -98,6 +119,7 @@ test("PostgreSQL : inventaire partagé entre serveurs, sorties atomiques, repris
     const after = (await secondOwner.request("/api/state")).body;
     assert.equal(after.items[0].quantity, 5.125);
     assert.equal(after.movements.length, 3);
+    assert.equal(after.expenses.length, 2);
   } finally {
     for (const server of servers) await new Promise(resolve => { server.close(resolve); server.closeAllConnections(); });
     for (const instance of instances) await instance.db.close();

@@ -12,7 +12,8 @@
     "test:browser": "node tests/browser.cjs",
     "test:cloud": "node --test tests/cloud.cjs",
     "build": "node scripts/build.js",
-    "backup": "node scripts/backup.js"
+    "backup": "node scripts/backup.js",
+    "test:expenses-browser": "node tests/expenses-browser.cjs"
   },
   "dependencies": {
     "express": "5.1.0",

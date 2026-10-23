@@ -46,6 +46,8 @@ Vérifier ensuite avec deux appareils : un mouvement réellement autorisé sur l
 
 Les nouveaux commits de `ferme-adeoye` déclenchent la publication du nouveau projet si la publication automatique est activée. Attendre **Published** avant d’annoncer qu’une version est disponible. Les données restent dans PostgreSQL entre les déploiements. Un domaine personnalisé est possible ensuite ; actualiser `ADEOYE_PUBLIC_ORIGIN` et redéployer lors d’un changement d’adresse.
 
+L’ajout de **Dépenses et achats** ne nécessite aucune nouvelle variable Netlify ni réinstallation du compte responsable. La nouvelle table protégée `adeoye_expenses` est créée au démarrage, sans effacer les utilisateurs, stocks, mouvements ou notes existants. Après **Published**, actualiser l’espace connecté pour voir la rubrique.
+
 Activer les sauvegardes du fournisseur de base et vérifier les limites du forfait de l’hébergement. Une suspension de service, un manque de quota ou un incident réseau ne peut pas être corrigé par une simple modification de l’interface.
 
 ## Comprendre un démarrage refusé

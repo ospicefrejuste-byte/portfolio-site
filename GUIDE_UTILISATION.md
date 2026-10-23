@@ -1,6 +1,6 @@
 # Utiliser la plateforme ADEOYE
 
-Le responsable crée les comptes depuis **Accès & équipe**. Chaque personne a son identifiant. Le compte **Consultation à distance** permet à la personne aux États-Unis de voir l’inventaire, les mouvements, les observations et les rapports, sans modifier les données. L’équipe de la ferme peut enregistrer les stocks et les notes ; seuls les responsables gèrent les comptes et les paramètres.
+Le responsable crée les comptes depuis **Accès & équipe**. Chaque personne a son identifiant. Le compte **Consultation à distance** permet à la personne aux États-Unis de voir l’inventaire, les mouvements, les dépenses, les observations et les rapports, sans modifier les données. L’équipe de la ferme peut enregistrer les stocks, les dépenses et les notes ; seuls les responsables gèrent les comptes et les paramètres.
 
 ## Commencer l’inventaire
 
@@ -16,11 +16,19 @@ Si la connexion coupe pendant l’enregistrement, utiliser **Reprendre** ou **V�
 
 Une fiche avec un stock nul peut être archivée. Son historique est conservé et elle reste consultable dans les éléments archivés. Ne pas saisir une fausse perte pour faire disparaître un article ayant encore du stock.
 
+## Enregistrer les dépenses et les achats
+
+Ouvrir **Dépenses et achats**, puis **Enregistrer une dépense**. Indiquer ce qui a été acheté ou payé, la catégorie, le montant en F CFA, la date et l’heure de l’achat. Le fournisseur et les précisions sont facultatifs. La catégorie **Autres** permet de saisir les achats qui n’entrent pas dans les catégories proposées. L’heure suit le fuseau de la ferme défini dans **Paramètres**, même si la personne connectée est à l’étranger.
+
+Choisir une **date de début** et une **date de fin** pour consulter le total de la période. Les deux dates sont comprises dans le calcul. Le mois en cours est proposé à l’ouverture ; il est aussi possible d’afficher toutes les dépenses. Télécharger le **PDF** depuis cette rubrique pour imprimer le détail des achats et leur total sur la même période. Le compte de consultation peut lire et télécharger ce rapport, mais ne peut pas ajouter une dépense.
+
+Chaque dépense garde son auteur, son heure d’enregistrement et sa référence. En cas de coupure après validation, utiliser la reprise proposée pour éviter un doublon. Une dépense est une trace financière : si l’achat augmente aussi les stocks, ajouter l’entrée correspondante dans **Mouvements**.
+
 ## Consulter depuis les États-Unis
 
 Ouvrir l’adresse publique du site puis **Se connecter**. Le tableau de bord affiche les références, les alertes et les dernières opérations. **Inventaire** permet de rechercher ou filtrer les articles ; **Mouvements** et **Journal de la ferme** expliquent l’activité. Le bouton **Actualiser** récupère les dernières données. Les pages visibles se rafraîchissent aussi toutes les 30 secondes en l’absence de saisie.
 
-**Rapports** propose l’inventaire PDF et les exports CSV de l’inventaire et des mouvements. Les téléchargements nécessitent une connexion au compte. Les impressions sont des photographies datées des données enregistrées, pas des certifications de comptage physique.
+**Rapports** propose l’inventaire PDF, les exports CSV de l’inventaire et des mouvements, ainsi que l’accès au rapport des dépenses par période. Les téléchargements nécessitent une connexion au compte. Les impressions sont des photographies datées des données enregistrées, pas des certifications de comptage physique.
 
 ## Notes et sécurité
 
