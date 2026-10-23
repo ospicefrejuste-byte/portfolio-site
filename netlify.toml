@@ -7,7 +7,7 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["pg", "pdfkit"]
-  included_files = ["public/app.html", "lib/assets/DejaVuSans.ttf"]
+  included_files = ["public/app.html", "lib/assets/DejaVuSans.ttf", "lib/assets/FONT_LICENSE.txt", "lib/assets/supabase-prod-ca-2021.crt", "lib/assets/supabase-prod-ca-2025.crt", "lib/assets/SUPABASE_CLI_LICENSE.txt"]
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/api/:splat"

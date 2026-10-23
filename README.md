@@ -43,6 +43,8 @@ Voir [MISE_EN_LIGNE.md](MISE_EN_LIGNE.md). Les fichiers sont autonomes sur la br
 
 Variables privées : `ADEOYE_DATABASE_URL`, `ADEOYE_DATABASE_PASSWORD` si le mot de passe est fourni séparément, `ADEOYE_DATABASE_CA_CERT` si la chaîne nécessite une autorité particulière, `ADEOYE_PUBLIC_ORIGIN`, `ADEOYE_SETUP_TOKEN`. La vérification TLS reste obligatoire. Aucun secret dans le navigateur ni dans Git.
 
+Pour les hôtes `*.supabase.co` et `*.supabase.com`, les racines de production officielles Supabase 2021 et 2025 sont fournies avec l’application et ajoutées aux autorités normales de Node. Leur signature et leur empreinte sont contrôlées ; le nom du serveur et sa chaîne restent vérifiés. Aucun téléchargement de certificat n’est nécessaire au démarrage. Une valeur explicite `ADEOYE_DATABASE_CA_CERT` permet de fournir une autre chaîne si nécessaire. Les erreurs de démarrage distinguent désormais la configuration, l’adresse, l’authentification, le certificat, le réseau et les droits, sans exposer de valeur privée.
+
 ## Sauvegarde
 
 En local, `npm run backup` crée une copie cohérente privée dans `.data/backups` (ou dans le dossier défini par `ADEOYE_DATA_DIR`). Le fichier contient aussi les comptes : le conserver et le transférer uniquement par un moyen privé. Pour restaurer, arrêter l’application, préserver la base actuelle et remplacer `adeoye.sqlite` par la sauvegarde. Les fichiers WAL/SHM de l’ancienne base doivent être traités avec la base arrêtée ; ne jamais mélanger les journaux de deux copies. Redémarrer et vérifier les quantités et accès.

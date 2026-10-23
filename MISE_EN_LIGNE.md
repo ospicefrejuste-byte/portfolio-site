@@ -28,7 +28,7 @@ Créer les variables suivantes pour le contexte **Production**, disponibles aux 
 | --- | --- |
 | `ADEOYE_DATABASE_URL` | Adresse de connexion PostgreSQL complète du projet ADEOYE |
 | `ADEOYE_DATABASE_PASSWORD` | Facultatif : mot de passe de cette base, fourni séparément de l’URL pour éviter l’encodage manuel des symboles |
-| `ADEOYE_DATABASE_CA_CERT` | Si nécessaire : certificat PEM complet téléchargé depuis ce projet, lignes BEGIN/END comprises |
+| `ADEOYE_DATABASE_CA_CERT` | Facultatif : autre autorité PEM complète, si nécessaire. Les autorités de production Supabase 2021 et 2025 sont déjà intégrées automatiquement pour les hôtes Supabase |
 | `ADEOYE_PUBLIC_ORIGIN` | Adresse HTTPS exacte du nouveau site, sans chemin, par exemple l’adresse Netlify qui vient d’être attribuée |
 | `ADEOYE_SETUP_TOKEN` | Nouveau code privé long et aléatoire généré pour la première installation ADEOYE |
 
@@ -47,3 +47,7 @@ Vérifier ensuite avec deux appareils : un mouvement réellement autorisé sur l
 Les nouveaux commits de `ferme-adeoye` déclenchent la publication du nouveau projet si la publication automatique est activée. Attendre **Published** avant d’annoncer qu’une version est disponible. Les données restent dans PostgreSQL entre les déploiements. Un domaine personnalisé est possible ensuite ; actualiser `ADEOYE_PUBLIC_ORIGIN` et redéployer lors d’un changement d’adresse.
 
 Activer les sauvegardes du fournisseur de base et vérifier les limites du forfait de l’hébergement. Une suspension de service, un manque de quota ou un incident réseau ne peut pas être corrigé par une simple modification de l’interface.
+
+## Comprendre un démarrage refusé
+
+Après une modification des variables, redéployer et attendre **Published**. Si l’installation échoue, le message affiché donne une référence : `ADEOYE_CONFIG_MISSING` (variable absente du contexte Production/Functions), `ADEOYE_DATABASE_URL_INVALID` (URI invalide), `ADEOYE_PUBLIC_ORIGIN_INVALID` (adresse du site invalide), `ADEOYE_DB_AUTH` (connexion à la base refusée), `ADEOYE_DB_TLS` (certificat refusé), `ADEOYE_DB_NETWORK` (base inaccessible), ou `ADEOYE_DB_ACCESS` (droits de base insuffisants). La fonction `api` journalise le code précis et les noms des variables manquantes, jamais leur contenu. Fournir uniquement cette référence au support.
